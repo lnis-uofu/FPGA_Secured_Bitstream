@@ -1,0 +1,3 @@
+[submodule "jtaglet"]
+	path = jtaglet
+	url = https://github.com/ChrisPVille/jtaglet.git

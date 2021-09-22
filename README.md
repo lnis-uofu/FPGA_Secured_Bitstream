@@ -5,3 +5,7 @@
 </p>
   
 More information to come in future revisions of README.md
+
+## Acknowledgments
+
+Other projects used in OpenFPGA Secured Bitstream
