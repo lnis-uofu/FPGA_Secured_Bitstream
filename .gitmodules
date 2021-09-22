@@ -1,3 +1,6 @@
 [submodule "jtaglet"]
 	path = jtaglet
 	url = https://github.com/ChrisPVille/jtaglet.git
+[submodule "AES_implementations"]
+	path = AES_implementations
+	url = https://github.com/hplp/AES_implementations.git
