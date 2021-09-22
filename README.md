@@ -4,4 +4,4 @@
   <img src="./docs/figures/OpenFPGA_Secure_Bitstream.svg">
 </p>
   
-More information to come in future revisions to README.md
+More information to come in future revisions of README.md
