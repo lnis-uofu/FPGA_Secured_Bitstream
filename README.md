@@ -9,5 +9,5 @@ More information to come in future revisions of README.md
 ## Acknowledgments
 
 Other projects used in OpenFPGA Secured Bitstream
-- [JTAG](https://github.com/ChrisPVille/jtaglet): Easy to use JTAG implementation
+- [JTAG](https://github.com/ChrisPVille/jtaglet): Easy to use JTAG Implementation
 - [AES](https://github.com/hplp/AES_implementations): AES Implementation
