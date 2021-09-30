@@ -15,6 +15,7 @@ add wave -noupdate /tap_top_tb/uut/select_dr_scan
 add wave -noupdate /tap_top_tb/uut/select_ir_scan
 add wave -noupdate /tap_top_tb/uut/capture_ir
 add wave -noupdate /tap_top_tb/uut/shift_ir
+add wave -noupdate /tap_top_tb/uut/capture_dr
 add wave -noupdate /tap_top_tb/uut/exit1_ir
 add wave -noupdate /tap_top_tb/uut/update_ir
 add wave -noupdate -divider Instructions
@@ -24,6 +25,12 @@ add wave -noupdate /tap_top_tb/uut/idcode_select
 add wave -noupdate /tap_top_tb/uut/debug_select
 add wave -noupdate /tap_top_tb/uut/mbist_select
 add wave -noupdate /tap_top_tb/uut/bypass_select
+add wave -noupdate /tap_top_tb/uut/tdo_padoe_o
+add wave -noupdate /tap_top_tb/uut/tdo_o
+add wave -noupdate /tap_top_tb/uut/bypassed_tdo
+add wave -noupdate /tap_top_tb/uut/bypass_reg
+add wave -npupdate /tap_top_tb/uut/shift_ir_neg
+add wave -noupdate /tap_top_tb/uut/shift_dr
 add wave -noupdate -divider {Instruction outputs}
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {271000 ps} 0}

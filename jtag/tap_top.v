@@ -39,14 +39,13 @@
 //// from http://www.opencores.org/lgpl.shtml                     ////
 ////                                                              ////
 //////////////////////////////////////////////////////////////////////
+//
+//
+//
+//
 
-//
-//
-//
-//
-`timescale 1ns/10ps   
 // synopsys translate_off
-//`include "timescale.v"
+`include "timescale.v"
 // synopsys translate_on
 `include "tap_defines.v"
 
@@ -79,6 +78,15 @@ module tap_top(
                 debug_tdi_i,    // from debug module
                 bs_chain_tdi_i, // from Boundary Scan Chain
                 mbist_tdi_i     // from Mbist Chain
+
+                // new signals for new states
+                cnfgsc_select_o,
+                cnfgmem_selest_o,
+                
+                cnfgsc_o,
+                cnfgmem_o,
+
+    
               );
 
 
@@ -101,10 +109,16 @@ output  extest_select_o;
 output  sample_preload_select_o;
 output  mbist_select_o;
 output  debug_select_o;
+output  cnfgsc_select_o;
+output  cnfgmem_select_o;
 
 // TDO signal that is connected to TDI of sub-modules.
 output  tdo_o;
 
+// Configuration outputs
+output  cnfgsc_o;
+output  cnfgmem_o;
+    
 // TDI signals from sub-modules
 input   debug_tdi_i;    // from debug module
 input   bs_chain_tdi_i; // from Boundary Scan Chain
@@ -133,6 +147,10 @@ reg     idcode_select;
 reg     mbist_select;
 reg     debug_select;
 reg     bypass_select;
+// new
+reg     cnfgsc_select;
+reg     cnfgmem_select;
+    
 reg     tdo_pad_o;
 reg     tdo_padoe_o;
 reg     tms_q1, tms_q2, tms_q3, tms_q4;
@@ -148,6 +166,8 @@ assign extest_select_o = extest_select;
 assign sample_preload_select_o = sample_preload_select;
 assign mbist_select_o = mbist_select;
 assign debug_select_o = debug_select;
+assign cnfgsc_select_o = cnfgsc_select;
+assign cnfgmem_select_o = cnfgmem_select;
 
 
 always @ (posedge tck_pad_i)
@@ -486,6 +506,59 @@ end
 *                                                                                 *
 **********************************************************************************/
 
+/**********************************************************************************
+*                                                                                 *
+*   Configuration Scan Chain Logic                                                *
+*                                                                                 *
+**********************************************************************************/
+reg  cnfgsc_tdo;
+reg  cnfgsc_reg;
+
+always @ (posedge tck_pad_i or posedge trst_pad_i)
+begin
+  if (trst_pad_i)
+    cnfgsc_reg<=#1 1'b0;
+  else if(shift_dr)
+    cnfgsc_reg<=#1 tdi_pad_i;
+end
+
+always @ (negedge tck_pad_i)
+begin
+  cnfgsc_tdo <=#1 cnfgsc_reg;
+end
+/**********************************************************************************
+*                                                                                 *
+*   End: Configuration Scan Chain Logic                                           *
+*                                                                                 *
+**********************************************************************************/
+
+
+/**********************************************************************************
+*                                                                                 *
+*   COnfiguration to Memory Logic                                                 *
+*                                                                                 *
+**********************************************************************************/
+reg  cnfgmem_tdo;
+reg  cnfgmem_reg;
+
+always @ (posedge tck_pad_i or posedge trst_pad_i)
+begin
+  if (trst_pad_i)
+    cnfgmem_reg<=#1 1'b0;
+  else if(shift_dr)
+    cnfgmem_reg<=#1 tdi_pad_i;
+end
+
+always @ (negedge tck_pad_i)
+begin
+  cnfgmem_tdo <=#1 cnfgmem_reg;
+end
+/**********************************************************************************
+*                                                                                 *
+*   End: Configuration to Memory Logic                                            *
+*                                                                                 *
+**********************************************************************************/
+
 
 /**********************************************************************************
 *                                                                                 *
@@ -519,6 +592,8 @@ begin
   mbist_select            = 1'b0;
   debug_select            = 1'b0;
   bypass_select           = 1'b0;
+  cnfgsc_select           = 1'b0;
+  cnfgmem_select          = 1'b0;
 
   case(latched_jtag_ir)    /* synthesis parallel_case */ 
     `EXTEST:            extest_select           = 1'b1;    // External test
@@ -527,6 +602,8 @@ begin
     `MBIST:             mbist_select            = 1'b1;    // Mbist test
     `DEBUG:             debug_select            = 1'b1;    // Debug
     `BYPASS:            bypass_select           = 1'b1;    // BYPASS
+    `CNFGSC:            cnfgsc_select           = 1'b1;
+    `CNFGMEM:           cnfgmem_select          = 1'b1;
     default:            bypass_select           = 1'b1;    // BYPASS
   endcase
 end
@@ -552,6 +629,8 @@ begin
         `SAMPLE_PRELOAD:    tdo_pad_o = bs_chain_tdi_i;   // Sampling/Preloading
         `EXTEST:            tdo_pad_o = bs_chain_tdi_i;   // External test
         `MBIST:             tdo_pad_o = mbist_tdi_i;      // Mbist test
+        `CNFGSC:            tdo_pad_o = 1'b0; cnfgsc_o  = cnfgsc_tdo;
+        `CNFGMEM:           tdo_pad_o = 1'b0; cnfgmem_o = cnfgmem_tdo;
         default:            tdo_pad_o = bypassed_tdo;     // BYPASS instruction
       endcase
     end

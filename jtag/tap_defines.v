@@ -70,4 +70,6 @@
 `define DEBUG           4'b1000
 `define MBIST           4'b1001
 `define BYPASS          4'b1111
+`define CNFGSC          4'b1010
+`define CNFGMEM         4'b1011
 

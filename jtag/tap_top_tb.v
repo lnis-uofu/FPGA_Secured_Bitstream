@@ -21,7 +21,7 @@ module tap_top_tb;
 
 	reg tms  		        = 1'b1;
 	reg	tck  		        = 1'b0;
-	reg	tdi  		        = 1'b1;
+	reg	tdi  		        = 1'b0;
 	reg	trst 		        = 1'b0;
     reg debug               = 1'b0;
     reg bs_chain            = 8'h45;
@@ -68,33 +68,75 @@ module tap_top_tb;
         //reset to initiate tap logic
         trst <= 1'b1;
         #period
-        trst <= 1'b0;
+        trst <= 1'b0; 
+       
+        //----------------------------
+        // BYPASS
+        // ---------------------------
+        #period
+        tms  <= 1'b0;
+        #period
+        tms  <= 1'b1;
+        #period
+        #period
+        tms  <= 1'b0;
+        #period
+        #period
+        tdi  <= 1'b1;
+        #period
+        #period
         #period 
 
-        //input sequence to reach ir shift state
-        //EXTEST
-        tms  <= 1'b0;
-        #period
         tms  <= 1'b1;
-        #period
-        #period
+        #period         // shift_ir       -> exit_ir
+        tdi  <= 1'b0;
+        #period         // exit_ir        -> update_ir
+        #period         // update_ir      -> select_dr_scan
         tms  <= 1'b0;
+        #period         // select_dr_scan -> capture_dr  
+        #period         // capture_dr     -> shift_dr     at this point tap is configured in bypass mode and data can be shifted from in to out thru bypass reg:x
+        #period         // 0 keeps tap in shift_dr
+
+        // start of message
+
+        tdi  <= 1'b1;
+        #period 
+        tdi  <= 1'b0;
         #period
+        tdi  <= 1'b1;
+        #period
+        tdi  <= 1'b0;
+        #period 
+        tdi  <= 1'b0;
+        #period
+        tdi  <= 1'b1;
         #period
         tdi  <= 1'b0;
         #period
+        tdi  <= 1'b1;
+        #period 
+        tdi  <= 1'b0;
         #period
+        tdi  <= 1'b1;
         #period
-        tms  <= 1'b1;
-        //tdi  <= 1'b1;
+        tdi  <= 1'b0;
+        #period 
+        tdi  <= 1'b0;
         #period
+        tdi  <= 1'b1;
         #period
-        tms  <= 1'b0;
+        tdi  <= 1'b0;
+        #period 
+        tdi  <= 1'b0;
         #period
+        tdi  <= 1'b1;
         #period
+        tdi  <= 1'b0;
 
-        //test data: send byte
-        #period
+        // end of message
+        
+        //drive tms high for at least 5 cycles = reset
+        tms  <= 1'b1;
         #period
         #period
         #period
@@ -103,212 +145,85 @@ module tap_top_tb;
         #period
         #period
         
-        #period
-        #period
+        //----------------------------
+        // BYPASS END
+        // ---------------------------
 
-
-        //SAMPLE_PRELOAD
-        tms  <= 1'b1;
-        #period
-        #period
-        tms  <= 1'b0;
-        #period
-        tdi  <= 1'b1;
-        #period
-        tdi  <= 1'b0;
-        #period
-        tms  <= 1'b1;
-        #period
-        #period
-        tms  <= 1'b0;
-        #period
-        #period
-
-        //test data send byte
-        tdi  <= 1'b0;
-        #period
-        tdi  <= 1'b1;
-        #period
-        tdi  <= 1'b1;
-        #period
-        tdi  <= 1'b0;
-        #period
-        tdi  <= 1'b0;
-        #period
-        tdi  <= 1'b0; 
-        #period
-        tdi  <= 1'b0;
-        #period
-        tdi  <= 1'b1;
-        #period
-
-        #period
-        #period
-
-
-        //IDCODE
-        tms  <= 1'b1;
-        #period
-        #period
-        tms  <= 1'b0;
-        #period
-        tdi  <= 1'b1;
-        #period
-        tdi  <= 1'b0;
-        tms  <= 1'b1;
-        #period
-        #period
-        tms  <= 1'b0;
-        #period
-        #period
-
-
-        //test data send byte
-        tdi  <= 1'b0;
-        #period
-        tdi  <= 1'b1;
-        #period
-        tdi  <= 1'b1;
-        #period
-        tdi  <= 1'b0;
-        #period
-        tdi  <= 1'b0;
-        #period
-        tdi  <= 1'b0; 
-        #period
-        tdi  <= 1'b0;
-        #period
-        tdi  <= 1'b1;
         
-        #period
-        #period
+        //----------------------------
+        // BYPASS END
+        // ---------------------------
 
-        //DEBUG
-        tms  <= 1'b1;
-        #period
-        #period
+        //move to shift dr state
         tms  <= 1'b0;
         #period
-        #period
-        #period
-        #period
-        tdi  <= 1'b1;
         tms  <= 1'b1;
         #period
-        tdi  <= 1'b0;
-        #period
-        
         tms  <= 1'b0;
+
+        #period
+        #period
+        #period
+        #period
+
+        #period
+        #period
+        #period      
+        #period
+
+        #period
+        #period
+        #period
+        #period
+
+        #period
+        #period
+        #period
+        #period
+
+        #period
+        #period
+        #period
+        #period
+
+        #period
+        #period
+        #period
+        #period
+
+        #period
+        #period
+        #period
+        #period
+
+        #period
+        #period
+        #period
+
+        #period
+        #period
         #period
         #period
 
 
-        //test data send byte
-        debug  <= 1'b0;
+       // tms  <= 1'b1;
         #period
-        debug  <= 1'b1;
         #period
-        debug  <= 1'b1;
         #period
-        debug  <= 1'b0;
         #period
-        debug  <= 1'b0;
         #period
-        debug  <= 1'b0; 
-        #period
-        debug  <= 1'b0;
-        #period
-        debug  <= 1'b1;
-
         #period
         #period
         
-        //MBIST
-        tms  <= 1'b1;
-        #period
-        #period
-        tms  <= 1'b0;
-        #period
-        tdi  <= 1'b1;
-        #period
-        tdi  <= 1'b0;
-        #period
-    
-        tdi  <= 1'b1;
-        tms  <= 1'b1; 
-        #period
-        tdi  <= 1'b0;
-        #period
-
-        tms  <= 1'b0;
-        #period
-        #period
 
 
-        //test data send byte
-        mbist  <= 1'b0;
-        #period
-        mbist  <= 1'b1;
-        #period
-        mbist  <= 1'b1;
-        #period
-        mbist  <= 1'b0;
-        #period
-        mbist  <= 1'b0;
-        #period
-        mbist  <= 1'b0; 
-        #period
-        mbist  <= 1'b0;
-        #period
-        mbist  <= 1'b1;
 
-        #period
-        #period
+
+
+
+
+
         
-         
-        // BYPASS
-        tms  <= 1'b1;
-        #period
-        #period
-        tms  <= 1'b0;
-        #period
-        tdi  <= 1'b1;
-        #period
-        #period
-        #period
-        #period
-        tms  <= 1'b1;
-        #period
-        tdi  <= 1'b0;
-        #period
-
-        tms  <= 1'b0;
-        #period
-        #period
-
-
-        //make change
-        //test data send byte
-        tdi  <= 1'b0;
-        #period
-        tdi  <= 1'b1;
-        #period
-        tdi  <= 1'b1;
-        #period
-        tdi  <= 1'b0;
-        #period
-        tdi  <= 1'b0;
-        #period
-        tdi  <= 1'b0; 
-        #period
-        tdi  <= 1'b0;
-        #period
-        tdi  <= 1'b1;
-
-        #period
-        #period
-
-
         $stop; 
     end
 
