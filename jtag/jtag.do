@@ -18,22 +18,15 @@ add wave -noupdate /tap_top_tb/uut/shift_ir
 add wave -noupdate /tap_top_tb/uut/capture_dr
 add wave -noupdate /tap_top_tb/uut/exit1_ir
 add wave -noupdate /tap_top_tb/uut/update_ir
-add wave -noupdate -divider Instructions
-add wave -noupdate /tap_top_tb/uut/extest_select
-add wave -noupdate /tap_top_tb/uut/sample_preload_select
-add wave -noupdate /tap_top_tb/uut/idcode_select
-add wave -noupdate /tap_top_tb/uut/debug_select
-add wave -noupdate /tap_top_tb/uut/mbist_select
-add wave -noupdate /tap_top_tb/uut/bypass_select
-add wave -noupdate /tap_top_tb/uut/tdo_padoe_o
-add wave -noupdate /tap_top_tb/uut/tdo_o
-add wave -noupdate /tap_top_tb/uut/bypassed_tdo
-add wave -noupdate /tap_top_tb/uut/bypass_reg
-add wave -npupdate /tap_top_tb/uut/shift_ir_neg
 add wave -noupdate /tap_top_tb/uut/shift_dr
+add wave -noupdate -divider Instructions
+add wave -noupdate /tap_top_tb/uut/cnfgsc_select
 add wave -noupdate -divider {Instruction outputs}
+add wave -noupdate /tap_top_tb/uut/cnfgmem_select
+add wave -noupdate /tap_top_tb/uut/cnfgsc_o
+add wave -noupdate /tap_top_tb/uut/cnfgmem_o
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {271000 ps} 0}
+WaveRestoreCursors {{Cursor 1} {362670 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
@@ -48,9 +41,8 @@ configure wave -gridperiod 1
 configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
-
 update
-WaveRestoreZoom {106540 ps} {411040 ps}
+WaveRestoreZoom {0 ps} {304500 ps}
 
-run 5us
+run 5 us
 

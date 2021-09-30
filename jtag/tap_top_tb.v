@@ -51,7 +51,13 @@ module tap_top_tb;
 
 	.debug_tdi_i(debug),
 	.bs_chain_tdi_i(bs_chain),
-	.mbist_tdi_i(mbist)    
+	.mbist_tdi_i(mbist),   
+
+    .cnfgsc_select_o(),
+    .cnfgmem_select_o(),
+
+    .cnfgsc_o(),
+    .cnfgmem_o()
 	);
     
 
@@ -71,7 +77,7 @@ module tap_top_tb;
         trst <= 1'b0; 
        
         //----------------------------
-        // BYPASS
+        // Configure Scan Chain
         // ---------------------------
         #period
         tms  <= 1'b0;
@@ -82,11 +88,13 @@ module tap_top_tb;
         tms  <= 1'b0;
         #period
         #period
+        #period
         tdi  <= 1'b1;
         #period
-        #period
+        tdi  <= 1'b0;
         #period 
 
+        tdi  <= 1'b1;
         tms  <= 1'b1;
         #period         // shift_ir       -> exit_ir
         tdi  <= 1'b0;
@@ -150,70 +158,7 @@ module tap_top_tb;
         // ---------------------------
 
         
-        //----------------------------
-        // BYPASS END
-        // ---------------------------
-
-        //move to shift dr state
-        tms  <= 1'b0;
-        #period
-        tms  <= 1'b1;
-        #period
-        tms  <= 1'b0;
-
-        #period
-        #period
-        #period
-        #period
-
-        #period
-        #period
-        #period      
-        #period
-
-        #period
-        #period
-        #period
-        #period
-
-        #period
-        #period
-        #period
-        #period
-
-        #period
-        #period
-        #period
-        #period
-
-        #period
-        #period
-        #period
-        #period
-
-        #period
-        #period
-        #period
-        #period
-
-        #period
-        #period
-        #period
-
-        #period
-        #period
-        #period
-        #period
-
-
-       // tms  <= 1'b1;
-        #period
-        #period
-        #period
-        #period
-        #period
-        #period
-        #period
+ 
         
 
 

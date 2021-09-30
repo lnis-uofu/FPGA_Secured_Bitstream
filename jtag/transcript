@@ -13,223 +13,26 @@
 # //  18 U.S.C. Section 1905.
 # //
 # vsim -lib work tap_top_tb -voptargs="+acc" -do "jtag.do" 
-# Start time: 11:07:57 on Sep 29,2021
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# Start time: 23:29:52 on Sep 29,2021
+# ** Note: (vsim-8009) Loading existing optimized design _opt2
 # Loading work.tap_top_tb(fast)
 # Loading work.tap_top(fast)
 # do jtag.do
-# ** Error: Unrecognized option: "-npupdate" ignored.
-# Executing ONERROR command at macro ./jtag.do line 32
-# ** Note: $stop    : tap_top_tb.v(107)
-#    Time: 450 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 107
-run
-restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# Loading work.tap_top_tb(fast)
-# Loading work.tap_top(fast)
-run
-run
-# ** Note: $stop    : tap_top_tb.v(105)
-#    Time: 410 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 105
-restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# Loading work.tap_top_tb(fast)
-# Loading work.tap_top(fast)
-run
-# ** Note: $stop    : tap_top_tb.v(104)
-#    Time: 390 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 104
-restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# Loading work.tap_top_tb(fast)
-# Loading work.tap_top(fast)
-run
-# ** Note: $stop    : tap_top_tb.v(102)
-#    Time: 350 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 102
-restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# Loading work.tap_top_tb(fast)
-# Loading work.tap_top(fast)
-run
-# ** Note: $stop    : tap_top_tb.v(102)
-#    Time: 370 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 102
-restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# Loading work.tap_top_tb(fast)
-# Loading work.tap_top(fast)
-run
-# ** Note: $stop    : tap_top_tb.v(102)
-#    Time: 350 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 102
-restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# Loading work.tap_top_tb(fast)
-# Loading work.tap_top(fast)
-run
-# ** Note: $stop    : tap_top_tb.v(102)
-#    Time: 330 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 102
-restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# Loading work.tap_top_tb(fast)
-# Loading work.tap_top(fast)
-run
-# ** Note: $stop    : tap_top_tb.v(102)
-#    Time: 350 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 102
-restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# Loading work.tap_top_tb(fast)
-# Loading work.tap_top(fast)
-run
-# ** Note: $stop    : tap_top_tb.v(105)
-#    Time: 370 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 105
-restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# Loading work.tap_top_tb(fast)
-# Loading work.tap_top(fast)
-run
-# ** Note: $stop    : tap_top_tb.v(105)
-#    Time: 370 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 105
-restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# Loading work.tap_top_tb(fast)
-# Loading work.tap_top(fast)
-run -all
-# ** Note: $stop    : tap_top_tb.v(113)
-#    Time: 430 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 113
-restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# Loading work.tap_top_tb(fast)
-# Loading work.tap_top(fast)
-run
-# ** Note: $stop    : tap_top_tb.v(144)
-#    Time: 750 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 144
-restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# Loading work.tap_top_tb(fast)
-# Loading work.tap_top(fast)
-run
-# ** Note: $stop    : tap_top_tb.v(145)
+# ** Note: $stop    : tap_top_tb.v(172)
 #    Time: 790 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 145
-restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# Loading work.tap_top_tb(fast)
-# Loading work.tap_top(fast)
-run
-# ** Note: $stop    : tap_top_tb.v(145)
-#    Time: 790 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 145
-restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# Loading work.tap_top_tb(fast)
-# Loading work.tap_top(fast)
-run
-# ** Note: $stop    : tap_top_tb.v(203)
-#    Time: 1510 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 203
-restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# Loading work.tap_top_tb(fast)
-# Loading work.tap_top(fast)
-run
-# ** Note: $stop    : tap_top_tb.v(208)
-#    Time: 1530 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 208
-restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# Loading work.tap_top_tb(fast)
-# Loading work.tap_top(fast)
-run
-# ** Note: $stop    : tap_top_tb.v(208)
-#    Time: 1510 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 208
-restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# Loading work.tap_top_tb(fast)
-# Loading work.tap_top(fast)
-run
-# ** Note: $stop    : tap_top_tb.v(209)
-#    Time: 1510 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 209
+# Break in Module tap_top_tb at tap_top_tb.v line 172
 restart
 # ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
 # ** Note: (vsim-8009) Loading existing optimized design _opt2
 # Loading work.tap_top_tb(fast)
 # Loading work.tap_top(fast)
-run
-# ** Note: $stop    : tap_top_tb.v(209)
-#    Time: 1510 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 209
-run
 restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# ** Note: (vsim-8009) Loading existing optimized design _opt2
 # Loading work.tap_top_tb(fast)
 # Loading work.tap_top(fast)
 run
-# ** Note: $stop    : tap_top_tb.v(207)
-#    Time: 1530 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 207
-restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# Loading work.tap_top_tb(fast)
-# Loading work.tap_top(fast)
-run
-# ** Note: $stop    : tap_top_tb.v(208)
-#    Time: 1530 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 208
-restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# Loading work.tap_top_tb(fast)
-# Loading work.tap_top(fast)
-run
-# ** Note: $stop    : tap_top_tb.v(226)
-#    Time: 1630 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 226
-restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# Loading work.tap_top_tb(fast)
-# Loading work.tap_top(fast)
-run
-# ** Note: $stop    : tap_top_tb.v(227)
-#    Time: 1670 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 227
-restart
-# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
-# Loading work.tap_top_tb(fast)
-# Loading work.tap_top(fast)
-run
-# ** Note: $stop    : tap_top_tb.v(227)
-#    Time: 1670 ns  Iteration: 0  Instance: /tap_top_tb
-# Break in Module tap_top_tb at tap_top_tb.v line 227
+# ** Note: $stop    : tap_top_tb.v(172)
+#    Time: 790 ns  Iteration: 0  Instance: /tap_top_tb
+# Break in Module tap_top_tb at tap_top_tb.v line 172
+# End time: 23:32:46 on Sep 29,2021, Elapsed time: 0:02:54
+# Errors: 4, Warnings: 0

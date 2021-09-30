@@ -45,7 +45,7 @@
 //
 
 // synopsys translate_off
-`include "timescale.v"
+`timescale 1ns/10ps
 // synopsys translate_on
 `include "tap_defines.v"
 
@@ -77,14 +77,14 @@ module tap_top(
                 // TDI signals from sub-modules
                 debug_tdi_i,    // from debug module
                 bs_chain_tdi_i, // from Boundary Scan Chain
-                mbist_tdi_i     // from Mbist Chain
+                mbist_tdi_i,     // from Mbist Chain
 
                 // new signals for new states
                 cnfgsc_select_o,
-                cnfgmem_selest_o,
+                cnfgmem_select_o,
                 
                 cnfgsc_o,
-                cnfgmem_o,
+                cnfgmem_o
 
     
               );
@@ -109,20 +109,21 @@ output  extest_select_o;
 output  sample_preload_select_o;
 output  mbist_select_o;
 output  debug_select_o;
-output  cnfgsc_select_o;
-output  cnfgmem_select_o;
 
 // TDO signal that is connected to TDI of sub-modules.
 output  tdo_o;
-
-// Configuration outputs
-output  cnfgsc_o;
-output  cnfgmem_o;
     
 // TDI signals from sub-modules
 input   debug_tdi_i;    // from debug module
 input   bs_chain_tdi_i; // from Boundary Scan Chain
 input   mbist_tdi_i;    // from Mbist Chain
+
+
+output  cnfgsc_select_o;
+output  cnfgmem_select_o;
+
+output  cnfgsc_o;
+output  cnfgmem_o;
 
 // Registers
 reg     test_logic_reset;
@@ -155,6 +156,9 @@ reg     tdo_pad_o;
 reg     tdo_padoe_o;
 reg     tms_q1, tms_q2, tms_q3, tms_q4;
 wire    tms_reset;
+
+rg     cnfgsc_o  = 1'b0;
+reg     cnfgmem_o = 1'b0;
 
 assign tdo_o = tdi_pad_i;
 assign shift_dr_o = shift_dr;
@@ -506,59 +510,6 @@ end
 *                                                                                 *
 **********************************************************************************/
 
-/**********************************************************************************
-*                                                                                 *
-*   Configuration Scan Chain Logic                                                *
-*                                                                                 *
-**********************************************************************************/
-reg  cnfgsc_tdo;
-reg  cnfgsc_reg;
-
-always @ (posedge tck_pad_i or posedge trst_pad_i)
-begin
-  if (trst_pad_i)
-    cnfgsc_reg<=#1 1'b0;
-  else if(shift_dr)
-    cnfgsc_reg<=#1 tdi_pad_i;
-end
-
-always @ (negedge tck_pad_i)
-begin
-  cnfgsc_tdo <=#1 cnfgsc_reg;
-end
-/**********************************************************************************
-*                                                                                 *
-*   End: Configuration Scan Chain Logic                                           *
-*                                                                                 *
-**********************************************************************************/
-
-
-/**********************************************************************************
-*                                                                                 *
-*   COnfiguration to Memory Logic                                                 *
-*                                                                                 *
-**********************************************************************************/
-reg  cnfgmem_tdo;
-reg  cnfgmem_reg;
-
-always @ (posedge tck_pad_i or posedge trst_pad_i)
-begin
-  if (trst_pad_i)
-    cnfgmem_reg<=#1 1'b0;
-  else if(shift_dr)
-    cnfgmem_reg<=#1 tdi_pad_i;
-end
-
-always @ (negedge tck_pad_i)
-begin
-  cnfgmem_tdo <=#1 cnfgmem_reg;
-end
-/**********************************************************************************
-*                                                                                 *
-*   End: Configuration to Memory Logic                                            *
-*                                                                                 *
-**********************************************************************************/
-
 
 /**********************************************************************************
 *                                                                                 *
@@ -617,7 +568,7 @@ end
 **********************************************************************************/
 always @ (shift_ir_neg or exit1_ir or instruction_tdo or latched_jtag_ir_neg or idcode_tdo or
           debug_tdi_i or bs_chain_tdi_i or mbist_tdi_i or 
-          bypassed_tdo)
+          bypassed_tdo or tdi_pad_i)
 begin
   if(shift_ir_neg)
     tdo_pad_o = instruction_tdo;
@@ -629,8 +580,8 @@ begin
         `SAMPLE_PRELOAD:    tdo_pad_o = bs_chain_tdi_i;   // Sampling/Preloading
         `EXTEST:            tdo_pad_o = bs_chain_tdi_i;   // External test
         `MBIST:             tdo_pad_o = mbist_tdi_i;      // Mbist test
-        `CNFGSC:            tdo_pad_o = 1'b0; cnfgsc_o  = cnfgsc_tdo;
-        `CNFGMEM:           tdo_pad_o = 1'b0; cnfgmem_o = cnfgmem_tdo;
+        `CNFGSC:            cnfgsc_o = tdi_pad_i;
+        `CNFGMEM:           cnfgmem_o =  tdi_pad_i;
         default:            tdo_pad_o = bypassed_tdo;     // BYPASS instruction
       endcase
     end
