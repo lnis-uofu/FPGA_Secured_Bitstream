@@ -40,12 +40,63 @@
 ////                                                              ////
 //////////////////////////////////////////////////////////////////////
 //
+// CVS Revision History
+//
+// $Log: not supported by cvs2svn $
+// Revision 1.5  2004/01/18 09:27:39  simons
+// Blocking non blocking assignmenst fixed.
+//
+// Revision 1.4  2004/01/17 17:37:44  mohor
+// capture_dr_o added to ports.
+//
+// Revision 1.3  2004/01/14 13:50:56  mohor
+// 5 consecutive TMS=1 causes reset of TAP.
+//
+// Revision 1.2  2004/01/08 10:29:44  mohor
+// Control signals for tdo_pad_o mux are changed to negedge.
+//
+// Revision 1.1  2003/12/23 14:52:14  mohor
+// Directory structure changed. New version of TAP.
+//
+// Revision 1.10  2003/10/23 18:08:01  mohor
+// MBIST chain connection fixed.
+//
+// Revision 1.9  2003/10/23 16:17:02  mohor
+// CRC logic changed.
+//
+// Revision 1.8  2003/10/21 09:48:31  simons
+// Mbist support added.
+//
+// Revision 1.7  2002/11/06 14:30:10  mohor
+// Trst active high. Inverted on higher layer.
+//
+// Revision 1.6  2002/04/22 12:55:56  mohor
+// tdo_padoen_o changed to tdo_padoe_o. Signal is active high.
+//
+// Revision 1.5  2002/03/26 14:23:38  mohor
+// Signal tdo_padoe_o changed back to tdo_padoen_o.
+//
+// Revision 1.4  2002/03/25 13:16:15  mohor
+// tdo_padoen_o changed to tdo_padoe_o. Signal was always active high, just
+// not named correctly.
+//
+// Revision 1.3  2002/03/12 14:30:05  mohor
+// Few outputs for boundary scan chain added.
+//
+// Revision 1.2  2002/03/12 10:31:53  mohor
+// tap_top and dbg_top modules are put into two separate modules. tap_top
+// contains only tap state machine and related logic. dbg_top contains all
+// logic necessery for debugging.
+//
+// Revision 1.1  2002/03/08 15:28:16  mohor
+// Structure changed. Hooks for jtag chain added.
+//
 //
 //
 //
 
 // synopsys translate_off
-`timescale 1ns/10ps
+`include "timescale.v"
 // synopsys translate_on
 `include "tap_defines.v"
 
@@ -77,16 +128,7 @@ module tap_top(
                 // TDI signals from sub-modules
                 debug_tdi_i,    // from debug module
                 bs_chain_tdi_i, // from Boundary Scan Chain
-                mbist_tdi_i,     // from Mbist Chain
-
-                // new signals for new states
-                cnfgsc_select_o,
-                cnfgmem_select_o,
-                
-                cnfgsc_o,
-                cnfgmem_o
-
-    
+                mbist_tdi_i     // from Mbist Chain
               );
 
 
@@ -112,18 +154,11 @@ output  debug_select_o;
 
 // TDO signal that is connected to TDI of sub-modules.
 output  tdo_o;
-    
+
 // TDI signals from sub-modules
 input   debug_tdi_i;    // from debug module
 input   bs_chain_tdi_i; // from Boundary Scan Chain
 input   mbist_tdi_i;    // from Mbist Chain
-
-
-output  cnfgsc_select_o;
-output  cnfgmem_select_o;
-
-output  cnfgsc_o;
-output  cnfgmem_o;
 
 // Registers
 reg     test_logic_reset;
@@ -148,17 +183,10 @@ reg     idcode_select;
 reg     mbist_select;
 reg     debug_select;
 reg     bypass_select;
-// new
-reg     cnfgsc_select;
-reg     cnfgmem_select;
-    
 reg     tdo_pad_o;
 reg     tdo_padoe_o;
 reg     tms_q1, tms_q2, tms_q3, tms_q4;
 wire    tms_reset;
-
-rg     cnfgsc_o  = 1'b0;
-reg     cnfgmem_o = 1'b0;
 
 assign tdo_o = tdi_pad_i;
 assign shift_dr_o = shift_dr;
@@ -170,8 +198,6 @@ assign extest_select_o = extest_select;
 assign sample_preload_select_o = sample_preload_select;
 assign mbist_select_o = mbist_select;
 assign debug_select_o = debug_select;
-assign cnfgsc_select_o = cnfgsc_select;
-assign cnfgmem_select_o = cnfgmem_select;
 
 
 always @ (posedge tck_pad_i)
@@ -543,8 +569,6 @@ begin
   mbist_select            = 1'b0;
   debug_select            = 1'b0;
   bypass_select           = 1'b0;
-  cnfgsc_select           = 1'b0;
-  cnfgmem_select          = 1'b0;
 
   case(latched_jtag_ir)    /* synthesis parallel_case */ 
     `EXTEST:            extest_select           = 1'b1;    // External test
@@ -553,8 +577,6 @@ begin
     `MBIST:             mbist_select            = 1'b1;    // Mbist test
     `DEBUG:             debug_select            = 1'b1;    // Debug
     `BYPASS:            bypass_select           = 1'b1;    // BYPASS
-    `CNFGSC:            cnfgsc_select           = 1'b1;
-    `CNFGMEM:           cnfgmem_select          = 1'b1;
     default:            bypass_select           = 1'b1;    // BYPASS
   endcase
 end
@@ -568,7 +590,7 @@ end
 **********************************************************************************/
 always @ (shift_ir_neg or exit1_ir or instruction_tdo or latched_jtag_ir_neg or idcode_tdo or
           debug_tdi_i or bs_chain_tdi_i or mbist_tdi_i or 
-          bypassed_tdo or tdi_pad_i)
+          bypassed_tdo)
 begin
   if(shift_ir_neg)
     tdo_pad_o = instruction_tdo;
@@ -580,8 +602,6 @@ begin
         `SAMPLE_PRELOAD:    tdo_pad_o = bs_chain_tdi_i;   // Sampling/Preloading
         `EXTEST:            tdo_pad_o = bs_chain_tdi_i;   // External test
         `MBIST:             tdo_pad_o = mbist_tdi_i;      // Mbist test
-        `CNFGSC:            cnfgsc_o = tdi_pad_i;
-        `CNFGMEM:           cnfgmem_o =  tdi_pad_i;
         default:            tdo_pad_o = bypassed_tdo;     // BYPASS instruction
       endcase
     end
