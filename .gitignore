@@ -1,0 +1,6 @@
+#modelsim
+
+*.mem
+*.wlf
+.*.sw?
+transcript
