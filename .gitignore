@@ -1,5 +1,4 @@
 #modelsim
-
 *.mem
 *.wlf
 .*.sw?
