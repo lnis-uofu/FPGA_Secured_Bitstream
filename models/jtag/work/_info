@@ -1,0 +1,168 @@
+m255
+K4
+z2
+!s11f vlog 2019.4 2019.10, Oct 15 2019
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 d/home/u1375766/SecuredBitstream/jtag/tap/rtl/verilog
+T_opt
+!s110 1632802651
+VMW7nPW_n78Dd74akCVN0=2
+Z1 04 10 4 work tap_top_tb fast 0
+=1-18c04d8e309a-6152975b-57d12-4fbc3
+Z2 o-quiet -auto_acc_if_foreign -work work +acc
+Z3 tCvgOpt 0
+n@_opt
+Z4 OL;O;2019.4;69
+R0
+T_opt1
+!s110 1634845917
+VniVdSb2cO>@AB?UbhJ_Z60
+R1
+=5-18c04d8e309a-6171c4dd-8076e-1e92a
+R2
+R3
+n@_opt1
+R4
+vconfig_control
+!s110 1634845912
+!i10b 1
+!s100 ZUg:1^akloi>kCo;T8^di1
+!s11b Jl[4_2aa>5@gMCnZQ;GY]3
+IeVnPnAbdMYdKg299Yf8f00
+Z5 VDg1SIo80bB@j0V0VzS_@n1
+Z6 d/home/u1375766/SecuredBitstream/jtag
+w1634845910
+8config_control.v
+Fconfig_control.v
+!i122 -1
+L0 6
+Z7 OL;L;2019.4;69
+r1
+!s85 0
+31
+!s108 1634845912.000000
+!s107 config_control.v|
+!s90 -work|work|config_control.v|
+!i113 0
+Z8 o-work work -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+R3
+vjtag_tb
+!s110 1632415572
+!i10b 1
+!s100 QGcWVaI]F6C0BfTO6_ORd2
+!s11b J>aA9e8M0d6N6UGABzK282
+Ij0WL81]j7QAX;SC46499B2
+R5
+R0
+w1632415570
+8tap_top_tb1.v
+Ftap_top_tb1.v
+!i122 -1
+Z9 L0 14
+R7
+r1
+!s85 0
+31
+!s108 1632415572.000000
+!s107 tap_top_tb1.v|
+!s90 tap_top_tb1.v|
+!i113 0
+o-L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+R3
+vscan_chain
+!s110 1634789744
+!i10b 1
+!s100 FMV87b15;J?iO4mgbF=2e1
+!s11b b^>gZi_GcXR`0f]=WeYB72
+IdaVLCNMiBKJA4=@Pn=QcR3
+R5
+R6
+w1634789526
+8scan_chain.v
+Fscan_chain.v
+!i122 -1
+L0 2
+R7
+r1
+!s85 0
+31
+!s108 1634789744.000000
+!s107 scan_chain.v|
+!s90 -work|work|scan_chain.v|
+!i113 0
+R8
+R3
+vshift_reg
+!s110 1634753049
+!i10b 1
+!s100 9lYY=B<;D[H5;j3J]3^;=1
+!s11b jMGFmO7S9fOU;Nhmh<]cA2
+IeIZhEoVQ=V9ZK@FhHKXSW0
+R5
+R6
+w1634753047
+8shift_reg.v
+Fshift_reg.v
+!i122 -1
+L0 2
+R7
+r1
+!s85 0
+31
+!s108 1634753049.000000
+!s107 shift_reg.v|
+!s90 -work|work|shift_reg.v|
+!i113 0
+R8
+R3
+vtap_top
+!s110 1634786068
+!i10b 1
+!s100 ^S[^_Uf2JI7=c6Eh`A;fR0
+!s11b ZDlb?>07QjHd>hNGkDQ>n3
+IF7bIH3N_^bDzE:XGhmYR40
+R5
+R6
+w1634770501
+8tap_top.v
+Ftap_top.v
+!i122 -1
+L0 50
+R7
+r1
+!s85 0
+31
+!s108 1634786068.000000
+!s107 tap_defines.v|tap_top.v|
+!s90 -work|work|tap_top.v|
+!i113 0
+R8
+R3
+vtap_top_tb
+!s110 1634845586
+!i10b 1
+!s100 j8Qm36fL91o[@7n`U`<<[1
+!s11b Y4WOhoYCGzeBOnSB66Ind1
+I22WHYiL`KXcbGn1USOS@g2
+R5
+R6
+w1634845585
+8tap_top_tb.v
+Ftap_top_tb.v
+!i122 -1
+R9
+R7
+r1
+!s85 0
+31
+!s108 1634845586.000000
+!s107 tap_top_tb.v|
+!s90 -work|work|tap_top_tb.v|
+!i113 0
+R8
+R3

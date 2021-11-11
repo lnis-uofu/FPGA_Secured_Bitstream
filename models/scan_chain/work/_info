@@ -1,0 +1,66 @@
+m255
+K4
+z2
+!s11f vlog 2019.4 2019.10, Oct 15 2019
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 d/home/u1375766/SecuredBitstream/models/scan_chain
+T_opt
+!s110 1636659027
+V;bk:?QiCaA@LX7joLdM3j2
+04 13 4 work scan_chain_tb fast 0
+=20-18c04d8e309a-618d6f52-e5f19-a81a8
+o-quiet -auto_acc_if_foreign -work work +acc
+Z1 tCvgOpt 0
+n@_opt
+OL;O;2019.4;69
+vscan_chain
+!s110 1636658470
+!i10b 1
+!s100 a2BNWhlJb:h9I6D[^Y?QF0
+!s11b `25QkF@I?8IVemVcASae43
+I[1I;H96ShXJ5@;ZPJ?UE51
+Z2 VDg1SIo80bB@j0V0VzS_@n1
+R0
+w1636658468
+8scan_chain.v
+Fscan_chain.v
+!i122 -1
+L0 2
+Z3 OL;L;2019.4;69
+r1
+!s85 0
+31
+!s108 1636658470.000000
+!s107 scan_chain.v|
+!s90 -work|work|scan_chain.v|
+!i113 0
+Z4 o-work work -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+R1
+vscan_chain_tb
+!s110 1636659022
+!i10b 1
+!s100 SMeB9VVji6XHm2O0hO:h[3
+!s11b ]^S<njhQD18K0eUCna6M?3
+IQzcU<K>hDJJb`_6@M^]TQ3
+R2
+R0
+w1636659021
+8scan_chain_tb.v
+Fscan_chain_tb.v
+!i122 -1
+L0 16
+R3
+r1
+!s85 0
+31
+!s108 1636659022.000000
+!s107 scan_chain_tb.v|
+!s90 -work|work|scan_chain_tb.v|
+!i113 0
+R4
+R1
