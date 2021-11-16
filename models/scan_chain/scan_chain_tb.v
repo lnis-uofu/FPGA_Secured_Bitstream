@@ -22,20 +22,23 @@ module scan_chain_tb;
 
     reg d;
     reg out;
-    reg en;
-    reg clear;
+    reg en    = 1'b0;
+    reg clear = 1'b1;
     
     scan_chain uut
     (
-    .pmu_tck_in(clk),
-    .sc_data_in(d),
-    .sc_en(en),
-    .clear(clear),
-    .sc_data_out()        
+    .clk         (clk  ),
+    .data_i      (d    ),
+    .en          (en   ),
+    .clear       (clear),
+    .data_o      (     )        
     );
 
-    reg [9:0] bitstream = 10'b1011011011;
+    reg [9:0] bitstream = 5'b11011;
     integer i;
+
+
+
     // Start of simulation
     initial
     begin
@@ -47,45 +50,65 @@ module scan_chain_tb;
     initial 
     begin
 
+    en = 1'b0;
+    d  = 1'b0;
+    #period;
     en = 1'b1;
-
+        
+        
+        
+        
+        
     // shift in    
-    for(i = 0; i < 11; i = i + 1)
+    for(i = 0; i < 5; i = i + 1)
         begin
             d = bitstream[i];
             #period;
-            if(i == 9)
+            if(i == 4)
+            begin
+                d  = 1'b0;
                 en = 1'b0;
+            end
         end
 
     #period;
     #period;
-
     en = 1'b1;
+        
     // shift out
-    for(i = 0; i < 11; i = i+1)
+    for(i = 0; i < 5; i = i+1)
     begin 
         d = 1'b0;
         #period
-        if(i == 9)
+        if(i == 4)
+        begin
+            d  = 1'b0;
             en = 1'b0;
+        end
     end
 
     #period;
-    
-    // shift in again
+    #period;
     en = 1'b1;
-    for(i = 0; i < 11; i = i + 1)
+
+    // shift in again
+    for(i = 0; i < 5; i = i + 1)
         begin
             d = bitstream[i];
             #period;
-            if(i == 9)
+            if(i == 4)
+            begin
                 en = 1'b0;
+                d  = 1'b0;
+            end
         end
-    
+        
+    d = 1'b0;
     #period;
+    #period;
+        
     // clear shift register
-    clear = 1'b1;
+    clear = 1'b0;
     #period;
     #period;
     #period;

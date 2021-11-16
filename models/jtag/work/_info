@@ -28,6 +28,16 @@ R2
 R3
 n@_opt1
 R4
+R0
+T_opt2
+!s110 1637019123
+VE<GM5FO5zYZ?KX@Uf[aX_2
+R1
+=20-18c04d8e309a-6192edf3-77eee-1ecb93
+R2
+R3
+n@_opt2
+R4
 vconfig_control
 !s110 1634845912
 !i10b 1
@@ -121,14 +131,14 @@ r1
 R8
 R3
 vtap_top
-!s110 1634786068
+!s110 1637019111
 !i10b 1
-!s100 ^S[^_Uf2JI7=c6Eh`A;fR0
-!s11b ZDlb?>07QjHd>hNGkDQ>n3
-IF7bIH3N_^bDzE:XGhmYR40
+!s100 :4;a:6;TgJ`SYff0U[SaC0
+!s11b XH;cAA]i=aihz?cL=WAn]0
+I7VkeVgT7Z8=dQTzl@3?Tg3
 R5
-R6
-w1634770501
+Z10 d/home/u1375766/SecuredBitstream/models/jtag
+w1637018874
 8tap_top.v
 Ftap_top.v
 !i122 -1
@@ -137,21 +147,21 @@ R7
 r1
 !s85 0
 31
-!s108 1634786068.000000
+!s108 1637019111.000000
 !s107 tap_defines.v|tap_top.v|
 !s90 -work|work|tap_top.v|
 !i113 0
 R8
 R3
 vtap_top_tb
-!s110 1634845586
+!s110 1637019117
 !i10b 1
-!s100 j8Qm36fL91o[@7n`U`<<[1
-!s11b Y4WOhoYCGzeBOnSB66Ind1
-I22WHYiL`KXcbGn1USOS@g2
+!s100 0fSiLeV<?@g:J:iBYn^3:2
+!s11b >nD^:=_KMimBScD_0kF9h2
+IlIcKCee2ijHe>dFBa5;Am1
 R5
-R6
-w1634845585
+R10
+w1637019093
 8tap_top_tb.v
 Ftap_top_tb.v
 !i122 -1
@@ -160,7 +170,7 @@ R7
 r1
 !s85 0
 31
-!s108 1634845586.000000
+!s108 1637019117.000000
 !s107 tap_top_tb.v|
 !s90 -work|work|tap_top_tb.v|
 !i113 0

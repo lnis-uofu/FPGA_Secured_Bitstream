@@ -1,24 +1,28 @@
 
-module scan_chain(pmu_tck_in, sc_data_in, sc_en, clear, sc_data_out );
+module scan_chain #(
+    parameter integer SC_LENGTH   = 5
+)(
+    input clk,
+    input en,
+    input clear,
+    input data_i,
+    output data_o
+);
 
-input  pmu_tck_in, sc_data_in, sc_en, clear;
-output sc_data_out;
 
-//parameter SC_LENGTH = 10;
-
-reg [9:0] data = 0;
+reg [SC_LENGTH-1:0] data = 0;
     
-always @ (posedge pmu_tck_in or posedge clear)
+always @ (posedge clk or negedge clear)
     begin
-        if(clear)
-            data = 10'b0000000000;
-        else if (sc_en)
+        if (en == 1'b1)
             begin
-                data = {sc_data_in, data[9:1]};
+                data = {data_i, data[SC_LENGTH-1:1]};
             end
+        else if(clear == 1'b0)
+            data = 0;
     end
 
 
-    assign sc_data_out = data[0];
+    assign data_o = data[0];
     
 endmodule

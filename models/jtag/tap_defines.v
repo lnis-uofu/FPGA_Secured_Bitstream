@@ -70,7 +70,7 @@
 `define DEBUG           4'b1000
 `define MBIST           4'b1001
 `define BYPASS          4'b1111
-`define CONFIG          4'b1010
+`define PMU             4'b1010
 
 
 `define config_scan_chain 4'b1010;

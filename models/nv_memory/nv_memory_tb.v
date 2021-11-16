@@ -15,15 +15,14 @@ module nv_memory_tb;
     localparam period     = 20;
     localparam halfperiod = 10;
 
-    reg mem_rw;
+    reg mem_w;
     reg [7 :0] mem_addr_in;
     reg [63:0] mem_data_in;
     
     nv_memory uut
     (
-    .fpga_clk(clk),
-    .mem_erase(),
-    .mem_rw(mem_rw),
+    .clk(clk)
+    .mem_w(mem_w),
     .mem_addr_in(mem_addr_in),
     .mem_data_in(mem_data_in),
     .mem_data_out()
@@ -38,7 +37,11 @@ module nv_memory_tb;
     
     initial 
     begin
-    mem_rw = 1'b0;
+    mem_addr_in = 0;
+    mem_data_in = 0;
+
+        
+    mem_w = 1'b1;
     #period;
     #period;
     
@@ -58,7 +61,7 @@ module nv_memory_tb;
         
     #period;
     mem_addr_in = 8'd0;
-    mem_rw = 1'b1;
+    mem_w = 1'b0;
 
     #period;
 

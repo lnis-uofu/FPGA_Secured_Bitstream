@@ -1,21 +1,31 @@
 
 
-module nv_memory(fpga_clk, mem_erase, mem_rw, mem_addr_in, mem_data_in, mem_data_out);
+module nv_memory #(
+    parameter integer DATA_WIDTH = 32,
+    parameter integer ADDR_WIDTH =  8
+)(
+    input                                  clk,
+    input                                mem_w,
+    input reg     [ADDR_WIDTH-1:0] mem_addr_in,
+    input reg     [DATA_WIDTH-1:0] mem_data_in,
+    output reg    [DATA_WIDTH-1:0] mem_data_out   
+);
 
-input fpga_clk, mem_erase, mem_rw;
+reg [DATA_WIDTH-1:0] memory[255:0];
 
-input  [7: 0] mem_addr_in;
-input  [63:0] mem_data_in;
-output [63:0] mem_data_out;
-
-reg [63:0] memory[255:0];
-
-always @(posedge fpga_clk)
+initial
     begin
-        if(mem_rw)
-            memory[mem_addr_in] <= mem_data_in;
+       // mem_addr_in <= 0;
+        //mem_data_in <= 0;
+        mem_data_out= 0;
     end
     
-    assign mem_data_out = memory[mem_addr_in];
+always @(posedge clk or negedge mem_erase)
+    begin
+        if(mem_w)
+            memory[mem_addr_in] <= mem_data_in;
+        else
+            mem_data_out <= memory[mem_addr_in];
+    end
     
 endmodule

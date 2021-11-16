@@ -67,18 +67,19 @@ module tap_top(
                 sample_preload_select_o,
                 mbist_select_o,
                 debug_select_o,
-                config_select_o,
+                pmu_select_o,
                 
                 // TDO signal that is connected to TDI of sub-modules.
                 tdo_o, 
-                config_enable,
+                pmu_enable,
+                pmu_tck_o,
                 
                 // TDI signals from sub-modules
                 debug_tdi_i,    // from debug module
                 bs_chain_tdi_i, // from Boundary Scan Chain
                 mbist_tdi_i,    // from Mbist Chain
                 
-                config_tdi_i
+                pmu_tdi_i
               );
 
 
@@ -101,17 +102,18 @@ output  extest_select_o;
 output  sample_preload_select_o;
 output  mbist_select_o;
 output  debug_select_o;
-output  config_select_o;
+output  pmu_select_o;
 
 // TDO signal that is connected to TDI of sub-modules.
 output  tdo_o;
-output  config_enable;
+output  pmu_enable;
+output  pmu_tck_o;
 
 // TDI signals from sub-modules
 input   debug_tdi_i;    // from debug module
 input   bs_chain_tdi_i; // from Boundary Scan Chain
 input   mbist_tdi_i;    // from Mbist Chain
-input   config_tdi_i;   //
+input   pmu_tdi_i;   //
 
 // Registers
 reg     test_logic_reset;
@@ -136,15 +138,15 @@ reg     idcode_select;
 reg     mbist_select;
 reg     debug_select;
 reg     bypass_select;
-reg     config_select;
+reg     pmu_select;
 reg     tdo_pad_o;
 reg     tdo_padoe_o;
 reg     tms_q1, tms_q2, tms_q3, tms_q4;
 wire    tms_reset;
-wire    config_enable;
-reg     config_enable_r;
+wire    pmu_enable;
+reg     pmu_enable_r;
 
-
+assign pmu_tck_o = tck_pad_i;
 assign tdo_o = tdi_pad_i;
 assign shift_dr_o = shift_dr;
 assign pause_dr_o = pause_dr;
@@ -155,8 +157,8 @@ assign extest_select_o = extest_select;
 assign sample_preload_select_o = sample_preload_select;
 assign mbist_select_o = mbist_select;
 assign debug_select_o = debug_select;
-assign config_select_o = config_select;
-assign config_enable = config_enable_r;
+assign pmu_select_o = pmu_select;
+assign pmu_enable = pmu_enable_r;
 
 
 always @ (posedge tck_pad_i)
@@ -528,7 +530,7 @@ begin
   mbist_select            = 1'b0;
   debug_select            = 1'b0;
   bypass_select           = 1'b0;
-  config_select           = 1'b0;
+  pmu_select              = 1'b0;
 
   case(latched_jtag_ir)    /* synthesis parallel_case */ 
     `EXTEST:            extest_select           = 1'b1;    // External test
@@ -537,7 +539,7 @@ begin
     `MBIST:             mbist_select            = 1'b1;    // Mbist test
     `DEBUG:             debug_select            = 1'b1;    // Debug
     `BYPASS:            bypass_select           = 1'b1;    // BYPASS
-    `CONFIG:            config_select           = 1'b1;    // Config
+    `PMU:               pmu_select              = 1'b1;    // PMU
     default:            bypass_select           = 1'b1;    // BYPASS
   endcase
 end
@@ -550,7 +552,7 @@ end
 *                                                                                 *
 **********************************************************************************/
 always @ (shift_ir_neg or exit1_ir or instruction_tdo or latched_jtag_ir_neg or idcode_tdo or
-          debug_tdi_i or bs_chain_tdi_i or mbist_tdi_i or bypassed_tdo or config_tdi_i)
+          debug_tdi_i or bs_chain_tdi_i or mbist_tdi_i or bypassed_tdo or pmu_tdi_i)
 begin
   if(shift_ir_neg)
     tdo_pad_o = instruction_tdo;
@@ -562,7 +564,7 @@ begin
         `SAMPLE_PRELOAD:    tdo_pad_o = bs_chain_tdi_i;   // Sampling/Preloading
         `EXTEST:            tdo_pad_o = bs_chain_tdi_i;   // External test
         `MBIST:             tdo_pad_o = mbist_tdi_i;      // Mbist test
-        `CONFIG:            tdo_pad_o = config_tdi_i;     // config 
+        `PMU:               tdo_pad_o = pmu_tdi_i;        // PMU
         default:            tdo_pad_o = bypassed_tdo;     // BYPASS instruction
       endcase
     end
@@ -580,11 +582,11 @@ end
 *                                                                                 *
 **********************************************************************************/
 // test to see if this works
-always @ (posedge tck_pad_i)
-    if(latched_jtag_ir_neg == `CONFIG & shift_dr == 1'b1)
-        config_enable_r = 1'b1;
+always @ (tck_pad_i)
+    if(latched_jtag_ir_neg == `PMU & shift_dr == 1'b1)
+        pmu_enable_r = 1'b1;
     else
-        config_enable_r = 1'b0;
+        pmu_enable_r = 1'b0;
     
 
 always @ (negedge tck_pad_i)
