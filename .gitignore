@@ -3,3 +3,5 @@
 *.wlf
 .*.sw?
 transcript
+work/
+*.png

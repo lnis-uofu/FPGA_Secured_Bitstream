@@ -52,18 +52,14 @@ module piso_tb;
         for(i = 0; i < 128; i = i + 1)
         begin
             #period;
-            if(i == 127)
+            if(i == 126)
             begin
-                //en = 1'b0;
+                data_i = 128'h9876543210fedcba9876543210fedcba;
                 load = 1'b1;
             end
         end
        
-        data_i = 128'h9876543210fedcba9876543210fedcba;
-        #period;
         load = 1'b0; 
-        #period;
-        //en   = 1'b1;
 
         for(i = 0; i < 128; i = i + 1)
         begin
