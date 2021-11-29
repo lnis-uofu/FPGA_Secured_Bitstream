@@ -14,10 +14,10 @@
 |                | Key Storage        |    X     |      X    |
 |                | PISO               |    X     |      X    |
 |                | SIPO               |    X     |      X    |
-| NV Memory      |                    |          |      X    |
-|                | NV Memory          |          |      X    | 
-| Mock FPGA Core |                    |          |      X    |
-|                |             |          |           |
+| NV Memory      |                    |    X     |      X    |
+|                | NV Memory          |    X     |      X    | 
+| Mock FPGA Core |                    |    X     |      X    |
+|                | Scan Chain         |    X     |      X    |
 |                |             |          |           |
 |                |             |          |           |
 |                |             |          |           |
