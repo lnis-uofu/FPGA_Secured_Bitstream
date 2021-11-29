@@ -18,9 +18,6 @@
 |                | NV Memory          |    X     |      X    | 
 | Mock FPGA Core |                    |    X     |      X    |
 |                | Scan Chain         |    X     |      X    |
-|                |             |          |           |
-|                |             |          |           |
-|                |             |          |           |
   
 
 ## Acknowledgments
