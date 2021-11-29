@@ -4,7 +4,7 @@
   <img src="./docs/figures/JtagInterface -FPGA.drawio.svg">
 </p>
   
-|              Summary of Completeness                       |
+|              Summary of Completeness| | |                  |
 | :----:         | :----:             |  :----:  |  :----:   |
 |                |                    |     RTL  | Testbench |
 |  PMU           |                    |          |           |
