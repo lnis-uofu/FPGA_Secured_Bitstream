@@ -8,7 +8,7 @@ module sipo #(
     parameter integer KEY_DATA_WIDTH = 128,
     parameter integer MEM_ADDR_WIDTH = 8,
     parameter integer MEM_DATA_WIDTH = 32,
-    parameter integer MEM_OUT_WIDTH = MEM_ADDR_WIDTH + MEM_DATA_WIDTH
+    parameter integer MEM_OUT_WIDTH  = MEM_ADDR_WIDTH + MEM_DATA_WIDTH
 
 )(
     input                                  clk,
@@ -24,60 +24,65 @@ module sipo #(
 );
 
     reg [AES_DATA_WIDTH-1:0] data = 0;
-    reg [AES_DATA_WIDTH-1:0] temp = 0;
-    
+
 always@(posedge clk or negedge rst)
     begin
-    if(rst == 1'b0)
-    begin
+        if(rst == 1'b0)
+        begin
         data       = 0;
         aes_data_o = 0;
         key_data_o = 0;
         mem_data_o = 0;
-    end
-        
-    if(en == 1'b1)
-    begin
-        
-        // pc to scan chain    
-        if(instruction == 2'b00)
-        begin
-            data = {data[AES_DATA_WIDTH-1:1], data_i};
-            if(send == 1'b1)
-                aes_data_o = data;
         end
-
-        // pc to memory
-        else if(instruction == 2'b01)
+        
+        if(en == 1'b1)
         begin
-            data = {data[MEM_OUT_WIDTH-1:1], data_i};
-            if(send == 1'b1)
-                mem_data_o = data[MEM_OUT_WIDTH-1:0];
+            case(instruction)
+                0:begin // pc to scan chain 
+                    data = {data_i, data[AES_DATA_WIDTH-1:1]}; 
+                    if(send == 1'b1) 
+                    begin 
+                        aes_data_o <= data[AES_DATA_WIDTH-1:0]; 
+                        mem_data_o <= 0; 
+                        key_data_o <= 0; 
+                    end 
+                end
+                
+                1:begin  //pc to memory
+                    data = {data_i, data[MEM_DATA_WIDTH-1:1]}; 
+                    if(send == 1'b1) 
+                    begin 
+                        mem_data_o <= data[MEM_DATA_WIDTH-1:0]; 
+                        aes_data_o <= 0; 
+                        key_data_o <= 0; 
+                    end 
+                end
+
+                2:begin // memory to aes
+                    data = {data_i, data[AES_DATA_WIDTH-1:1]}; 
+                    if(send == 1'b1) 
+                    begin 
+                        aes_data_o <= data[AES_DATA_WIDTH-1:0];
+                        mem_data_o <= 0; 
+                        key_data_o <= 0; 
+                    end 
+                end 
+
+                3:begin // pc to key
+                    data = {data_i, data[KEY_DATA_WIDTH-1:1]};
+                    if(send == 1'b1) 
+                    begin
+                        key_data_o = data[KEY_DATA_WIDTH-1:0]; 
+                        aes_data_o = 0; 
+                        mem_data_o = 0;
+                        data = 0;
+                    end 
+                end 
+
+                default: begin aes_data_o = 0; key_data_o = 0; mem_data_o = 0; end
+            endcase
         end
     
-        // memory to aes
-        else if(instruction == 2'b10)
-        begin
-            data = {data[AES_DATA_WIDTH-1:MEM_DATA_WIDTH], mem_data_i};
-            if(send == 1'b1)
-                aes_data_o = data;
-        end
-
-        // pc to key
-        else if(instruction == 2'b11)
-        begin
-            data = {data[KEY_DATA_WIDTH-1:0], data_i};
-            if(send ==1'b1)
-                key_data_o = data;
-        end
-    
-        
-        
-        
-
-    end
-
-        
     end
     
     

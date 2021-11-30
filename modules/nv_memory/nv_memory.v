@@ -15,12 +15,11 @@ reg [DATA_WIDTH-1:0] memory[255:0];
 
 initial
     begin
-       // mem_addr_in <= 0;
-        //mem_data_in <= 0;
+
         mem_data_out= 0;
     end
     
-always @(posedge clk or negedge mem_erase)
+always @(posedge clk)
     begin
         if(mem_w)
             memory[mem_addr_in] <= mem_data_in;

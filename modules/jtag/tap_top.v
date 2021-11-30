@@ -49,36 +49,36 @@
 // Top module
 module tap_top(
                 // JTAG pads
-                tms_pad_i, 
-                tck_pad_i, 
-                trst_pad_i, 
-                tdi_pad_i, 
-                tdo_pad_o, 
+                tms_pad_i,
+                tck_pad_i,
+                trst_pad_i,
+                tdi_pad_i,
+                tdo_pad_o,
                 tdo_padoe_o,
 
                 // TAP states
                 shift_dr_o,
-                pause_dr_o, 
+                pause_dr_o,
                 update_dr_o,
                 capture_dr_o,
-                
+
                 // Select signals for boundary scan or mbist
-                extest_select_o, 
+                extest_select_o,
                 sample_preload_select_o,
                 mbist_select_o,
                 debug_select_o,
                 pmu_select_o,
-                
+
                 // TDO signal that is connected to TDI of sub-modules.
-                tdo_o, 
+                tdo_o,
                 pmu_enable,
                 pmu_tck_o,
-                
+
                 // TDI signals from sub-modules
                 debug_tdi_i,    // from debug module
                 bs_chain_tdi_i, // from Boundary Scan Chain
                 mbist_tdi_i,    // from Mbist Chain
-                
+
                 pmu_tdi_i
               );
 
@@ -89,7 +89,7 @@ input   tck_pad_i;      // JTAG test clock pad
 input   trst_pad_i;     // JTAG test reset pad
 input   tdi_pad_i;      // JTAG test data input pad
 output  tdo_pad_o;      // JTAG test data output pad
-output  tdo_padoe_o;    // Output enable for JTAG test data output pad 
+output  tdo_padoe_o;    // Output enable for JTAG test data output pad
 
 // TAP states
 output  shift_dr_o;
@@ -101,7 +101,7 @@ output  capture_dr_o;
 output  extest_select_o;
 output  sample_preload_select_o;
 output  mbist_select_o;
-output  debug_select_o;
+
 output  pmu_select_o;
 
 // TDO signal that is connected to TDI of sub-modules.
@@ -128,7 +128,7 @@ reg     update_dr;
 reg     select_ir_scan;
 reg     capture_ir;
 reg     shift_ir, shift_ir_neg;
-reg     exit1_ir;  
+reg     exit1_ir;
 reg     pause_ir;
 reg     exit2_ir;
 reg     update_ir;
@@ -532,7 +532,7 @@ begin
   bypass_select           = 1'b0;
   pmu_select              = 1'b0;
 
-  case(latched_jtag_ir)    /* synthesis parallel_case */ 
+  case(latched_jtag_ir)    /* synthesis parallel_case */
     `EXTEST:            extest_select           = 1'b1;    // External test
     `SAMPLE_PRELOAD:    sample_preload_select   = 1'b1;    // Sample preload
     `IDCODE:            idcode_select           = 1'b1;    // ID Code
@@ -568,7 +568,7 @@ begin
         default:            tdo_pad_o = bypassed_tdo;     // BYPASS instruction
       endcase
     end
-end     
+end
 
 
 // Tristate control for tdo_pad_o pin
@@ -587,7 +587,7 @@ always @ (tck_pad_i)
         pmu_enable_r = 1'b1;
     else
         pmu_enable_r = 1'b0;
-    
+
 
 always @ (negedge tck_pad_i)
 begin

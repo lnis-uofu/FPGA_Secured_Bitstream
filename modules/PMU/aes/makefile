@@ -10,3 +10,4 @@ build:
 	vlog -work work mix_columns.v
 	vlog -work work shift_rows.v
 	vlog -work work sub_bytes.v
+
