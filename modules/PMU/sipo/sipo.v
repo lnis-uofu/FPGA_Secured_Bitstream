@@ -15,14 +15,18 @@ module sipo #(
     input                                  rst,
     input                                   en,
     input                                 send,
-    input      [1:0]               instruction,
+    input      [3:0]               instruction,
     input                               data_i,
     input      [MEM_DATA_WIDTH-1:0] mem_data_i,
-    output reg [AES_DATA_WIDTH-1:0] aes_data_o,
-    output reg [KEY_DATA_WIDTH-1:0] key_data_o,
-    output reg [MEM_OUT_WIDTH- 1:0] mem_data_o
+    output reg [AES_DATA_WIDTH-1:0] aes_data_o = 0,
+    output     [KEY_DATA_WIDTH-1:0] key_data_o,
+    output reg [MEM_OUT_WIDTH- 1:0] mem_data_o = 0
 );
 
+    reg [KEY_DATA_WIDTH-1:0] key_data_r = 0;
+
+    assign key_data_o = key_data_r;
+    
     reg [AES_DATA_WIDTH-1:0] data = 0;
 
 always@(posedge clk or negedge rst)
@@ -31,7 +35,7 @@ always@(posedge clk or negedge rst)
         begin
         data       = 0;
         aes_data_o = 0;
-        key_data_o = 0;
+        key_data_r = 0;
         mem_data_o = 0;
         end
         
@@ -44,7 +48,7 @@ always@(posedge clk or negedge rst)
                     begin 
                         aes_data_o <= data[AES_DATA_WIDTH-1:0]; 
                         mem_data_o <= 0; 
-                        key_data_o <= 0; 
+                        key_data_r <= 0; 
                     end 
                 end
                 
@@ -54,7 +58,7 @@ always@(posedge clk or negedge rst)
                     begin 
                         mem_data_o <= data[MEM_DATA_WIDTH-1:0]; 
                         aes_data_o <= 0; 
-                        key_data_o <= 0; 
+                        key_data_r <= 0; 
                     end 
                 end
 
@@ -64,22 +68,22 @@ always@(posedge clk or negedge rst)
                     begin 
                         aes_data_o <= data[AES_DATA_WIDTH-1:0];
                         mem_data_o <= 0; 
-                        key_data_o <= 0; 
+                        key_data_r <= 0; 
                     end 
                 end 
 
                 3:begin // pc to key
-                    data = {data_i, data[KEY_DATA_WIDTH-1:1]};
+                    data <= {data_i, data[KEY_DATA_WIDTH-1:1]};
                     if(send == 1'b1) 
                     begin
-                        key_data_o = data[KEY_DATA_WIDTH-1:0]; 
+                        key_data_r = data[KEY_DATA_WIDTH-1:0]; 
                         aes_data_o = 0; 
                         mem_data_o = 0;
-                        data = 0;
+                        //data = 0;
                     end 
                 end 
 
-                default: begin aes_data_o = 0; key_data_o = 0; mem_data_o = 0; end
+                default: begin aes_data_o = 0; key_data_r = 0; mem_data_o = 0; end
             endcase
         end
     

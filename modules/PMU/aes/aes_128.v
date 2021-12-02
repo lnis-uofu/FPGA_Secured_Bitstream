@@ -24,6 +24,13 @@
 
 // pipelined AES / aes encrypt and decrypt units
 
+`include "aes_round_128.v"
+`include "evolve_key.v"
+`include "mix_columns.v"
+`include "shift_rows.v"
+`include "sub_bytes.v"
+
+
 ////////////////////////////////////
 // Encrypt using 128 bit key
 ////////////////////////////////////

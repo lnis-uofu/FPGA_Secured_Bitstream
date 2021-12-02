@@ -4,7 +4,7 @@ module sipo_tb;
     reg rst = 1'b1;
     reg en  = 1'b0;
     reg send= 1'b0;
-    reg [1:0] instruction = 2'b00;
+    reg [3:0] instruction = 4'b00;
     reg data_i = 1'b0;
     reg [31:0] mem_data_i = 32'b0;
    
