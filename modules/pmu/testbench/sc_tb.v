@@ -15,7 +15,7 @@ module sc_tb;
     // in this bitstream there is an extra zero at MSB to "pad" such
     // that the data_i is always defined.
     reg [163:0] key = 164'h0000102030405060708090a0b0c0d0e0f00000803;
-    //reg [671:0] bitstream = //672'h00123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0//123456789abcdef0123456789abcdef0123456789abcdef00002800;
+
     reg [1023+32:0] bitstream = 0;
 
     
@@ -41,7 +41,6 @@ module sc_tb;
     begin
         file  = $fopen("bitstream.txt", "rb");
         count = $fscanf(file, "%b" ,bitstream);
-        $displayb(bitstream);
         $fclose(file);
         clk = 0;
         forever

@@ -32,7 +32,6 @@ key0 = ""
 for items in key:
     key0 = key0 + "{0:02x}".format(items)
 print("key:  0x", key0, "\n")
-print(key0)
 #----------------------------------------
 
 # Expand key
@@ -44,6 +43,7 @@ for v in expandedKey:
     expandedKey_hex[index] = hex(v)
     index = index + 1
 print("expkey HEX: ", len(expandedKey_hex), expandedKey_hex, "\n")
+
 
 
 
@@ -74,6 +74,11 @@ for items in message:
 print("unicode :", message0, "\n")
 #-------------------------------------------
 # Ciphertext
+print(message)
+print(message[:stt_lng])
+
+print(AES_Encrypt(message, expandedKey, Nr))
+
 encrypted_message = [0] * len(message)
 index = 0
 while(message):

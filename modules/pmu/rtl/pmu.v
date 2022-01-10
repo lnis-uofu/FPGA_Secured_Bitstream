@@ -1,13 +1,13 @@
 
 
-`include "address_generator/address_generator.v"
-`include "aes/aes_128.v" 
-`include "bootloader/bootloader.v"
-`include "key_storage/key_storage.v"
-`include "piso/piso.v"
-`include "sipo/sipo.v"
-`include "../scan_chain/scan_chain.v"
-`include "../nv_memory/nv_memory.v"
+`include "../rtl/modules_pmu/address_generator/rtl/address_generator.v"
+`include "../../cryptography/aes/aes_128.v" 
+`include "../rtl/modules_pmu/bootloader/rtl/bootloader.v"
+`include "../rtl/modules_pmu/key_storage/rtl/key_storage.v"
+`include "../rtl/modules_pmu/piso/rtl/piso.v"
+`include "../rtl/modules_pmu/sipo/rtl/sipo.v"
+`include "../../fpga_cores/scan_chain/rtl/scan_chain.v"
+`include "../../nv_memory/rtl/nv_memory.v"
 
 //parameter         zero = 3'b000;
 //parameter          one = 3'b001;
@@ -220,7 +220,7 @@ begin
                     begin
                         header = {data_i, header[HEADER_WIDTH-1:1]};
                         counter = 0;
-                        if(header[3:0] == 4'b0000)
+                        if(header[3:0] == 4'b1010)
                             begin 
                                 next_state <= two;
                             end

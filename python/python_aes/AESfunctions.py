@@ -216,6 +216,7 @@ def AES_Decrypt(ciphertext, expandedKey, Nr):  # Inverse Cipher
     # Whitening with round key
     state = AddRoundKey(state, expandedKey[Nr * stt_lng:(Nr + 1) * stt_lng])
 
+
     # Rounds
     for i in range(Nr):
         state = InvShiftRows(state)
