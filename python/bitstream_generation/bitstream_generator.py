@@ -37,7 +37,7 @@ def bitstream_generator(size, data_type):
 
 
 
-    f = open("../../modules/pmu/testbench/textfiles/bitstream.txt", "w")
+    f = open("/home/u1375766/SecuredBitstream/modules/pmu/testbench/textfiles/bitstream.txt", "w")
     f.write(bitstream)
     f.close()
 

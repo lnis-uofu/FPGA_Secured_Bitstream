@@ -9,12 +9,12 @@ def key_generator(size):
         key += str(random.randint(0,1))
 
     if(size == 128):
-        f = open("../../modules/pmu/testbench/textfiles/key_128.txt", "w")
+        f = open("/home/u1375766/SecuredBitstream/modules/pmu/testbench/textfiles/key_128.txt", "w")
         #f = open("~/SecuredBitstream/modules/pmu/testbench/textfiles/key_128.txt", "w")
         f.write(key)
         f.close()
     elif(size == 256):
-        f = open("../../modules/pmu/testbench/textfiles/key_256.txt", "w")
+        f = open("/home/u1375766/SecuredBitstream/modules/pmu/testbench/textfiles/key_256.txt", "w")
         f.write(key)
         f.close()
 

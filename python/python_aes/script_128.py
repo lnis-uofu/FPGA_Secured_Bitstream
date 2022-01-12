@@ -21,7 +21,7 @@ Nr = max(Nb, Nk) + 6  # = 10, 12 or 14 rounds
 key_hex = [0] * CipherKeyLenghth
 inv_key = [0] * CipherKeyLenghth
 
-f = open("../../modules/pmu.testbench/textfiles/key_128.txt", "r")
+f = open("/home/u1375766/SecuredBitstream/modules/pmu/testbench/textfiles/key_128.txt", "r")
 key = str(f.read())
 f.close()
 
@@ -39,13 +39,13 @@ for i in inv_key:
     inv_key_str += hex(i)[2:].zfill(2)
 
 inv_key = ""
-inv_key = bin(int(inv_key_str, 16))[2:]
+inv_key = bin(int(inv_key_str, 16))[2:].zfill(128)
 
-f = open("../../modules/pmu/testbench/testfiles/inv_key.txt", "w")
+f = open("/home/u1375766/SecuredBitstream/modules/pmu/testbench/textfiles/inv_key.txt", "w")
 f.write(inv_key)
 f.close()
 
-f = open("../../modules/pmu/testbench/textfiles/bitstream.txt", "r")
+f = open("/home/u1375766/SecuredBitstream/modules/pmu/testbench/textfiles/bitstream.txt", "r")
 message = str(f.read())
 f.close()
 
@@ -57,11 +57,11 @@ for index in range(len(temp_message)):
     temp_message[index] = int(message[index*byte:(index*byte)+byte], 2)
 
 
-encrypted_list = AES_Encrypt(temp_message, expandedKey, Nr)
+encrypted_list =AES_Encrypt(temp_message, expandedKey, Nr)
 encrypted_str = ""
 for index in range(len(encrypted_list)):
     encrypted_str += bin(encrypted_list[index])[2:].zfill(8)
 
-f = open("../../modules/pmu/testbench/textfiles/encrypted_bitstream.txt", "w")
+f = open("/home/u1375766/SecuredBitstream/modules/pmu/testbench/textfiles/encrypted_bitstream.txt", "w")
 f.write(encrypted_str)
 f.close()

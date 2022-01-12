@@ -3,7 +3,7 @@
 
 
 
-module sc_tb;
+module sc_128_bit_tb;
 
     reg clk = 1'b0;
 
@@ -12,11 +12,11 @@ module sc_tb;
 
     reg data_i = 0;
     reg en     = 0;
+
+    reg [128+31:0] key       = 0;
+    reg [128+35:0] bitstream = 0;
   
-    // in this bitstream there is an extra zero at MSB to "pad" such
-    // that the data_i is always defined.
-    reg [163:0] key = 164'h0000102030405060708090a0b0c0d0e0f00000803;
-    reg [417:0] bitstream = 418'h54686973206973206120746f7020736563726574203132382d6269742062697473747265616d20666f7220616e204650474120636f72652054686973206973206120746f7020736563726574203132382d6269742062697473747265616d20666f7220616e204650474120636f72652054686973206973206120746f7020736563726574203132382d6269742062697473747265616d20666f7220616e204650474120636f72652e205665727920536563757265640000000000000000000000000015c0;
+    
     
     pmu uut
     (
@@ -27,10 +27,17 @@ module sc_tb;
     .tdo            () 
     );
 
-    integer i;
+    integer i, file, count;
 
     initial 
-    begin 
+    begin
+        file  = $fopen("/home/u1375766/SecuredBitstream/modules/pmu/testbench/textfiles/encoded_key_128.txt", "rb");
+        count = $fscanf(file, "%b", key);
+        $fclose(file);
+        file  = $fopen("/home/u1375766/SecuredBitstream/modules/pmu/testbench/textfiles/encoded_bitstream.txt", "rb");
+        count = $fscanf(file, "%b", bitstream);
+        $fclose(file);
+        $display("%b", bitstream[163:4]);
         clk = 0;
         forever
         #halfperiod clk = ~clk;
@@ -44,26 +51,25 @@ module sc_tb;
     #period;
     en = 1'b1;
     #period;
-    for(i = 0; i < 164; i = i + 1)
+    for(i = 0; i < 161; i = i + 1)
     begin 
         data_i = key[i];
+        if(i == 160)
+            data_i = 0;
         #period;
     end
-
-    for(i = 0; i < 419; i = i + 1)
+  
+    for(i = 0; i < 161; i = i + 1)
     begin 
         data_i = bitstream[i];
+        if(i == 160)
+            data_i = 0;
         #period;
     end
 
     data_i = 1'b1;    
     
-    
-    for(i = 0; i < 800; i = i + 1)
-    begin 
-        #period;
-    end
-        
+    #period;        
     #period;
     #period;
     #period;

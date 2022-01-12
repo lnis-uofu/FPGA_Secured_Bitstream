@@ -69,6 +69,7 @@ parameter       pc_key = 4'b0011;
     reg                              sipo_data_i = 0;
     reg                                sipo_send = 0;
     reg                                  sipo_en = 0;
+    reg                                 sipo_rst = 0;
     reg  [31 :0]                 sipo_mem_data_i = 0;
     wire [127:0]                          sipo_key_o;
     wire [127:0]                          sipo_aes_o;
@@ -137,7 +138,7 @@ parameter       pc_key = 4'b0011;
 
     sipo sipo(
     .clk                (    clk),
-    .rst                (       ),
+    .rst               (sipo_rst),
     .en                 (sipo_en),
     .send             (sipo_send),
     .instruction (sipo_instruction),
@@ -201,17 +202,20 @@ begin
                 piso_en              =    0;
                 sipo_send            =    0;
                 sipo_en              =    0;
+                sipo_rst             =    0;
                 mem_w                =    0;
+
                 if(en == 1'b1)
                     begin
                         sipo_send            =    0;
                         counter              =    0;
+                        sipo_rst             =    1;
                         next_state           =  one;
                     end
             end
     one  : // read header
             begin
-                sipo_send            =    0;
+                sipo_rst             =    1;
                 if(counter < HEADER_WIDTH+1)
                     begin 
                         header = {data_i, header[HEADER_WIDTH-1:1]};
@@ -235,11 +239,10 @@ begin
                             end
                     end
             end
-    two  :
+    two  : //PC to SC
             begin
                 sipo_en          =    1'b1;
                 piso_load        =    1'b0;
-                sipo_send        =    1'b0;
                 sipo_instruction = 4'b0000;
                 if(counter < header[31:4])
                     begin
@@ -277,9 +280,11 @@ begin
             begin
                 sipo_en          =    1'b1;                
                 sipo_send        =    1'b0;
+                sipo_rst         =    1'b1;
                 mem_w            =    1'b0;
                 sipo_instruction = 4'b0001;
                 bootloader_clr   =    1'b0;
+                
 
                 // initilize the bootloader and starting mem for programming
                 if(counter == 1)
@@ -359,7 +364,7 @@ begin
                         next_state = zero;
                     end
             end
-    five: // Load a Key
+    five: // Load Key
             begin
                 sipo_en          =    1'b1;
                 sipo_instruction = 4'b0011;

@@ -26,12 +26,12 @@ module key_tb_256;
     .tdo            () 
     );
 
-    integer i;
+    integer i, count, file;
 
     initial 
     begin
         file  = $fopen("../testbench/textfiles/key_256.txt", "rb");
-        count = $fscan(file, "%b", bitstream);
+        count = $fscanf(file, "%b", key);
         $fclose(file);
         clk = 0;
         forever

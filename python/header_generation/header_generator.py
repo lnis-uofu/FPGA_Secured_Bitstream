@@ -2,7 +2,7 @@
 #creates an instruction header for bitstreams
 
 def header_generator(file_in, size, instruction, file_out):
-    f = open("../../modules/pmu/testbench/textfiles/encrypted_bitstream.txt", "r")
+    f = open(file_in, "r")
     bitstream = str(f.read())
     f.close()
     bitstream = bitstream.strip()
@@ -14,7 +14,7 @@ def header_generator(file_in, size, instruction, file_out):
 
     bitstream += header
 
-    f = open("../../modules/pmu/testbench/textfiles/encoded_bitstream.txt", 'w')
+    f = open(file_out, 'w')
     f.write(bitstream)
     f.close()
 

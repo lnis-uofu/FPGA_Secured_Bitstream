@@ -30,14 +30,14 @@ module key_tb_128;
 
     initial 
     begin
-        file  = $fopen("../testbench/textfiles/key_128.txt", "rb");
-        count = $fscan(file, "%b", bitstream);
+        file  = $fopen("../testbench/textfiles/encoded_key_128.txt", "rb");
+        count = $fscanf(file, "%b", key);
         $fclose(file);
         clk = 0;
         forever
         #halfperiod clk = ~clk;
     end
-
+    
     initial 
     begin 
     #period;
@@ -49,15 +49,18 @@ module key_tb_128;
     for(i = 0; i < 161; i = i + 1)
     begin 
         data_i = key[i];
+        if(i == 160)
+            data_i = 0;
         #period;
     end
-
     en     = 1'b0;
-    #period;
-    #period;
-    #period;
-    #period;
-    #period;
+    data_i = 0;
+
+    
+    for(i = 0; i < 130; i = i + 1)
+    begin 
+        #period;
+    end
     $stop;
         
     end

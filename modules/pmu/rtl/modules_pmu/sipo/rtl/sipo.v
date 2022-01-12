@@ -50,7 +50,7 @@ always@(posedge clk or negedge rst)
         
         if(en == 1'b1)
         begin
-            case(instruction)
+           case(instruction)
                 0:begin // pc to scan chain 
                     data = {data_i, data[AES_DATA_WIDTH-1:1]}; 
                     if(send == 1'b1) 
@@ -88,15 +88,11 @@ always@(posedge clk or negedge rst)
                         key_data_r = data[KEY_DATA_WIDTH-1:0]; 
                         aes_data_o = 0; 
                         mem_data_o = 0;
-                    end 
+                    end
                 end 
 
                 default: begin aes_data_o = 0; key_data_r = 0; mem_data_o = 0; end
             endcase
         end
-    
     end
-    
-    
-
 endmodule
