@@ -1,7 +1,28 @@
-#modelsim
+#Basic Files
+*.bin
+*.dbg
+*.exe
+*.hex
+*.log
+*.o
+*.so
+.nfs*
+
+#python
+*.py[cod]
+__pycache__/
+
+#Modelsim
 *.mem
 *.wlf
 .*.sw?
 transcript
 work/
+
+# Specific
+build/
+outputs/
+reprots/
+results/
+run_dir/
 
