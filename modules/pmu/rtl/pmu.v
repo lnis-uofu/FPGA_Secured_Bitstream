@@ -121,7 +121,7 @@ parameter       pc_key = 4'b0011;
     .inv_key         (key_data_o)
     );
 
-    key_storage key_storage(
+    key_storage key_storage_128(
     .key_write            (key_write),
     .key_data_in         (sipo_key_o),
     .key_data_out        (key_data_o)
@@ -159,7 +159,7 @@ parameter       pc_key = 4'b0011;
     .len_o              (bootloader_len_o)
      );
      
-    nv_memory nv_memory(
+    nv_memory nv_memory_1Kb(
     .clk                (clk    ), 
     .mem_w              (mem_w  ),
     .mem_addr_in        (mem_addr_i),
@@ -168,7 +168,7 @@ parameter       pc_key = 4'b0011;
     );
      
 
-    scan_chain scan_chain(
+    scan_chain scan_chain_128(
     .clk                (    clk),
     .en                   (sc_en),
     .clear              (       ),
