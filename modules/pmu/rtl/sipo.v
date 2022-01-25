@@ -45,7 +45,7 @@ always@(posedge clk or negedge rst)
         data       = 0;
         aes_data_o = 0;
         key_data_r = 0;
-        mem_data_o = 0;
+        mem_data_o = 0
         end
         
         if(en == 1'b1)

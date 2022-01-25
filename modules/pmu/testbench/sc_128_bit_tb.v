@@ -13,8 +13,9 @@ module sc_128_bit_tb;
     reg data_i = 0;
     reg en     = 0;
 
-    reg [128+31:0] key       = 0;
-    reg [128+35:0] bitstream = 0;
+    reg [128+66:0] key       = 0; // three bits are added to the
+                                  // facilitate state changes
+    reg [128+63:0] bitstream = 0;
   
     
     
@@ -31,13 +32,13 @@ module sc_128_bit_tb;
 
     initial 
     begin
-        file  = $fopen("/home/u1375766/SecuredBitstream/modules/pmu/testbench/textfiles/encoded_key_128.txt", "rb");
-        count = $fscanf(file, "%b", key);
+        file  = $fopen("/textfiles/encoded_key_128.txt", "rb");
+        count = $fscanf(file, "%b", key[191:0]);
         $fclose(file);
-        file  = $fopen("/home/u1375766/SecuredBitstream/modules/pmu/testbench/textfiles/encoded_bitstream.txt", "rb");
+        file  = $fopen("/textfiles/encoded_bitstream.txt", "rb");
         count = $fscanf(file, "%b", bitstream);
         $fclose(file);
-        $display("%b", bitstream[163:4]);
+        $display("%b", bitstream);
         clk = 0;
         forever
         #halfperiod clk = ~clk;
@@ -51,19 +52,19 @@ module sc_128_bit_tb;
     #period;
     en = 1'b1;
     #period;
-    for(i = 0; i < 161; i = i + 1)
+    for(i = 0; i < 196; i = i + 1)
     begin 
         data_i = key[i];
-        if(i == 160)
+        if(i == 195)
             data_i = 0;
         #period;
     end
   
-    for(i = 0; i < 161; i = i + 1)
+    for(i = 0; i < 193; i = i + 1)
     begin 
         data_i = bitstream[i];
-        if(i == 160)
-            data_i = 0;
+        if(i == 192)
+        data_i = 0;
         #period;
     end
 

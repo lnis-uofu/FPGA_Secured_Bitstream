@@ -13,6 +13,8 @@ if ( ! (-f ${cwd}/.git || -f ${cwd}/setup_env.csh) ) then
     exit 1
 endif
 
+
+
 ###############################################################################
 
 # Project directory environment
@@ -21,6 +23,9 @@ setenv PROJECT_BUILD_DIR    ${PROJECT_DIR}/build
 setenv PROJECT_CONFIG_DIR   ${PROJECT_DIR}/config
 setenv PROJECT_MODULES_DIR  ${PROJECT_DIR}/modules
 setenv PROJECT_SCRIPTS_DIR  ${PROJECT_DIR}/scripts
+
+# display
+setenv DISPLAY :1002
 
 # Modelsim
 

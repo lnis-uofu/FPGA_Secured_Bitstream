@@ -1,6 +1,3 @@
-// THIS WILL BE THE TESTBENCH
-//
-//`include "bitstream.txt"
 
 module mem_tb;
 
@@ -15,12 +12,12 @@ module mem_tb;
   
 
 
-    reg [1023+32:0] bitstream = 0;
+    reg [128+63:0] bitstream = 0;
 
     
     pmu 
     #(
-    .HEADER_WIDTH   (32 ),
+    .HEADER_WIDTH   (64 ),
     .AES_DATA_WIDTH (128),
     .AES_LATENCY    (10 )
     )
@@ -38,7 +35,7 @@ module mem_tb;
 
     initial 
     begin
-        file  = $fopen("bitstream.txt", "rb");
+        file  = $fopen("/home/u1375766/SecuredBitstream/modules/pmu/testbench/textfiles/encoded_bitstream.txt", "rb");
         count = $fscanf(file, "%b" ,bitstream);
         $displayb(bitstream);
         $fclose(file);
@@ -57,10 +54,13 @@ module mem_tb;
     #period;
 
 
-    for(i = 0; i < 1024+32; i = i + 1)
+    for(i = 0; i < 193; i = i + 1)
     begin 
         data_i = bitstream[i];
+        if(i == 192)
+            data_i = 0;
         #period;
+        
     end
 
     data_i = 1'b0;    
@@ -86,16 +86,12 @@ module mem_tb;
     
     #period;
     pwr = 1'b0;
-    for(i = 0; i < 5000; i = i + 1)
+    for(i = 0; i < 1000; i = i + 1)
     begin 
         #period;
     end
 
        
-
-    #period;
-    #period;
-    #period;
     $stop;
         
     end

@@ -1,13 +1,11 @@
-
-
-`include "../rtl/modules_pmu/address_generator/rtl/address_generator.v"
-`include "../../cryptography/aes/aes_128.v" 
-`include "../rtl/modules_pmu/bootloader/rtl/bootloader.v"
-`include "../rtl/modules_pmu/key_storage/rtl/key_storage.v"
-`include "../rtl/modules_pmu/piso/rtl/piso.v"
-`include "../rtl/modules_pmu/sipo/rtl/sipo.v"
-`include "../../fpga_cores/scan_chain/rtl/scan_chain.v"
-`include "../../nv_memory/rtl/nv_memory.v"
+`include "address_generator.v"
+`include "bootloader.v"
+`include "key_storage.v"
+`include "piso.v"
+`include "sipo.v"
+`include "../../fpga_cores/scan_chain.v"
+`include "../../nv_memory/nv_memory.v"
+`include "../../cryptography/aes/aes_128.v"
 
 //parameter         zero = 3'b000;
 //parameter          one = 3'b001;
@@ -24,29 +22,33 @@
 //parameter       pc_key = 4'b0011;
 
 module pmu#(
-    parameter integer HEADER_WIDTH    = 32,
+    parameter integer HEADER_WIDTH    = 64,
     parameter integer AES_DATA_WIDTH  = 128,
     parameter integer AES_LATENCY     = 10,
     parameter integer MEM_DATA_WIDTH  = 32,
     parameter integer MEM_ADDR_WIDTH  = 8,
-    parameter integer MEM_START_ADDR  = 1,
     parameter integer SIPO_MEM_COUNT  = AES_DATA_WIDTH/MEM_DATA_WIDTH
 )(
     input  clk,
     input  data_i,
     input  en,
     input  pwr_up_en,
-    output tdo
+    output reg tdo
 );
 
-parameter         zero = 3'b000;
-parameter          one = 3'b001;
-parameter          two = 3'b010;
-parameter        three = 3'b011;
-parameter         four = 3'b100;
-parameter         five = 3'b101;
-parameter          six = 3'b110;
-parameter        seven = 3'b111; 
+parameter         zero = 4'b0000;
+parameter          one = 4'b0001;
+parameter          two = 4'b0010;
+parameter        three = 4'b0011;
+parameter         four = 4'b0100;
+parameter         five = 4'b0101;
+parameter          six = 4'b0110;
+parameter        seven = 4'b0111;
+parameter        eight = 4'b1000;
+parameter         nine = 4'b1001;
+parameter          ten = 4'b1010;
+parameter       eleven = 4'b1011;
+parameter       twelve = 4'b1100;
 
 parameter        pc_sc = 4'b0000;
 parameter       pc_mem = 4'b0001;
@@ -55,12 +57,12 @@ parameter       pc_key = 4'b0011;
 
 
     // Encoding and FSM registers
-    reg  [2  :0]                           state = 0;
+    reg  [3  :0]                           state = 0;
     reg  [2  :0]                      next_state = 0;
     reg  [31 :0]                         counter = 0;
     reg  [3  :0]                sipo_instruction = 0;
     reg  [HEADER_WIDTH-1:0]               header = 0;
-    
+    //reg [63:0]                            header = 0;
     // Key Storage
     reg                                key_write = 0;
     wire [127:0]                          key_data_o;
@@ -77,7 +79,8 @@ parameter       pc_key = 4'b0011;
 
     
     // AES
-    wire [127:0]                          aes_data_o;
+    reg                                      aes_clr;
+    wire [AES_DATA_WIDTH-1:0]             aes_data_o;
     
     // PISO
     reg                                  piso_en = 0;
@@ -88,7 +91,7 @@ parameter       pc_key = 4'b0011;
     reg                                    sc_en = 0;
 
     //NVM
-    reg  [7  :0]                     mem_address = 0;
+    reg  [MEM_ADDR_WIDTH-1:0]        mem_address = 0;
     reg                              mem_w       = 0;
     wire [MEM_ADDR_WIDTH-1:0]             mem_addr_i;
     wire [MEM_DATA_WIDTH-1:0]             mem_data_i;
@@ -105,23 +108,24 @@ parameter       pc_key = 4'b0011;
     //reg/wires specifically for mem to sc instruction
     reg  [31 :0]            aes_mem_data_counter = 0;
     reg  [7  :0]                       temp_addr = 0;
+ 
     
 //import modules
     address_generator address_generator(
     .data_i             ({sipo_mem_o, mem_address}),
     .addr_o             (mem_addr_i),
-    .data_o             (mem_data_i)
+    .data_o             (mem_data_o)
     );
 
     inv_aes_128 AES(
     .clk                (    clk),
-    .clr                (       ),
+    .clr                (aes_clr),
     .dat_in          (sipo_aes_o),
     .dat_out         (aes_data_o),
     .inv_key         (key_data_o)
     );
 
-    key_storage key_storage_128(
+    key_storage key_storage(
     .key_write            (key_write),
     .key_data_in         (sipo_key_o),
     .key_data_out        (key_data_o)
@@ -159,7 +163,7 @@ parameter       pc_key = 4'b0011;
     .len_o              (bootloader_len_o)
      );
      
-    nv_memory nv_memory_1Kb(
+    nv_memory nv_memory(
     .clk                (clk    ), 
     .mem_w              (mem_w  ),
     .mem_addr_in        (mem_addr_i),
@@ -168,7 +172,7 @@ parameter       pc_key = 4'b0011;
     );
      
 
-    scan_chain scan_chain_128(
+    scan_chain scan_chain(
     .clk                (    clk),
     .en                   (sc_en),
     .clear              (       ),
@@ -185,17 +189,20 @@ end
 
 always @(state or en or counter or pwr_up_en)
 begin
+    //for now assign tdo to zero
+    tdo = 0;
     //Power-Up Condition
     if(pwr_up_en)
         begin
         counter    =              0;
-        temp_addr  = MEM_START_ADDR;
+        temp_addr  =              0;
         next_state =           four;
         end
 
     case(state)
     zero : //Idle
             begin
+                aes_clr              =    1;
                 sipo_data_i          =    0;
                 key_write            =    0;
                 piso_load            =    0;
@@ -215,6 +222,7 @@ begin
             end
     one  : // read header
             begin
+                //sipo_instruction     =    0;
                 sipo_rst             =    1;
                 if(counter < HEADER_WIDTH+1)
                     begin 
@@ -241,37 +249,46 @@ begin
             end
     two  : //PC to SC
             begin
+                aes_clr          =    1'b0;
                 sipo_en          =    1'b1;
+                sipo_send        =    1'b0;
                 piso_load        =    1'b0;
                 sipo_instruction = 4'b0000;
-                if(counter < header[31:4])
+                if(counter < header[63:32])
                     begin
-                        sipo_data_i <= data_i;
+                        sipo_data_i  = data_i;
                         sipo_send   <=   1'b0;
                         piso_load   <=   1'b0;
                     end
-                if(counter%AES_DATA_WIDTH == 0 & counter != 0 & counter != (header[31:4] + AES_DATA_WIDTH))
+                if(counter%AES_DATA_WIDTH == 0 & counter != 0 & counter != (header[63:32] + AES_DATA_WIDTH))
                     begin
-                        sipo_data_i <= data_i;
+                        sipo_data_i  = data_i;
                         sipo_send    =   1'b1;
                         piso_load   <=   1'b0;
                     end
                 if(counter == AES_DATA_WIDTH)
                     begin
-                        sipo_data_i <= data_i;
+                        sipo_data_i  = data_i;
                         sipo_send   <=   1'b1;
                      end
-                //if(counter == 139)
-                if(counter%AES_DATA_WIDTH == AES_LATENCY + 1 & counter != AES_LATENCY + 1 & counter != header[31:4]+ AES_LATENCY + AES_DATA_WIDTH)
+                if(counter%AES_DATA_WIDTH == AES_LATENCY + 1 & counter != AES_LATENCY + 1 & counter != header[63:32]+ AES_LATENCY + AES_DATA_WIDTH)
                     begin
-                        sipo_data_i <= data_i;
+                        sipo_data_i = data_i;
                         piso_load  <=   1'b1;
                         piso_en    <=   1'b1;
                         sc_en      <=   1'b1;
+                        sipo_send  <=   1'b0;
                     end
-                if(counter == header[31:4] + AES_LATENCY + AES_DATA_WIDTH)
+                if(counter == header[63:32] + AES_LATENCY + 1)
+                    begin
+                        sipo_data_i = data_i;
+                        sc_en     =    1'b0;
+                        sipo_send =    1'b0;
+                    end
+                if(counter == header[63:32] + AES_LATENCY + AES_DATA_WIDTH)
                     begin
                         sc_en      =   1'b0;
+                        sipo_send  =   1'b0;
                         next_state =   zero;
                     end
             end
@@ -284,49 +301,46 @@ begin
                 mem_w            =    1'b0;
                 sipo_instruction = 4'b0001;
                 bootloader_clr   =    1'b0;
-                
 
                 // initilize the bootloader and starting mem for programming
                 if(counter == 1)
                     begin
                         bootloader_rw      =              1'b1;
-                        bootloader_len_i   =      header[31:4];
-                        bootloader_addr_i  =    MEM_START_ADDR;
-                        mem_address        =    MEM_START_ADDR;
+                        bootloader_len_i   =     header[63:32];
+                        bootloader_addr_i  =     header[31: 4];
+                        mem_address        =     header[31: 4];
                     end
                 if(counter == 2)
                     begin
                         bootloader_rw    = 1'b0;
                     end
-                if(counter < header[31:4])
+                if(counter < header[63:32])
                     begin
                         sipo_data_i     <= data_i;
                     end
-                if(counter%MEM_DATA_WIDTH == 0 & counter != 0)
+                if(counter%MEM_DATA_WIDTH == 0 & counter != 0 & counter != header[63:32] + MEM_DATA_WIDTH)
                     begin 
-                        //mem_address = mem_address + 1;
                         sipo_data_i <= data_i;
                         sipo_send    =   1'b1;
                     end
-                if(counter%MEM_DATA_WIDTH == 1 & counter != 1)
+                if(counter%MEM_DATA_WIDTH == 1 & counter != 1 & counter != header[63:32] + MEM_DATA_WIDTH + 1)
                     begin
-                        mem_w       =            1'b1;
-                        if(counter > 33)
-                            mem_address = mem_address + 1;
-                    end                 
-                if(counter == header[31:4])
+                        mem_w       =              1'b1;
+                    end   
+                if(counter%MEM_DATA_WIDTH == 2 & counter != 2)
                     begin
-                        sipo_send   = 1'b1;
-                    end
-                if(counter == header[31:4]+1)
+                        mem_address = mem_address + 1;
+                    end                
+                if(counter == header[63:32] + MEM_DATA_WIDTH + 1)
                     begin
-                        mem_w      <= 1'b1;
                         next_state <= zero;
                     end
             end
     four: // MEM to SC
             begin
+                aes_clr    = 1'b0;
                 sipo_en    = 1'b1;
+                sipo_rst   = 1'b1;
                 piso_load  = 1'b0;
                 sipo_send  = 1'b0;
                 sipo_instruction = 4'b0010;
@@ -335,10 +349,10 @@ begin
                     if(counter == SIPO_MEM_COUNT)
                         begin
                             sc_en = 1'b0;
-                            mem_address <= MEM_START_ADDR;
+                            mem_address <= bootloader_addr_o;
                             sipo_send = 1'b1;
                         end
-                    if(counter == SIPO_MEM_COUNT+AES_LATENCY)
+                    if(counter == SIPO_MEM_COUNT + AES_LATENCY)
                         begin
                             if(aes_mem_data_counter == 0)
                                 begin 
@@ -348,15 +362,14 @@ begin
                             piso_load = 1'b1;
                             mem_address = mem_address + 1;
                         end
-                    if(counter == SIPO_MEM_COUNT+AES_LATENCY+AES_DATA_WIDTH)
+                    if(counter == SIPO_MEM_COUNT + AES_LATENCY + AES_DATA_WIDTH)
                         begin
                             sc_en = 1'b0;
                             aes_mem_data_counter = aes_mem_data_counter + 1;
-                            counter = 0;
-                    
+                            counter = 0; 
                         end
                 end
-                if(aes_mem_data_counter == bootloader_len_o)
+                if(aes_mem_data_counter == bootloader_len_o + 1)
                     begin
                         piso_en = 1'b0;
                         sc_en   = 1'b0;
@@ -368,22 +381,30 @@ begin
             begin
                 sipo_en          =    1'b1;
                 sipo_instruction = 4'b0011;
-                if(counter < header[31:4])
+                if(counter < header[63:32])
                     begin
-                        sipo_data_i <= data_i;
+                        sipo_data_i  = data_i;
                     end
-                if(counter == 128 + 1)
+                if(counter == header[63:32])
                     begin
-                        sipo_data_i <= data_i;
+                        sipo_data_i  = data_i;
+                    end
+                if(counter == AES_DATA_WIDTH + 1)
+                    begin
+                        sipo_data_i  = data_i;
                         sipo_send    =   1'b1;
                      end
-                if(counter == 128 + 2)
+                if(counter == AES_DATA_WIDTH + 2)
                     begin
+                        sipo_data_i <= data_i;
                         key_write    =   1'b1;
                         sipo_send    =   1'b0;
                         next_state   =   zero;
                     end
             end
+    //six: //Load Key and SC
+    //seven: //Load Key and MEM
+    //eight: //Load Key MEM and PC
 
     endcase
 end    

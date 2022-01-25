@@ -62,6 +62,8 @@ encrypted_str = ""
 for index in range(len(encrypted_list)):
     encrypted_str += bin(encrypted_list[index])[2:].zfill(8)
 
+
+
 f = open("/home/u1375766/SecuredBitstream/modules/pmu/testbench/textfiles/encrypted_bitstream.txt", "w")
 f.write(encrypted_str)
 f.close()

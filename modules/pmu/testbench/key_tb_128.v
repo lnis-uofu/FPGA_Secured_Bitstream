@@ -9,11 +9,11 @@ module key_tb_128;
     reg data_i = 0;
     reg en     = 0;
   
-    reg [128+31:0] key = 0;
+    reg [128+63:0] key = 0;
     
     pmu 
     #(
-    .HEADER_WIDTH   (32),
+    .HEADER_WIDTH   (64),
     .AES_DATA_WIDTH (128),
     .AES_LATENCY    (10)
     )
@@ -46,23 +46,21 @@ module key_tb_128;
     #period;
     en = 1'b1;
     #period;
-    for(i = 0; i < 161; i = i + 1)
+    for(i = 0; i < 193; i = i + 1)
     begin 
         data_i = key[i];
-        if(i == 160)
+        if(i == 192)
             data_i = 0;
         #period;
     end
     en     = 1'b0;
     data_i = 0;
 
-    
     for(i = 0; i < 130; i = i + 1)
     begin 
         #period;
     end
     $stop;
-        
     end
 
 endmodule
