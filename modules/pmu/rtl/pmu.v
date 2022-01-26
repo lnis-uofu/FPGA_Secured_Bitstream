@@ -33,81 +33,88 @@ module pmu#(
     input  data_i,
     input  en,
     input  pwr_up_en,
+    input  rst,
     output reg tdo
 );
 
-parameter         zero = 4'b0000;
-parameter          one = 4'b0001;
-parameter          two = 4'b0010;
-parameter        three = 4'b0011;
-parameter         four = 4'b0100;
-parameter         five = 4'b0101;
-parameter          six = 4'b0110;
-parameter        seven = 4'b0111;
-parameter        eight = 4'b1000;
-parameter         nine = 4'b1001;
-parameter          ten = 4'b1010;
-parameter       eleven = 4'b1011;
-parameter       twelve = 4'b1100;
+local parameter         zero = 4'b0000;
+local parameter          one = 4'b0001;
+local parameter          two = 4'b0010;
+local parameter        three = 4'b0011;
+local parameter         four = 4'b0100;
+local parameter         five = 4'b0101;
+local parameter          six = 4'b0110;
+local parameter        seven = 4'b0111;
+local parameter        eight = 4'b1000;
+local parameter         nine = 4'b1001;
+local parameter          ten = 4'b1010;
+local parameter       eleven = 4'b1011;
+local parameter       twelve = 4'b1100;
+local parameter     thirteen = 4'b1101;
+local parameter     fourteen = 4'b1110;
+local parameter      fifteen = 4'b1111;
 
-parameter        pc_sc = 4'b0000;
-parameter       pc_mem = 4'b0001;
-parameter       mem_sc = 4'b0010;
-parameter       pc_key = 4'b0011;
+
+local parameter        pc_sc = 4'b0000;
+local parameter       pc_mem = 4'b0001;
+local parameter       mem_sc = 4'b0010;
+loacl parameter       pc_key = 4'b0011;
 
 
     // Encoding and FSM registers
-    reg  [3  :0]                           state = 0;
-    reg  [2  :0]                      next_state = 0;
-    reg  [31 :0]                         counter = 0;
-    reg  [3  :0]                sipo_instruction = 0;
-    reg  [HEADER_WIDTH-1:0]               header = 0;
-    //reg [63:0]                            header = 0;
+    reg  [3  :0]                           state;
+    reg  [2  :0]                      next_state;
+    reg  [31 :0]                         counter;
+    reg  [3  :0]                sipo_instruction;
+    reg  [HEADER_WIDTH-1:0]               header;
+
     // Key Storage
-    reg                                key_write = 0;
-    wire [127:0]                          key_data_o;
+    reg                                key_write;
+    wire [127:0]                      key_data_o;
     
     // SIPO
-    reg                              sipo_data_i = 0;
-    reg                                sipo_send = 0;
-    reg                                  sipo_en = 0;
-    reg                                 sipo_rst = 0;
-    reg  [31 :0]                 sipo_mem_data_i = 0;
-    wire [127:0]                          sipo_key_o;
-    wire [127:0]                          sipo_aes_o;
-    wire [31 :0]                          sipo_mem_o;
+    reg                              sipo_data_i;
+    reg                                sipo_send;
+    reg                                  sipo_en;
+    reg                                 sipo_rst;
+    reg  [31 :0]                 sipo_mem_data_i;
+    wire [127:0]                      sipo_key_o;
+    wire [127:0]                      sipo_aes_o;
+    wire [31 :0]                      sipo_mem_o;
 
     
     // AES
-    reg                                      aes_clr;
-    wire [AES_DATA_WIDTH-1:0]             aes_data_o;
+    reg                                  aes_clr;
+    wire [AES_DATA_WIDTH-1:0]         aes_data_o;
     
     // PISO
-    reg                                  piso_en = 0;
-    reg                                piso_load = 0;
-    wire                                 piso_data_o; 
+    reg                                  piso_en;
+    reg                                piso_load;
+    reg                                 piso_rst;
+    wire                             piso_data_o; 
 
     // Scan Chin
-    reg                                    sc_en = 0;
+    reg                                    sc_en;
+    reg                                   sc_clr;
 
     //NVM
-    reg  [MEM_ADDR_WIDTH-1:0]        mem_address = 0;
-    reg                              mem_w       = 0;
-    wire [MEM_ADDR_WIDTH-1:0]             mem_addr_i;
-    wire [MEM_DATA_WIDTH-1:0]             mem_data_i;
-    wire [MEM_DATA_WIDTH-1:0]             mem_data_o;
+    reg  [MEM_ADDR_WIDTH-1:0]        mem_address;
+    reg                                    mem_w;
+    wire [MEM_ADDR_WIDTH-1:0]         mem_addr_i;
+    wire [MEM_DATA_WIDTH-1:0]         mem_data_i;
+    wire [MEM_DATA_WIDTH-1:0]         mem_data_o;
 
     // bootloader
-    reg                        bootloader_rw     = 0;
-    reg                        bootloader_clr    = 0;
-    reg  [31 :0]               bootloader_len_i  = 0;
-    reg  [MEM_ADDR_WIDTH-1:0]  bootloader_addr_i = 0;
-    wire [31 :0]                    bootloader_len_o;
-    wire [MEM_ADDR_WIDTH-1:0]      bootloader_addr_o;
+    reg                            bootloader_rw;
+    reg                           bootloader_clr;
+    reg  [31 :0]                bootloader_len_i;
+    reg  [MEM_ADDR_WIDTH-1:0]  bootloader_addr_i;
+    wire [31 :0]                bootloader_len_o;
+    wire [MEM_ADDR_WIDTH-1:0]  bootloader_addr_o;
 
     //reg/wires specifically for mem to sc instruction
-    reg  [31 :0]            aes_mem_data_counter = 0;
-    reg  [7  :0]                       temp_addr = 0;
+    reg  [31 :0]            aes_mem_data_counter;
+    reg  [7  :0]                       temp_addr;
  
     
 //import modules
@@ -133,7 +140,7 @@ parameter       pc_key = 4'b0011;
     
     piso piso(
     .clk                 (    clk),
-    .rst                 (       ),
+    .rst                (piso_rst),
     .load              (piso_load),
     .en                  (piso_en),
     .data_i           (aes_data_o),
@@ -173,13 +180,19 @@ parameter       pc_key = 4'b0011;
      
 
     scan_chain scan_chain(
-    .clk                (    clk),
+    .clk                    (clk),
     .en                   (sc_en),
-    .clear              (       ),
+    .clear               (sc_clr),
     .data_i         (piso_data_o)
     //.data_o             (       ) // if JTAG
     );
-    
+
+always @(negedge rst)
+begin
+    state      = zero;
+    next_state = zero;
+end
+
     
 always @(posedge clk)
 begin 
@@ -187,7 +200,7 @@ begin
     counter = counter + 1;
 end
 
-always @(state or en or counter or pwr_up_en)
+always @(state or en or counter)
 begin
     //for now assign tdo to zero
     tdo = 0;
@@ -196,32 +209,48 @@ begin
         begin
         counter    =                0;
         temp_addr  =                0;
-        next_state =             four;
+        next_state =             five;
         mem_address=bootloader_addr_o;
         end
 
     case(state)
-    zero : //Idle
+    zero : //initilization state
             begin
-                aes_clr              =    1;
-                sipo_data_i          =    0;
-                key_write            =    0;
-                piso_load            =    0;
-                piso_en              =    0;
-                sipo_send            =    0;
-                sipo_en              =    0;
-                sipo_rst             =    0;
-                mem_w                =    0;
-
+                counter              = 0;
+                sipo_instruction     = 0;
+                header               = 0;
+                key_write            = 0;
+                sipo_data_i          = 0;
+                sipo_send            = 0;
+                sipo_rst             = 1;
+                sipo_mem_data_i      = 0;
+                piso_en              = 0;
+                piso_load            = 0;
+                piso_rst             = 1;
+                sc_en                = 0;
+                sc_clr               = 1;
+                mem_address          = 0;
+                mem_w                = 0;
+                bootloader_rw        = 0;
+                bootloader_clr       = 0;
+                bootloader_len_i     = 0;
+                bootloader_addr_i    = 0;
+                aes_mem_data_counter = 0;
+                temp_addr            = 0;
+                aes_clr              = 1;
+            end
+        
+    one  : //Idle
+            begin
                 if(en == 1'b1)
                     begin
                         sipo_send            =    0;
                         counter              =    0;
                         sipo_rst             =    1;
-                        next_state           =  one;
+                        next_state           =  two;
                     end
             end
-    one  : // read header
+    two  : // read header
             begin
                 //sipo_instruction     =    0;
                 sipo_rst             =    1;
@@ -235,20 +264,20 @@ begin
                         counter = 0;
                         if(header[3:0] == 4'b1010)
                             begin 
-                                next_state <= two;
+                                next_state <= three;
                             end
                         else if(header[3:0] == 4'b0001)
                             begin 
                                 bootloader_clr = 1'b1;
-                                next_state = three; 
+                                next_state = four; 
                             end
                         else if(header[3:0] == 4'b0010)
                             begin 
-                                next_state = five;
+                                next_state = six;
                             end
                     end
             end
-    two  : //PC to SC
+    three  : //PC to SC
             begin
                 aes_clr          =    1'b0;
                 sipo_en          =    1'b1;
@@ -290,11 +319,11 @@ begin
                     begin
                         sc_en      =   1'b0;
                         sipo_send  =   1'b0;
-                        next_state =   zero;
+                        next_state =    one;
                     end
             end
                 
-    three: // PC to MEM 
+    four: // PC to MEM 
             begin
                 sipo_en          =    1'b1;                
                 sipo_send        =    1'b0;
@@ -334,10 +363,10 @@ begin
                     end                
                 if(counter == header[63:32] + MEM_DATA_WIDTH + 1)
                     begin
-                        next_state <= zero;
+                        next_state <= one;
                     end
             end
-    four: // MEM to SC
+    five: // MEM to SC
             begin
                 aes_clr    = 1'b0;
                 sipo_en    = 1'b1;
@@ -373,15 +402,15 @@ begin
                             counter = 0; 
                         end
                 end
-                if(aes_mem_data_counter == bootloader_len_o + 1)
+                if(aes_mem_data_counter == bootloader_len_o)
                     begin
                         piso_en = 1'b0;
                         sc_en   = 1'b0;
                         aes_mem_data_counter = 0;
-                        next_state = zero;
+                        next_state = one;
                     end
             end
-    five: // Load Key
+    six: // Load Key
             begin
                 sipo_en          =    1'b1;
                 sipo_instruction = 4'b0011;
@@ -403,12 +432,13 @@ begin
                         sipo_data_i <= data_i;
                         key_write    =   1'b1;
                         sipo_send    =   1'b0;
-                        next_state   =   zero;
+                        next_state   =    one;
                     end
             end
     //six: //Load Key and SC
     //seven: //Load Key and MEM
     //eight: //Load Key MEM and PC
+    //nine:  //Load Key SC and MEM
 
     endcase
 end    

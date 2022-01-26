@@ -27,11 +27,20 @@ module nv_memory #(
     output reg     [DATA_WIDTH-1:0] mem_data_out   
 );
 
+integer i;
+
 reg [DATA_WIDTH-1:0] memory[MEM_SIZE-1:0];
 
 initial
     begin
         mem_data_out= 0;
+        // This is not synthesizable and 
+        // only for verification purposes
+        for(i = 0; i < MEM_SIZE+1; i = i + 1)
+            begin
+                memory[i] = 0;
+            end
+
     end
     
 always @(posedge clk)
