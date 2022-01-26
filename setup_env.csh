@@ -25,7 +25,7 @@ setenv PROJECT_MODULES_DIR  ${PROJECT_DIR}/modules
 setenv PROJECT_SCRIPTS_DIR  ${PROJECT_DIR}/scripts
 
 # display
-setenv DISPLAY :1002
+#setenv DISPLAY :1002
 
 # Modelsim
 

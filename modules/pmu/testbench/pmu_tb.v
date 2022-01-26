@@ -97,7 +97,7 @@ module pmu_tb;
     encoded_bitstream[3:0] = 4'b0001;
     
          
-    for(i = 0; i < 136; i = i + 1)
+    for(i = 0; i < 138; i = i + 1)
     begin
         #period;
     end

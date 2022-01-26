@@ -114,7 +114,7 @@ parameter       pc_key = 4'b0011;
     address_generator address_generator(
     .data_i             ({sipo_mem_o, mem_address}),
     .addr_o             (mem_addr_i),
-    .data_o             (mem_data_o)
+    .data_o             (mem_data_i)
     );
 
     inv_aes_128 AES(
@@ -194,9 +194,10 @@ begin
     //Power-Up Condition
     if(pwr_up_en)
         begin
-        counter    =              0;
-        temp_addr  =              0;
-        next_state =           four;
+        counter    =                0;
+        temp_addr  =                0;
+        next_state =             four;
+        mem_address=bootloader_addr_o;
         end
 
     case(state)
@@ -285,7 +286,7 @@ begin
                         sc_en     =    1'b0;
                         sipo_send =    1'b0;
                     end
-                if(counter == header[63:32] + AES_LATENCY + AES_DATA_WIDTH)
+                if(counter == header[63:32] + AES_LATENCY + AES_DATA_WIDTH + 2)
                     begin
                         sc_en      =   1'b0;
                         sipo_send  =   1'b0;
@@ -346,10 +347,13 @@ begin
                 sipo_instruction = 4'b0010;
                 if(aes_mem_data_counter < bootloader_len_o)
                 begin
+                    if(counter <  SIPO_MEM_COUNT & counter > 0)
+                        begin
+                            mem_address = mem_address + 1;
+                        end
                     if(counter == SIPO_MEM_COUNT)
                         begin
                             sc_en = 1'b0;
-                            mem_address <= bootloader_addr_o;
                             sipo_send = 1'b1;
                         end
                     if(counter == SIPO_MEM_COUNT + AES_LATENCY)

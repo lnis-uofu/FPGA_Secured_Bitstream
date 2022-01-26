@@ -31,7 +31,6 @@ reg [DATA_WIDTH-1:0] memory[MEM_SIZE-1:0];
 
 initial
     begin
-
         mem_data_out= 0;
     end
     

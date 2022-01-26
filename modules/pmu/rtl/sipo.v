@@ -45,7 +45,7 @@ always@(posedge clk or negedge rst)
         data       = 0;
         aes_data_o = 0;
         key_data_r = 0;
-        mem_data_o = 0
+        mem_data_o = 0;
         end
         
         if(en == 1'b1)
@@ -72,7 +72,7 @@ always@(posedge clk or negedge rst)
                 end
 
                 2:begin // memory to aes
-                    data = {data[AES_DATA_WIDTH-1:MEM_ADDR_WIDTH], mem_data_i}; 
+                    data = {mem_data_i, data[AES_DATA_WIDTH - 1:MEM_DATA_WIDTH]}; 
                     if(send == 1'b1) 
                     begin 
                         aes_data_o <= data[AES_DATA_WIDTH-1:0];
