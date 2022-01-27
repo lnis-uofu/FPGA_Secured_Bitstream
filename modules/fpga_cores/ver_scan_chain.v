@@ -9,8 +9,8 @@
 // ├───────────────────────────────────────────────────┤
 // │  Breif     :  Shift Register to model the         │
 // │               configuration chain in a FPGA       │
-// │               core.                               │
-// │                                                   │
+// │               core. This one is specifically      │
+// │               for verification purposes.          │
 // │                                                   │
 // │                                                   │
 // └───────────────────────────────────────────────────┘
@@ -22,8 +22,9 @@ module scan_chain #(
     input clk,
     input en,
     input clear,
-    input data_i
-    //output data_o
+    input data_i,
+    output [SC_LENGTH-1:0]sc_data, //This is so that we can observe sc_data at the top level
+    output data_o
 );
 
 
@@ -41,7 +42,7 @@ always @ (posedge clk or negedge clear)
 
 
     assign data_o = data[0];
-    
+    assign sc_data = data;
 endmodule
 
 

@@ -100,8 +100,8 @@ output  capture_dr_o;
 // Select signals for boundary scan or mbist
 output  extest_select_o;
 output  sample_preload_select_o;
+output  debug_select_o;
 output  mbist_select_o;
-
 output  pmu_select_o;
 
 // TDO signal that is connected to TDI of sub-modules.
