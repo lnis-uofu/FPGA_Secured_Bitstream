@@ -1,3 +1,3 @@
 <p>
-  <img src="./docs/figures/PMUv1.png">
+  <img src="./docs/figures/PMUv1.svg">
 </p>
