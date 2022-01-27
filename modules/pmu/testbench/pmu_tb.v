@@ -5,23 +5,23 @@
 
 module pmu_tb;
 
-    reg clk = 1'b0;
-    reg pwr_up_en = 1'b0;
-
     parameter  KEY_LENGTH       = 128;
     parameter  BITSTREAM_LENGTH = 128;
 
     localparam period       = 20;
     localparam halfperiod   = 10;
 
-    reg data_i = 0;
-    reg en     = 0;
+    reg data_i    = 1'b0;
+    reg en        = 1'b0;
+    reg clk       = 1'b0;
+    reg pwr_up_en = 1'b1;
+    reg rst       = 1'b1;
     
-    reg [KEY_LENGTH-1   :0]     inv_key               = 0;
-    reg [KEY_LENGTH-1   :0]         key               = 0;
-    reg [KEY_LENGTH-1+64:0] encoded_key               = 0; 
-    reg [BITSTREAM_LENGTH-1+64:0]   encoded_bitstream = 0; //This is also encrypted
-    reg [BITSTREAM_LENGTH-1   :0]           bitstream = 0;
+    reg [KEY_LENGTH-1   :0]                 inv_key = 0;
+    reg [KEY_LENGTH-1   :0]                     key = 0;
+    reg [KEY_LENGTH-1+64:0]             encoded_key = 0; 
+    reg [BITSTREAM_LENGTH-1+64:0] encoded_bitstream = 0; //This is also encrypted
+    reg [BITSTREAM_LENGTH-1   :0]         bitstream = 0;
     
     
     pmu uut
@@ -30,6 +30,8 @@ module pmu_tb;
     .data_i         (data_i),
     .en             (en),
     .pwr_up_en      (pwr_up_en),
+    .rst            (rst),
+    .program_complete(),
     .tdo            () 
     );
 
@@ -38,21 +40,17 @@ module pmu_tb;
     initial 
     begin
         file  = $fopen("../testbench/textfiles/encoded_key_128.txt"  , "rb");
-        count = $fscanf(file, "%b", encoded_key[191:0]);
+        count = $fscanf(file, "%b", encoded_key);
         $fclose(file);
-        $display("%b", encoded_key);
         file  = $fopen("../testbench/textfiles/encoded_bitstream.txt", "rb");
         count = $fscanf(file, "%b", encoded_bitstream);
         $fclose(file);
-        $display("%b", encoded_bitstream);
         file  = $fopen("../testbench/textfiles/bitstream.txt"        , "rb");
         count = $fscanf(file, "%b", bitstream);
         $fclose(file);
-        $display("%b", bitstream);
         file  = $fopen("../testbench/textfiles/inv_key.txt"          , "rb");
         count = $fscanf(file, "%b", inv_key);
         $fclose(file);
-        $display("%b", inv_key);
         clk = 0;
         forever
         #halfperiod clk = ~clk;
@@ -60,7 +58,11 @@ module pmu_tb;
 
     initial 
     begin
+   
     #period;
+    rst = 1'b0;
+    #period;
+    rst = 1'b1;
     #period;
     #period;
     #period;
@@ -115,7 +117,9 @@ module pmu_tb;
         #period;
     end
 
-
+    #period;
+    #period;
+    #period;
     en = 1'b0;
  
     for(i = 0; i < 33; i = i + 1)
@@ -128,14 +132,15 @@ module pmu_tb;
     #period;
 
         
-    pwr_up_en = 1'b1;
-    #period;
     pwr_up_en = 1'b0;
+    #period;
+    pwr_up_en = 1'b1;
 
     for(i = 0; i < 200; i = i + 1)
     begin
         #period;
     end
+    
 
     $stop;
         

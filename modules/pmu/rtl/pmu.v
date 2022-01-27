@@ -34,31 +34,32 @@ module pmu#(
     input  en,
     input  pwr_up_en,
     input  rst,
+    output reg program_complete,
     output reg tdo
 );
 
-local parameter         zero = 4'b0000;
-local parameter          one = 4'b0001;
-local parameter          two = 4'b0010;
-local parameter        three = 4'b0011;
-local parameter         four = 4'b0100;
-local parameter         five = 4'b0101;
-local parameter          six = 4'b0110;
-local parameter        seven = 4'b0111;
-local parameter        eight = 4'b1000;
-local parameter         nine = 4'b1001;
-local parameter          ten = 4'b1010;
-local parameter       eleven = 4'b1011;
-local parameter       twelve = 4'b1100;
-local parameter     thirteen = 4'b1101;
-local parameter     fourteen = 4'b1110;
-local parameter      fifteen = 4'b1111;
+localparam         zero = 4'b0000;
+localparam          one = 4'b0001;
+localparam          two = 4'b0010;
+localparam        three = 4'b0011;
+localparam         four = 4'b0100;
+localparam         five = 4'b0101;
+localparam          six = 4'b0110;
+localparam        seven = 4'b0111;
+localparam        eight = 4'b1000;
+localparam         nine = 4'b1001;
+localparam          ten = 4'b1010;
+localparam       eleven = 4'b1011;
+localparam       twelve = 4'b1100;
+localparam     thirteen = 4'b1101;
+localparam     fourteen = 4'b1110;
+localparam      fifteen = 4'b1111;
 
 
-local parameter        pc_sc = 4'b0000;
-local parameter       pc_mem = 4'b0001;
-local parameter       mem_sc = 4'b0010;
-loacl parameter       pc_key = 4'b0011;
+localparam        pc_sc = 4'b0000;
+localparam       pc_mem = 4'b0001;
+localparam       mem_sc = 4'b0010;
+localparam       pc_key = 4'b0011;
 
 
     // Encoding and FSM registers
@@ -187,10 +188,18 @@ loacl parameter       pc_key = 4'b0011;
     //.data_o             (       ) // if JTAG
     );
 
-always @(negedge rst)
+always @(negedge rst or negedge pwr_up_en)
 begin
-    state      = zero;
-    next_state = zero;
+    if(!(pwr_up_en))
+        begin
+            mem_address = bootloader_addr_o;
+            counter     =    0;
+            next_state  = five;
+        end
+    else
+        begin
+            next_state = zero;
+        end
 end
 
     
@@ -202,57 +211,62 @@ end
 
 always @(state or en or counter)
 begin
-    //for now assign tdo to zero
-    tdo = 0;
-    //Power-Up Condition
-    if(pwr_up_en)
-        begin
-        counter    =                0;
-        temp_addr  =                0;
-        next_state =             five;
-        mem_address=bootloader_addr_o;
-        end
-
     case(state)
     zero : //initilization state
             begin
-                counter              = 0;
-                sipo_instruction     = 0;
-                header               = 0;
-                key_write            = 0;
-                sipo_data_i          = 0;
-                sipo_send            = 0;
-                sipo_rst             = 1;
-                sipo_mem_data_i      = 0;
-                piso_en              = 0;
-                piso_load            = 0;
-                piso_rst             = 1;
-                sc_en                = 0;
-                sc_clr               = 1;
-                mem_address          = 0;
-                mem_w                = 0;
-                bootloader_rw        = 0;
-                bootloader_clr       = 0;
-                bootloader_len_i     = 0;
-                bootloader_addr_i    = 0;
-                aes_mem_data_counter = 0;
-                temp_addr            = 0;
-                aes_clr              = 1;
+                //for now just make tdo zero
+                tdo                  =   0;
+                counter              =   0;
+                sipo_instruction     =   0;
+                header               =   0;
+                key_write            =   0;
+                sipo_data_i          =   0;
+                sipo_send            =   0;
+                sipo_rst             =   1;
+                sipo_en              =   0;
+                sipo_mem_data_i      =   0;
+                piso_en              =   0;
+                piso_load            =   0;
+                piso_rst             =   1;
+                sc_en                =   0;
+                sc_clr               =   1;
+                mem_address          =   0;
+                mem_w                =   0;
+                bootloader_rw        =   0;
+                bootloader_clr       =   0;
+                bootloader_len_i     =   0;
+                bootloader_addr_i    =   0;
+                aes_mem_data_counter =   0;
+                temp_addr            =   0;
+                aes_clr              =   1;
+                program_complete     =   0;
+                next_state = one;
+
+                
             end
         
     one  : //Idle
             begin
                 if(en == 1'b1)
-                    begin
-                        sipo_send            =    0;
-                        counter              =    0;
-                        sipo_rst             =    1;
-                        next_state           =  two;
-                    end
+                begin
+                    mem_w      =   0;
+                    key_write  =   0;
+                    piso_rst   =   0;
+                    sipo_rst   =   0;
+                    sipo_en    =   0;
+                    piso_en    =   0;
+                    counter    =   0;
+                    next_state = two;
+                end
             end
     two  : // read header
+            if(!(en))
             begin
-                //sipo_instruction     =    0;
+                next_state = one;
+            end
+            else
+            begin
+                piso_rst             =    1;
                 sipo_rst             =    1;
                 if(counter < HEADER_WIDTH+1)
                     begin 
@@ -319,6 +333,8 @@ begin
                     begin
                         sc_en      =   1'b0;
                         sipo_send  =   1'b0;
+                        piso_en    =   1'b0;
+                        aes_clr    =   1'b1;
                         next_state =    one;
                     end
             end
@@ -353,16 +369,21 @@ begin
                         sipo_data_i <= data_i;
                         sipo_send    =   1'b1;
                     end
-                if(counter%MEM_DATA_WIDTH == 1 & counter != 1 & counter != header[63:32] + MEM_DATA_WIDTH + 1)
+                if(counter%MEM_DATA_WIDTH == 1 & counter != 1 & counter != header[63:32] + MEM_DATA_WIDTH)
                     begin
-                        mem_w       =              1'b1;
+                        mem_w        =  1'b1;
                     end   
-                if(counter%MEM_DATA_WIDTH == 2 & counter != 2)
+                if(counter%MEM_DATA_WIDTH == 2 & counter != 2 & counter != header[63:32] + MEM_DATA_WIDTH)
                     begin
-                        mem_address = mem_address + 1;
-                    end                
-                if(counter == header[63:32] + MEM_DATA_WIDTH + 1)
+                            mem_address =   mem_address + 1;
+                    end   
+                if(counter == header[63:32] + 1)
                     begin
+                        mem_w   = 1;
+                    end
+                if(counter == header[63:32] + 2)
+                    begin
+                        mem_address = 0;
                         next_state <= one;
                     end
             end
@@ -393,7 +414,7 @@ begin
                                 end
                             sc_en = 1'b1;
                             piso_load = 1'b1;
-                            mem_address = mem_address + 1;
+                            //mem_address = mem_address + 1;
                         end
                     if(counter == SIPO_MEM_COUNT + AES_LATENCY + AES_DATA_WIDTH)
                         begin
