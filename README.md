@@ -8,7 +8,7 @@ This is the first interation of the PMU (v1). This architecture will serve the b
 
 ## Installation
 
-# Dependencies
+## Dependencies
 
 ## Acknoledgements
 - [JTAG](https://github.com/freecores/jtag): JTAG implementation from OpenCores
