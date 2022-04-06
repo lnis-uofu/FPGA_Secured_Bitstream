@@ -22,45 +22,58 @@ module tap_top_tb;
 	reg tms  		        = 1'b1;
 	reg	tck  		        = 1'b0;
 	reg	tdi  		        = 1'b0;
-	reg	trst 		        = 1'b0;
+	reg	trst 		        = 1'b1;
+    reg debug               = 1'b0;
+    reg bs_chain            = 8'h45;
+    reg mbist               = 1'b0;
+
+
+    reg [10:0] tdi_header = 11'b01101100000;
+    reg [4:0] tdi_footer  =  5'b00000;
+    reg [10:0] tms_header = 11'b11000000110;
+    reg [4:0] tms_footer  =  5'b11111;
+
+
+    //reg data
 
     
     //tap initialization
 	tap_top uut
 	(
-	.tms_pad_i               (tms),
-	.tck_pad_i               (clk), 
-	.trst_pad_i             (trst),    
-	.tdi_pad_i               (tdi),      
-	.tdo_pad_o                  (), 
-    .tdo_padoe_o                (),
+	.tms_i(tms),
+	.tck_i(clk), 
+	.rst_ni(trst),    
+	.td_i(tdi),      
+	.td_o(), 
         
-	.shift_dr_o                 (),
-	.pause_dr_o                 (),
-	.update_dr_o                (),
-	.capture_dr_o               (),
+	.shift_dr_o(),
+	.update_dr_o(),
+	.capture_dr_o(),
 
-	.extest_select_o            (),
-	.sample_preload_select_o    (),
-	.mbist_select_o             (),
-	.debug_select_o             (),
-    .pmu_select_o               (),
+    // Select signals for boundary scan or mbist
+    .memory_sel_o(),
+    .fifo_sel_o(),
+    .confreg_sel_o(),
+    .clk_byp_sel_o(),
+    .observ_sel_o(),
+    .pmu_w_cs_sel_o(),
+    .pmu_wo_cs_sel_o(),
 
-	.tdo_o                      (),
-    .pmu_enable                 (),
-    .pmu_tck_o                  (),
+    .checksum_en(),
+    .pmu_en(),
+        
+	.scan_in_o(),
+    .pmu_tdi_o(),
+    .pmu_tck_o(),
+    .pmu_rst_o(),
 
-	.debug_tdi_i                (),
-	.bs_chain_tdi_i             (),
-	.mbist_tdi_i                (),
-    .pmu_tdi_i                  ()
-
-	);
-
-
-    reg [3:0] bitstream = 4'b1011;
-    integer i;
-
+    // TDI signals from sub-modules
+    .memory_out_i(),     // from reg1 module
+    .fifo_out_i(),       // from reg2 module
+    .confreg_out_i(),     // from reg3 module
+    .clk_byp_out_i(),
+    .observ_out_i()
+    );    
 
     //start of simulation
     initial   
@@ -69,63 +82,79 @@ module tap_top_tb;
     forever
         #halfperiod clk = ~clk;
     end
-    
+    integer i; 
     initial begin
-        //reset to initiate tap logic
-        trst <= 1'b1;
+        //--------------------------------------------- with checksum 
+        
         #halfperiod
-        trst <= 1'b0; 
+        //reset to initiate tap logic
+        trst <= 1'b0;
+        #period
+        trst <= 1'b1;
+        #period;
        
-        //----------------------------
-        // Configure JTAG FSM
-        // ---------------------------
-        #period
-        tms  <= 1'b0;
-        #period
-        tms  <= 1'b1;
-        #period
-        #period
-        tms  <= 1'b0;
-        #period
-        #period
-        #period
-        tdi  <= 1'b1;
-        #period
-        tdi  <= 1'b0;
-        #period 
+        for(i = 0; i < 11; i = i + 1)
+        begin
+            tms = tms_header[i];
+            tdi = tdi_header[i];
+            #period;
 
-        tdi  <= 1'b1;
-        tms  <= 1'b1;
-        #period         // shift_ir       -> exit_ir
-        tdi  <= 1'b0;
-        #period         // exit_ir        -> update_ir
-        #period         // update_ir      -> select_dr_scan
-        tms  <= 1'b0;
-        #period         // select_dr_scan -> capture_dr  
-        #period         // capture_dr     -> shift_dr     at this point tap is configured in bypass mode and data can be shifted from in to out thru bypass reg:x
-        #period         // 0 keeps tap in shift_dr
+        end
+        for(i = 0; i < 64; i = i + 1)
+        begin
+            tms = 0;
+            tdi = 1;
+            #period;
+
+        end
+        for(i = 0; i < 5; i = i + 1)
+        begin
+            tms = tms_footer[i];
+            tdi = tdi_footer[i];
+            #period;
+        end
+
+        #period;
+        #period;
+
+        //-------------------------------------------- without checksum 
+        tdi_header = 11'b01101000000;
+
 
         
+        #halfperiod
+        //reset to initiate tap logic
+        trst <= 1'b0;
+        #period
+        trst <= 1'b1;
+        #period;
+       
+        for(i = 0; i < 11; i = i + 1)
+        begin
+            tms = tms_header[i];
+            tdi = tdi_header[i];
+            #period;
+
+        end
+        for(i = 0; i < 2500; i = i + 1)
+        begin
+            tms = 0;
+            tdi = 1;
+            #period;
+
+        end
         for(i = 0; i < 5; i = i + 1)
-            begin
-            if(i < 4) begin
-            tdi = bitstream[i];
-                #period;
-            end
-            else if(i == 4) begin
-                tdi = 0; end
-            end
-        // end of message
-         
-        //drive tms high for at least 5 cycles = reset
-        tms  <= 1'b1;
-        tdi  = 0;
-        #period
-        #period
-        #period
-        #period
-        #period
-        #period
+        begin
+            tms = tms_footer[i];
+            tdi = tdi_footer[i];
+            #period;
+        end
+
+        #period;
+        #period;
+
+
+        
         $stop; 
     end
 
