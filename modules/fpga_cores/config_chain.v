@@ -17,28 +17,23 @@
 
 
 module config_chain #(
-    parameter SC_LENGTH   = 128
+    parameter LENGTH   = 128
 )(
-    input clk,
-    input  se,
+    input  progclk,
     input  pReset,
-    input  data_i,
-    output data_o
+    input  ccff_head,
+    output ccff_tail
 );
 
 
-reg [SC_LENGTH-1:0] data = 0;
+reg [LENGTH-1:0] data = 0;
     
-always @ (posedge clk or negedge pReset)
+always @ (posedge progclk or negedge pReset)
     begin
-        if (se == 1'b1)
-            begin
-                data = {data_i, data[SC_LENGTH-1:1]};
-            end
+        data = {ccff_head, data[LENGTH-1:1]};
     end
 
-    assign data_o = data[0];
-    
+    assign ccff_tail = data[0];
 endmodule
 
 

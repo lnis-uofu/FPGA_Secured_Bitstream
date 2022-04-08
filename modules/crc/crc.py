@@ -1,9 +1,6 @@
-import random
-
-
 def xor_2(str0, str1):
     result = ''
-    for i in range(8):
+    for i in range(len(str0)):
         temp = int(str0[i]) ^ int(str1[i])
         if(temp):
             result += '1'
@@ -17,7 +14,7 @@ def crc_8_encoder(data_in, minpoly):
     data_in = padding + data_in
     reg = '00000000'
     residual = ''
-    for i in range(71, -1, -1):
+    for i in range(len(data_in) - 1, -1, -1):
         if(reg[0] == '0'):
             reg = reg[1:8] + data_in[i]
         else:
@@ -34,63 +31,70 @@ def crc_8_encoder(data_in, minpoly):
 
 
 
-# --- OpenFPGA.txt parser ---
-# returns bitstream length, legth after encoding and array of data
-def parse_txt():
-    count = 0
-    data = ''
+
+def bitstream_encoder(packet_size, file_input, file_output):
+
+    minpoly = '11101011'
+
+    # ----------------------------------------------------------------
+    # Take the bitstream file and make n array elemts
+    # each a string size of 'packet_size'
+    count   = 0
     packets = 0
-    for line in open("fabric_bitstream.txt"):
+    data    = ''
+    for line in open(file_input):
         li=line.strip()
         if not li.startswith("//"):
-            #print(line.rstrip())
             data = line.rstrip() + data
             count += 1
-        # fill the extra at the end to make even packets
-    packets = (count // 64) + 1
-    fill_amt = (packets * 64) - count
+    packets = (count // packet_size) + 1
+    fill_amt = (packets * packet_size) - count
     for i in range(fill_amt + 1):
-        data = str(random.randint(0,1)) + data
-
+        data = '0' + data
     array = [0] * packets
     for i in range(packets):
-        array[i] = data[i*64:i*64 + 64]
+        array[i] = data[i*packet_size:i*packet_size + packet_size]
+
+    # -----------------------------------------------------------------
+    #
+    #
+    # -----------------------------------------------------------------
+    # Form header and append it to array
+    header = str(bin(packet_size)[2:].zfill(32)) + str(bin(packets + 1)[2:].zfill(32))
+
+    array.append(header)
+
+    # -----------------------------------------------------------------
+    #
+    #
+    # -----------------------------------------------------------------
+    # Evaluate CRC key and append to end of each packet
+
+    array_encoded = [0] * len(array)
+    for i in range(len(array)):
+        residual = crc_8_encoder(array[i], minpoly) + array[i]
+        array_encoded[i] = residual
 
 
-    return count, packets, array
-# --------------------------
-#
+    # -----------------------------------------------------------------
+    #
+    #
+    # -----------------------------------------------------------------
+    # Reconstruct string and write to file
+    data_out = ''
+    for i in range(len(array_encoded)):
+        data_out = data_out + array_encoded[i]
+    f = open(file_output, "w")
+    f.write(data_out)
+    f.close()
 
-count, array_len, array = parse_txt()
-minpoly  = '11101011'
+if __name__=="__main__":
+    import argparse
 
-array_encoded = [0] * array_len
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
+    ap.add_argument("packet_size", type=int)
+    ap.add_argument("file_input",  type=str)
+    ap.add_argument("file_output", type=str)
 
-
-for i in range(len(array)):
-    residual = crc_8_encoder(array[i], minpoly) + array[i]
-    array_encoded[i] = residual
-
-
-data_out = ''
-
-bin_count    = format(count, "b").zfill(19)
-en_bin_count = format(array_len*64, "b").zfill(19)
-
-for i in range(len(array_encoded)):
-    data_out = data_out + array_encoded[i]
-
-
-data_out = data_out + (bin_count + en_bin_count)
-
-
-
-print("length        ", count, " ", bin_count)
-print("encoded length", array_len * 64, " ", en_bin_count)
-
-
-
-
-f = open("bitstream.txt", "w")
-f.write(data_out)
-f.close()
+    args = ap.parse_args()
+    bitstream_encoder(args.packet_size, args.file_input, args.file_output)
