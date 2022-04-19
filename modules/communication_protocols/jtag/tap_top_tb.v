@@ -72,7 +72,8 @@ module tap_top_tb;
     .fifo_out_i(),       // from reg2 module
     .confreg_out_i(),     // from reg3 module
     .clk_byp_out_i(),
-    .observ_out_i()
+    .observ_out_i(),
+    .pmu_tdo_i()
     );    
 
     //start of simulation

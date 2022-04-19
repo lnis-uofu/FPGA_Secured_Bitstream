@@ -32,7 +32,7 @@ begin
     end
 end
 
-always @ (capture_i)
+always @ (clk_i)
 begin
         if(capture_i && data != 8'b00000000)
             flag_o_r = 1'b1;

@@ -17,7 +17,7 @@
 
 
 module config_chain #(
-    parameter LENGTH   = 128
+    parameter LENGTH   = 2250
 )(
     input  progclk,
     input  pReset,

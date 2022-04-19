@@ -79,7 +79,8 @@ module tap_top (
   fifo_out_i,       // from reg2 module
   confreg_out_i,     // from reg3 module
   clk_byp_out_i,
-  observ_out_i
+  observ_out_i,
+  pmu_tdo_i
 );
 
 
@@ -120,6 +121,7 @@ input   fifo_out_i;    // from reg2 module
 input   confreg_out_i;     // from reg4 module
 input   clk_byp_out_i;
 input   observ_out_i;
+input   pmu_tdo_i;
 
 
 // Registers
@@ -178,7 +180,7 @@ assign pmu_wo_cs_sel_o = pmu_wo_cs_sel;
 assign checksum_en = checksum_en_reg;
 assign pmu_en = pmu_en_reg;
 assign pmu_tck_o = tck_i;
-assign pmu_rst_o = ~((tms_q1 & tms_q2 & tms_q3 & tms_q4 & tms_i) ||~rst_ni); 
+assign pmu_rst_o = rst_ni; 
     
 assign clk_byp_sel_o  = clk_byp_sel;
 assign observ_sel_o   = observ_sel;
@@ -615,7 +617,7 @@ begin
         `REG_CLK_BYP:       tdo_comb = confreg_out_i;     // REG4
         `REG_OBSERV:        tdo_comb = clk_byp_out_i;     // REG5
         `BYPASS:            tdo_comb = bypassed_tdo;     // BYPASS
-        `PMU_W_CS:          tdo_comb = 0;            
+        `PMU_W_CS:          tdo_comb = pmu_tdo_i;            
         `PMU_WO_CS:         tdo_comb = 0;   
         default:            tdo_comb = bypassed_tdo;   // BYPASS instruction
       endcase

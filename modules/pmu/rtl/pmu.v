@@ -18,10 +18,10 @@
     input  en_i,
     input  rst_i,
     input  tck_i,
-    //input  checksum_en_i,
+    input  checksum_en_i,
 
-    output ccff_en,
-    
+    output progclk_o,
+
     output flag_o_jtag,
     output flag_o_fpga,
     output data_o,
@@ -34,7 +34,7 @@
 
     (* keep *) reg [3:0] state;
     (* keep *) reg [3:0] next_state;
-     
+
     reg [63:0] header;
     wire [5:0] counter0_o;
     wire [2:0] counter1_o;
@@ -56,10 +56,10 @@
 
 
     assign data_o = data_i;
-    
-    assign capture = capture_r;
-    assign ccff_en = ccff_en_r;
-     
+
+    assign capture   = capture_r;
+    assign progclk_o = ccff_en_r;
+
     assign flag_o_jtag = flag_o;
     assign flag_o_fpga = flag_o;
     assign data_ccff_o = data_ccff_i;
@@ -82,7 +82,7 @@
     .count(counter1_o)
     );
 
-    crc_8 crc 
+    crc_8 crc
     (
     .clk_i(tck_i),
     .en_i(crc_en),
@@ -99,7 +99,7 @@ begin
     else
         state <= next_state;
 end
-    
+
 
 always @ (state or en_i or counter0_o or counter1_o)
 begin
@@ -123,30 +123,30 @@ begin
             end
         `ONE:   // Read CRC key (8-bits)
             begin
-                if(en_i) begin 
+                if(en_i) begin
                     if(header[31:0] > 1) begin
-                        if(counter1_o == 3'b110)
+                        if(counter1_o == 3'b111)
                             next_state <= `TWO;
                         else
                             next_state <= `ONE;
                     end
                     if(header[31:0] == 2)
-                        if(counter1_o == 3'b110)
+                        if(counter1_o == 3'b111)
                             next_state <= `THREE;
-                        else 
+                        else
                             next_state <= `ONE;
                     if(header[31:0] == 1)
-                        if(counter1_o == 3'b110)
+                        if(counter1_o == 3'b111)
                             next_state <= `FOUR;
                         else
                             next_state <= `ONE;
-                end else 
+                end else
                     next_state <= `IDLE;
             end
         `TWO:   // load data (64-bits)
-            begin 
+            begin
                 if(en_i) begin
-                    if(counter0_o == 6'b111110)
+                    if(counter0_o == 6'b111111)
                         next_state <= `ONE;
                     else
                         next_state <= `TWO;
@@ -155,7 +155,7 @@ begin
             end
         `THREE: // load LAST data (64-bits)
             begin
-                if(en_i) begin 
+                if(en_i) begin
                     if(counter0_o == 6'b111110)
                         next_state <= `ONE;
                     else
@@ -163,48 +163,45 @@ begin
                 end else
                     next_state <= `IDLE;
             end
-        `FOUR: // Finish Sequence. 
+        `FOUR: // Finish Sequence.
                // Does last crc check without en needing to be on
             begin
                 next_state <= `IDLE;
             end
                 default: begin next_state <= `IDLE; end
     endcase
-               
+
 end
 
-always @ (posedge tck_i)
-begin 
+always @ (posedge tck_i or state)
+begin
     case(state)
         `IDLE:
-            begin 
+            begin
                 capture_r = 1'b0;
                 crc_en_r = 1'b0;
                 counter0_en_r = 1'b0;
                 counter1_en_r = 1'b0;
                 header = 0;
-                ccff_en_r = 1'b0;
             end
         `ZERO:
             begin
-                crc_en_r  = 1'b1;
+                if(checksum_en_i) crc_en_r <= 1'b1; else crc_en_r <= 1'b0;
                 capture_r = 1'b0;
-                header = {data_i, header[63:1]};
+                header <= {data_i, header[63:1]};
                 counter0_en_r = 1'b1;
                 counter1_en_r = 1'b0;
-                ccff_en_r = 1'b0;
             end
         `ONE:
             begin
-                crc_en_r  = 1'b1;
+                if(checksum_en_i) crc_en_r = 1'b1; else crc_en_r = 1'b0;
                 capture_r = 1'b0;
                 header[63:32] = header[63:32];
                 counter0_en_r = 1'b0;
                 counter1_en_r = 1'b1;
-                ccff_en_r = 1'b0;
                 if(counter1_o == 3'b110)
                     header[31:0] = header[31:0] - 1;
-                else 
+                else
                     header[31:0] = header[31:0];
             end
         `TWO:
@@ -212,13 +209,12 @@ begin
                 header = header;
                 counter0_en_r = 1'b1;
                 counter1_en_r = 1'b0;
-                ccff_en_r = 1'b1;
-                if(counter0_o == 0) begin
+                if(counter0_o == 6'b000000) begin
                     crc_en_r = 1'b0;
-                    capture_r = 1'b1;
-                end else begin 
-                    crc_en_r  = 1'b1;
-                    capture_r = 1'b0;
+                    capture_r <= 1'b1;
+                end else begin
+                    if(checksum_en_i) crc_en_r = 1'b1; else crc_en_r = 1'b0;
+                    capture_r <= 1'b0;
                 end
                 //if(counter0_o == header[63:32])
                     // turn of core en
@@ -228,15 +224,11 @@ begin
                 header = header;
                 counter0_en_r = 1'b1;
                 counter1_en_r = 1'b0;
-                if(counter0_o == header[63:32])
-                    ccff_en_r = 1'b0;
-                else
-                    ccff_en_r = 1'b1;
                 if(counter0_o == 0) begin
                     crc_en_r  = 1'b0;
                     capture_r = 1'b1;
-                end else begin 
-                    crc_en_r  = 1'b1;
+                end else begin
+                    if(checksum_en_i) crc_en_r = 1'b1; else crc_en_r = 1'b0;
                     capture_r = 1'b0;
                 end
             end
@@ -247,19 +239,48 @@ begin
                 capture_r = 1'b1;
                 counter0_en_r = 1'b0;
                 counter1_en_r = 1'b0;
-                ccff_en_r = 1'b0;
             end
-        default: begin header = 0; counter0_en_r = 1'b0; counter1_en_r = 1'b0; end 
-    endcase 
+        default: begin header = 0; counter0_en_r = 1'b0; counter1_en_r = 1'b0; crc_en_r = 1'b0; end
+    endcase
+
 
 end
+
+always @ (tck_i)
+begin
+    case(state)
+        `IDLE:   ccff_en_r = 1'b0;
+        `ZERO:   ccff_en_r = 1'b0;
+        `ONE:    ccff_en_r = 1'b0;
+        `TWO:
+            begin
+                if(counter0_o >= header[63:32] && header[31:0] == 1)
+                    ccff_en_r = 1'b0;
+                else
+                    ccff_en_r = tck_i;
+            end
+        `THREE: 
+            begin
+                if(counter0_o >= header[63:32] && header[31:0] == 2)
+                    ccff_en_r = 1'b0;
+                else
+                    ccff_en_r = tck_i;
+            end
+        `FOUR: ccff_en_r = 1'b0;
+
+ 
+        default: ccff_en_r = 1'b0;
+    endcase
+end
+
+
 
 endmodule
 
 
 
 module counter_6_bit (clk_i, en_i, count);
-    
+
     input  clk_i;
     input  en_i;
     output [5:0] count;
@@ -269,7 +290,7 @@ module counter_6_bit (clk_i, en_i, count);
     assign count = counter;
 
 always @ (posedge clk_i)
-begin 
+begin
     if(~en_i)
         counter = 0;
     else
@@ -278,7 +299,7 @@ end
 endmodule
 
 module counter_16_bit (clk_i, en_i, count);
-    
+
     input  clk_i;
     input  en_i;
     output [15:0] count;
@@ -288,7 +309,7 @@ module counter_16_bit (clk_i, en_i, count);
     assign count = counter;
 
 always @ (posedge clk_i)
-begin 
+begin
     if(~en_i)
         counter = 0;
     else
@@ -297,7 +318,7 @@ end
 endmodule
 
 module counter_3_bit (clk_i, en_i, count);
-    
+
     input  clk_i;
     input  en_i;
     output [2:0] count;
@@ -307,7 +328,7 @@ module counter_3_bit (clk_i, en_i, count);
     assign count = counter;
 
 always @ (posedge clk_i)
-begin 
+begin
     if(~en_i)
         counter = 0;
     else
@@ -317,7 +338,7 @@ endmodule
 
 
 module crc_8 (clk_i, en_i, data_i, capture_i, flag_o);
-    
+
 
     input    clk_i;
     input     en_i;
@@ -330,11 +351,11 @@ module crc_8 (clk_i, en_i, data_i, capture_i, flag_o);
 
     assign flag_o = flag_o_r;
 
-always @ (posedge clk_i)
-begin 
-    if(~en_i) begin 
-        data     = 0;
-
+always @ (clk_i or en_i)
+begin
+    if(~en_i) begin
+        data       <= 0;
+        flag_o_r   <= 0;
     end else begin
         data[0] <= data_i  ^ data[7];
         data[1] <= data[0] ^ data[7];
@@ -348,7 +369,7 @@ begin
     end
 end
 
-always @ (capture_i)
+always @ (negedge clk_i)
 begin
         if(capture_i && data != 8'b00000000)
             flag_o_r = 1'b1;

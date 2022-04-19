@@ -22,7 +22,6 @@ module crc_tb;
     .clk_i(clk),
     .en_i(en),
     .data_i(data_i),
-    .capture(capture),
     .flag_o()
     );
 

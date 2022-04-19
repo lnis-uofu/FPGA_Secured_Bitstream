@@ -35,7 +35,7 @@ def crc_8_encoder(data_in, minpoly):
 def bitstream_encoder(packet_size, file_input, file_output):
 
     minpoly = '11101011' # X^8 + X^7 + X^6 + X^5 + X^3 + X + 1
-
+    f = open(file_output, "w")
     # ----------------------------------------------------------------
     # Take the bitstream file and make n array elemets
     # each a string size of 'packet_size'
@@ -47,20 +47,29 @@ def bitstream_encoder(packet_size, file_input, file_output):
         if not li.startswith("//"):
             data = line.rstrip() + data
             count += 1
+    f.write(data + '\n')
+    print(data)
+    print(' ')
     packets = (count // packet_size) + 1
     fill_amt = (packets * packet_size) - count
-    for i in range(fill_amt + 1):
+    print("fill_amt ", fill_amt)
+    for i in range(fill_amt):
         data = '0' + data
     array = [0] * packets
     for i in range(packets):
-        array[i] = data[i*packet_size:i*packet_size + packet_size]
+        array[i] = data[i*packet_size:(i*packet_size) + packet_size]
+
+    for i in range(len(array)):
+        print(i, ' ', array[i], ' ', len(array[i]))
 
     # -----------------------------------------------------------------
     #
     #
     # -----------------------------------------------------------------
     # Form header and append it to array
-    header = str(bin(packet_size)[2:].zfill(32)) + str(bin(packets + 1)[2:].zfill(32))
+    print(packets)
+    print(fill_amt)
+    header = str(bin(packet_size - (fill_amt))[2:].zfill(32)) + str(bin(packets + 2)[2:].zfill(32))
 
     array.append(header)
 
@@ -84,8 +93,42 @@ def bitstream_encoder(packet_size, file_input, file_output):
     data_out = ''
     for i in range(len(array_encoded)):
         data_out = data_out + array_encoded[i]
-    f = open(file_output, "w")
-    f.write(data_out)
+
+    #print(len(array_encoded) * 72)
+
+    # Generate tdi signal
+    #instruction = '11011'  # with CRC
+    instruction = '11011'   # without CRC
+    # pad instruction
+    instruction = '00' + instruction + '00000'
+    tdi_footer = '00000'
+
+    #print(data_out)
+    print(' ')
+    tdi = tdi_footer + data_out + instruction
+    #print(tdi)
+
+    # Generatae tms signal
+    tms = ''
+    for i in range(len(array_encoded) * 72):
+        tms += '0'
+
+    tms_header = '0011000000110'
+    tms_footer = '11111'
+
+    tms = tms_footer + tms + tms_header
+
+
+    print(' ')
+    print(tdi)
+
+
+    # + 16 FPR JTAG
+    print("bitstream length = ", len(tms))
+
+
+    f.write(tdi + '\n')
+    f.write(tms)
     f.close()
 
 if __name__=="__main__":
