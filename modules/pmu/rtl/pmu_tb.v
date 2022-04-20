@@ -100,9 +100,15 @@ module pmu_tb;
         $display("      Bitstream failed to load correctly in FPGA Core");
 
     $display(" ");
+    #period;    
+    #period;
+    $display("Resulting data in FPGA Core: ");
     $display("%b", fpga_core.data);
+
     $display(" End Test 1 - Bitstream with Passing CRC");
     $display(" ");
+
+
 
     $display(" Begin Test 2 - Bitstream with Failing CRC");
     $display(" ");
@@ -131,12 +137,17 @@ module pmu_tb;
         $display("       Bitstream error sucessfully detected");
     else
         $display("      Bitstream failed to detect incorrect bitstream");
-        
+    $display(" "); 
     #period;    
     #period;
+    $display("Resulting data in FPGA Core: ");
+    $display("%b", fpga_core.data);
     $display(" ");
     $display(" End Test 2 - Bitstream with Failing CRC");
     $display(" ");
+
+
+
 
     $display(" Begin Test 3 - Bitstream with Failing CRC");
     $display(" ");
@@ -160,13 +171,14 @@ module pmu_tb;
         $display("      Bitstream sucessfully loaded in FPGA Core");
     else
         $display("      Bitstream failed to load correctly in FPGA Core");
-
+    $display(" ");
     #period;    
     #period;
+    $display("Resulting data in FPGA Core: ");
+    $display("%b", fpga_core.data);
     $display(" ");
     $display(" End Test 3 - Bitstream with Failing CRC");
     $display(" ");
-    $display("%b", fpga_core.data);
 
 
     $stop;
