@@ -39,18 +39,26 @@ module pmu_tb;
     .ccff_tail(ccff_tail_w)
     );
     reg [2249:0] golden_bitstream;
-    reg [2682:0] bitstream0;
-    reg [2682:0] bitstream1;
+    reg [2682:0] bitstream_pass_tdi;
+    reg [2682:0] bitstream_pass_tms;
+    reg [2682:0] bitstream_fail_tdi;
+    reg [2682:0] bitstream_fail_tms;
+    reg [2329:0] bitstream_wocrc_tdi;
+    reg [2329:0] bitstream_wocrc_tms;
 
     
-    integer i, file, count0, count1, count2;
+    integer i, file, count0, count1, count2, count3, count4, count5, count6;
     initial begin
 
         // read in necessary files for bitstream
-        file  = $fopen("../../../scripts/bitstream_pass.txt", "rb");
+        file  = $fopen("../../../scripts/bitstream.txt", "rb");
         count0 = $fscanf(file, "%b", golden_bitstream);
-        count1 = $fscanf(file, "%b", bitstream0);
-        count2 = $fscanf(file, "%b",  bitstream1);
+        count1 = $fscanf(file, "%b", bitstream_pass_tdi);
+        count2 = $fscanf(file, "%b", bitstream_pass_tms);
+        count3 = $fscanf(file, "%b", bitstream_fail_tdi);
+        count4 = $fscanf(file, "%b", bitstream_fail_tms);
+        count5 = $fscanf(file, "%b", bitstream_wocrc_tdi);
+        count6 = $fscanf(file, "%b", bitstream_wocrc_tms);
         $fclose(file);
         
         clk = 0;
@@ -63,14 +71,23 @@ module pmu_tb;
     #period;
     #halfperiod;
 
-    //$display("%b", bitstream1);
+    $display(" -------------------- Begin Testig --------------------");
+    $display(" ");
+    $display(" Bitstream Golden model: ");
+    $display("%b", golden_bitstream);
+    $display(" ");
+    $display(" Begin Test 1 - Bitstream with Passing CRC");
+    $display(" ");
+
+
+
     rst_i = 1'b1;
     #period;
-    for(i = 0; i < 2683; i = i + 1)
+    for(i = 0; i < 2331; i = i + 1)
     begin
-        if(i < 2682) begin
-            data_i <= bitstream0[i];
-            tms    <= bitstream1[i];
+        if(i < 2330) begin
+            data_i <= bitstream_wocrc_tdi[i];
+            tms    <= bitstream_wocrc_tms[i];
             #period;
             en_i = 1'b0;
         end else
@@ -78,19 +95,20 @@ module pmu_tb;
     end
     data_i = 1'b0;
     en_i   = 1'b0;
-
-    //$display(" ");
-    $display("%b", fpga_core.data);
-    $display(" ");
-    $display("%b", golden_bitstream);
      
     if(fpga_core.data == golden_bitstream)
-        $display("sucess");
+        $display("      Bitstream sucessfully loaded in FPGA Core");
     else
-        $display("fail");
+        $display("      Bitstream failed to load correctly in FPGA Core");
         
     #period;    
     #period;
+    $display(" ");
+    $display(" End Test 1 - Bitstream with Passing CRC");
+    $display(" ");
+
+    $display("%b", fpga_core.data);
+
     $stop;
     end
 

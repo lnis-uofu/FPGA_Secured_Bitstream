@@ -31,7 +31,7 @@ module pmu_top (
     wire flag_o_jtag_w;
     wire flag_o_fpga_w;
 
-    assign pReset =  pmu_rst_i || flag_o_fpga_w;
+    assign pReset =  ~flag_o_fpga_w;
     assign progclk_o = progclk_o_w;
 
     pmu pmu0

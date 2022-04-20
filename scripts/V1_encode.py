@@ -47,9 +47,11 @@ def bitstream_encoder(packet_size, file_input, file_output):
         if not li.startswith("//"):
             data = line.rstrip() + data
             count += 1
+
+    # Write Goldenspec to output file
     f.write(data + '\n')
-    print(data)
-    print(' ')
+
+    data_copy = data
     packets = (count // packet_size) + 1
     fill_amt = (packets * packet_size) - count
     print("fill_amt ", fill_amt)
@@ -94,11 +96,10 @@ def bitstream_encoder(packet_size, file_input, file_output):
     for i in range(len(array_encoded)):
         data_out = data_out + array_encoded[i]
 
-    #print(len(array_encoded) * 72)
 
     # Generate tdi signal
-    #instruction = '11011'  # with CRC
-    instruction = '11011'   # without CRC
+    #instruction = '11010'  # without CRC
+    instruction = '11011'   # with CRC
     # pad instruction
     instruction = '00' + instruction + '00000'
     tdi_footer = '00000'
@@ -125,10 +126,46 @@ def bitstream_encoder(packet_size, file_input, file_output):
 
     # + 16 FPR JTAG
     print("bitstream length = ", len(tms))
+    f.write(tdi + '\n')
+    f.write(tms + '\n')
 
+    #changing one bit from 1 to 0
+    temp_tdi = list(tdi)
+    temp_tdi[75] = '0'
+    tdi = "".join(temp_tdi)
+
+    f.write(tdi + '\n')
+    f.write(tms + '\n')
+
+
+    # Write a new line for a bitstream without
+    # CRC
+
+    instruction = '11010'
+    instruction = '0' + instruction + '00000'
+    tdi = tdi_footer + data_copy + header + instruction
+
+    # Generatae tms signal
+    tms = ''
+    for i in range(len(data_copy) + 64):
+        tms += '0'
+    tms_header = '11000000110'
+
+    tms = tms_footer + tms + tms_header
+
+    print(len(tdi))
+    print(len(tms))
 
     f.write(tdi + '\n')
     f.write(tms)
+    print(len(tms))
+
+
+
+
+
+
+
     f.close()
 
 if __name__=="__main__":

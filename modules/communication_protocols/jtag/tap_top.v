@@ -618,7 +618,7 @@ begin
         `REG_OBSERV:        tdo_comb = clk_byp_out_i;     // REG5
         `BYPASS:            tdo_comb = bypassed_tdo;     // BYPASS
         `PMU_W_CS:          tdo_comb = pmu_tdo_i;            
-        `PMU_WO_CS:         tdo_comb = 0;   
+        `PMU_WO_CS:         tdo_comb = pmu_tdo_i;   
         default:            tdo_comb = bypassed_tdo;   // BYPASS instruction
       endcase
     end
@@ -629,7 +629,7 @@ end
 always @ (negedge tck_i)
 begin
   td_o   <=  tdo_comb;
-  if(pmu_w_cs_sel)
+  if(pmu_w_cs_sel || pmu_wo_cs_sel)
   begin
       pmu_tdi_o_reg = td_i;
   end

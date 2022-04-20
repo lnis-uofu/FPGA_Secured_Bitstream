@@ -28,9 +28,12 @@ module config_chain #(
 
 reg [LENGTH-1:0] data = 0;
     
-always @ (posedge progclk or negedge pReset)
+always @ (posedge progclk or pReset)
     begin
-        data = {ccff_head, data[LENGTH-1:1]};
+        if(pReset)
+            data = {ccff_head, data[LENGTH-1:1]};
+        else
+            data = 0;
     end
 
     assign ccff_tail = data[0];
