@@ -117,20 +117,6 @@ begin
                     next_state <= `IDLE;
             end
         `ZERO:  // Read header
-            /* begin */
-            /*     if(en_i) begin */
-            /*         if(counter0_o == 6'b111111) begin */
-            /*             if(checksum_en_i) */
-            /*                 next_state <= `ONE; */
-            /*             else */ 
-            /*                 next_state <= `FIVE; */
-            /*         end */ 
-            /*         else */
-            /*             next_state <= `ZERO; */
-            /*     end else */
-            /*         next_state <= `IDLE; */
-            /* end */
-
             begin 
                 if(en_i) begin 
                     if(checksum_en_i) begin
@@ -158,12 +144,12 @@ begin
                         else
                             next_state <= `ONE;
                     end
-                    if(header[31:0] == 2)
+                    if(header[31:0] == 3)
                         if(counter1_o == 3'b111)
                             next_state <= `THREE;
                         else
                             next_state <= `ONE;
-                    if(header[31:0] == 1)
+                    if(header[31:0] == 2)
                         if(counter1_o == 3'b111)
                             next_state <= `FOUR;
                         else
@@ -251,13 +237,15 @@ begin
             begin
                 counter0_en_r = 1'b1;
                 counter1_en_r = 1'b0;
-                capture_r     = 1'b0;
-                if(counter0_o == 6'b000000 || counter0_o == 6'b000001) begin 
+                //capture_r     = 1'b0;
+                if(counter0_o == 6'b000000) begin 
                     crc_rst_r <= 1'b1;
                     crc_en_r  <= 1'b1;
+                    capture_r <= 1'b0;
                 end else begin 
                     crc_rst_r <= 1'b1;
                     crc_en_r  <= 1'b1;
+                    capture_r <= 1'b0;
                 end
 
 
@@ -267,7 +255,7 @@ begin
                 counter0_en_r = 1'b1;
                 counter1_en_r = 1'b0;
                 if(counter0_o == 0 && counter1_o == 0) begin
-                    crc_en_r  = 1'b0;
+                    crc_en_r  = 1'b1;
                     capture_r = 1'b0;
                     crc_rst_r = 1'b1;
                 end else begin
@@ -279,7 +267,7 @@ begin
         `FOUR:
             begin
                 crc_en_r = 1'b0;
-                capture_r = 1'b1;
+                capture_r = 1'b0;
                 counter0_en_r = 1'b0;
                 counter1_en_r = 1'b0;
                 crc_rst_r = 1'b1;
@@ -303,17 +291,25 @@ begin
     case(state)
         `IDLE:   ccff_en_r = 1'b0;
         `ZERO:   ccff_en_r = 1'b0;
-        `ONE:    ccff_en_r = 1'b0;
+
+        `ONE:    //ccff_en_r = 1'b0;
+            begin 
+                if(counter1_o == 3'b111 && header[31:0] != 2)
+                    ccff_en_r = tck_i;
+                else 
+                    ccff_en_r = 1'b0;
+            end
         `TWO:
             begin
-                if(counter0_o >= header[63:32] && header[31:0] == 1)
+                if((counter0_o >= header[63:32] && header[31:0] == 1) || counter0_o == 6'b111111)
                     ccff_en_r = 1'b0;
                 else
                     ccff_en_r = tck_i;
             end
         `THREE: 
             begin
-                if(counter0_o >= header[63:32] && header[31:0] == 2)
+                if(counter0_o >= header[63:32] - 1 && header[31:0] == 2)
+                //if(~counter0_en_r)
                     ccff_en_r = 1'b0;
                 else
                     ccff_en_r = tck_i;
@@ -331,11 +327,17 @@ begin
     endcase
 end
 
-always @ (negedge tck_i)
+always @ (posedge tck_i)
 begin
     case(state)
         `IDLE:   header = 0;
-        `ZERO:   header <= {data_i, header[63:1]};
+        `ZERO:   
+            begin 
+                if(counter0_o != 6'b111111)
+                    header <= {data_i, header[63:1]};
+                else 
+                    header = header;
+            end
         `ONE:    header = header;
         `TWO:    
             begin
@@ -345,7 +347,16 @@ begin
                 else
                     header[31:0] = header[31:0];
             end
-        `THREE:  header = header; 
+        `THREE: 
+            begin
+                header[63:32] = header[63:32];
+                if(counter0_o == 6'b000000)
+                    header[31:0] = header[31:0] - 1;
+                else
+                    header[31:0] = header[31:0];
+            end
+
+
         `FOUR:   header = 0;
         `FIVE: 
             begin 
@@ -455,9 +466,10 @@ end
 
 always @ (negedge clk_i)
 begin
-        if(capture_i && data != 8'b00000000)
+    if(capture_i) begin 
+        if(data != 8'b00000000)
             flag_o_r = 1'b1;
-        else
+    end else
             flag_o_r = 1'b0;
 end
 endmodule

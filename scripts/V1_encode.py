@@ -101,7 +101,7 @@ def bitstream_encoder(packet_size, file_input, file_output):
     #instruction = '11010'  # without CRC
     instruction = '11011'   # with CRC
     # pad instruction
-    instruction = '00' + instruction + '00000'
+    instruction = '0' + instruction + '00000'
     tdi_footer = '00000'
 
     #print(data_out)
@@ -114,7 +114,7 @@ def bitstream_encoder(packet_size, file_input, file_output):
     for i in range(len(array_encoded) * 72):
         tms += '0'
 
-    tms_header = '0011000000110'
+    tms_header = '11000000110'
     tms_footer = '11111'
 
     tms = tms_footer + tms + tms_header
