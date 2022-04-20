@@ -138,35 +138,35 @@ module pmu_tb;
     $display(" End Test 2 - Bitstream with Failing CRC");
     $display(" ");
 
-    /* $display(" Begin Test 3 - Bitstream with Failing CRC"); */
-    /* $display(" "); */
+    $display(" Begin Test 3 - Bitstream with Failing CRC");
+    $display(" ");
 
-    /* rst_i = 1'b1; */
-    /* #period; */
-    /* for(i = 0; i < 2331; i = i + 1) */
-    /* begin */
-    /*     if(i < 2330) begin */
-    /*         data_i <= bitstream_wocrc_tdi[i]; */
-    /*         tms    <= bitstream_wocrc_tms[i]; */
-    /*         #period; */
-    /*         en_i = 1'b0; */
-    /*     end else */
-    /*         data_i = 0; */
-    /* end */
-    /* data_i = 1'b0; */
-    /* en_i   = 1'b0; */
+    rst_i = 1'b1;
+    #period;
+    for(i = 0; i < 2331; i = i + 1)
+    begin
+        if(i < 2330) begin
+            data_i <= bitstream_wocrc_tdi[i];
+            tms    <= bitstream_wocrc_tms[i];
+            #period;
+            en_i = 1'b0;
+        end else
+            data_i = 0;
+    end
+    data_i = 1'b0;
+    en_i   = 1'b0;
 
-    /* if(fpga_core.data == golden_bitstream) */
-    /*     $display("      Bitstream sucessfully loaded in FPGA Core"); */
-    /* else */
-    /*     $display("      Bitstream failed to load correctly in FPGA Core"); */
+    if(fpga_core.data == golden_bitstream)
+        $display("      Bitstream sucessfully loaded in FPGA Core");
+    else
+        $display("      Bitstream failed to load correctly in FPGA Core");
 
-    /* #period; */    
-    /* #period; */
-    /* $display(" "); */
-    /* $display(" End Test 3 - Bitstream with Failing CRC"); */
-    /* $display(" "); */
-    /* $display("%b", fpga_core.data); */
+    #period;    
+    #period;
+    $display(" ");
+    $display(" End Test 3 - Bitstream with Failing CRC");
+    $display(" ");
+    $display("%b", fpga_core.data);
 
 
     $stop;

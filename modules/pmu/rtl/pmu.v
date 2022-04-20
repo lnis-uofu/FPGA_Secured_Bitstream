@@ -10,6 +10,8 @@
 `define THREE  4'b0100
 `define FOUR   4'b0101
 `define FIVE   4'b0110
+`define  SIX   4'b0111
+
 
 
 
@@ -185,14 +187,25 @@ begin
         `FIVE: // For operation without CRC
             begin
                 if(en_i) begin
-                    if(header[31:0] >= 1)
-                        next_state <= `FIVE;
-                    if(header[31:0] == 2 && counter0_o == header[63:32] - 1)
-                        next_state = `IDLE;
-
+                    if(header[31:0] >= 1) begin 
+                        if(header[31:0] == 2 && counter0_o == header[63:32] - 2)
+                            next_state <= `IDLE;
+                        else 
+                            next_state <= `FIVE;
+                    end
                 end else
                     next_state <= `IDLE;
             end
+        /* `SIX: // Finish sequence for operation w/o CRC */
+        /*     begin */ 
+        /*         if(en_i) begin */
+        /*             if(counter0_o == header[63:32] - 1) */
+        /*                 next_state <= `IDLE; */
+        /*             else */
+        /*                 next_state <= `SIX; */
+        /*         end else */ 
+        /*             next_state <= `IDLE; */
+        /*     end */
 
         default: begin next_state <= `IDLE; end
     endcase
@@ -280,6 +293,15 @@ begin
                 counter1_en_r = 1'b0;
                 
              end
+        /* `SIX: */
+        /*     begin */ 
+        /*         crc_en_r  = 1'b0; */
+        /*         capture_r = 1'b0; */
+        /*         counter0_en_r = 1'b1; */
+        /*         counter1_en_r = 1'b0; */
+                
+        /*      end */
+
         default: begin counter0_en_r = 1'b0; counter1_en_r = 1'b0; crc_en_r = 1'b0; end
     endcase
 
@@ -315,14 +337,15 @@ begin
                     ccff_en_r = tck_i;
             end
         `FOUR: ccff_en_r = 1'b0;
-        `FIVE: 
-            begin
-                if(counter0_o >= header[63:32] - 2 && header[31:0] == 2)
-                    ccff_en_r = 1'b0;
-                else
-                    ccff_en_r = tck_i;
+        `FIVE: ccff_en_r = tck_i;
+        /* `SIX: */ 
+        /*     begin */
+        /*         if(counter0_o >= header[63:32] - 1) */
+        /*             ccff_en_r = 1'b0; */
+        /*         else */
+        /*             ccff_en_r = tck_i; */
 
-            end 
+        /*     end */ 
         default: ccff_en_r = 1'b0;
     endcase
 end
@@ -365,6 +388,7 @@ begin
                 else 
                     header[31:0] = header[31:0];
             end
+        `SIX: header = header;
         default: header =0;
     endcase
 end
