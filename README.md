@@ -9,8 +9,14 @@ The Programmign Management Unit will serve as a macro that can be placed near a 
 
 ## Programming Management Unit: PMU
 ### Version 1
-  PMU V1 consists of a JTAG Tap Controller, PMU FSM, and a CRC8 module. Version 1 incorporates no security features and will act as a baseline to compare other versions of the PMU. This is in order to accuratly evaluate the countermeasures with respect to expected security risks according to the PMU threat model as described in the introduction.
+  PMU V1 consists of a JTAG Tap Controller, PMU FSM, and a CRC8 module. Version 1 incorporates no security features and will act as a baseline to compare other versions of the PMU. This is in order to accuratly evaluate the countermeasures with respect to expected security risks according to the PMU threat model as described in the introduction. A hierarchial overview is shown in Figure 2 and FIgure 3 contains a detailed block diagram of PMU version 1 architecture.
+  
+ <p align="center">
+  <img src="/docs/figures/Hierarchy_overview.png">
+</p>
+
 #### Encoding Scheme
+The encoding scheme for PMU V1 contains a JTAG header and footer, a header that contains information about the number of 64-bit packets and the %64 remaiinder depending on the size of the Bitstream. For example in the testbench provided there are 2250 bits of bitstream. Therefore ther are 35 packets of data + 1 packet of header + 10 bits of %64 remainder. Therefore in total there are 37 packets and %64 remainder of 10. 
 #### Blocks
 ##### JTAG TAP Controller
 ##### PMU FSM
