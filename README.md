@@ -12,7 +12,7 @@ The Programmign Management Unit will serve as a macro that can be placed near a 
   PMU V1 consists of a JTAG Tap Controller, PMU FSM, and a CRC8 module. Version 1 incorporates no security features and will act as a baseline to compare other versions of the PMU. This is in order to accuratly evaluate the countermeasures with respect to expected security risks according to the PMU threat model as described in the introduction. A hierarchial overview is shown in Figure 2 and mored detailed diagrams of each block are presented later in the README.
   
  <p align="center">
-  <img src="/docs/figures/hierarchy.png">
+  <img src="/docs/figures/hierarchy_overview.png">
 </p>
 
 ### Encoding Scheme
