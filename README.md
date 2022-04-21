@@ -16,7 +16,16 @@ The Programmign Management Unit will serve as a macro that can be placed near a 
 </p>
 
 #### Encoding Scheme
-The encoding scheme for PMU V1 contains a JTAG header and footer, a header that contains information about the number of 64-bit packets and the %64 remaiinder depending on the size of the Bitstream. For example in the testbench provided there are 2250 bits of bitstream. Therefore ther are 35 packets of data + 1 packet of header + 10 bits of %64 remainder. Therefore in total there are 37 packets and %64 remainder of 10. 
+PMU V1 is capable of intrepreting two encoding schemes: one with CRC data integrity check and one without. To be compliant with JTAg communicaton protocol the bitstream encoding requires two signals: tdi and tms. Tdi contains the bitstream data and JTAG instructions. The tms signal controls the tap controller fsm and consists of a tms header to initialze tap controller adn footer to reset tap contoller. It is filled with zeros between the header and footer to work simutaneouly with tdi signa. 
+
+The encoding scheme that contains CRC information contains a JTAG header and footer, a header that contains information about the number of 64-bit packets and the number of bits %64 (modulo remainder) depending on the size of the Bitstream. For example in the testbench provided there are 2250 bits of bitstream. Therefore there are 35 packets of data + 1 packet of header + 10 bits of %64 remainder (when CRC is enabled the 10 remaing bits are padded to make a 64-bit data packet with 8-bit CRC Key). Therefore in total there are 37 packets and %64 remainder of 10. Each "packet" contains 64 bits of bitstream data and 8-bits or CRC key. The high level overview of the encoding scheme is shown in Figure 4. 
+
+ <p align="center">
+  <img src="/docs/figures/encode.png">
+</p>
+
+
+
 #### Blocks
 ##### JTAG TAP Controller
 ##### PMU FSM
