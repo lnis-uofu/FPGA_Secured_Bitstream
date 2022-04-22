@@ -16,7 +16,7 @@ The Programmign Management Unit will serve as a macro that can be placed near a 
 </p>
 
 ### Encoding Scheme
-PMU V1 is capable of intrepreting two encoding schemes: one with CRC data integrity check and one without. To be compliant with JTAg communicaton protocol the bitstream encoding requires two signals: tdi and tms. Tdi contains the bitstream data and JTAG instructions. The tms signal controls the tap controller fsm and consists of a tms header to initialze tap controller adn footer to reset tap contoller. It is filled with zeros between the header and footer to work simutaneouly with tdi signa. The high level overview of the encoding scheme is shown in Figure 4. 
+PMU V1 is capable of intrepreting two encoding schemes: one with CRC data integrity check and one without. To be compliant with JTAG communicaton protocol the bitstream encoding requires two signals: tdi and tms. Tdi contains the bitstream data and JTAG instructions. The tms signal controls the tap controller fsm and consists of a tms header to initialze tap controller and a footer to reset tap contoller. It is filled with zeros between the header and footer to work simutaneouly with tdi signal. The high level overview of the encoding scheme is shown in Figure 4. 
  <p align="center">
   <img src="/docs/figures/encode.png">
 </p>
@@ -34,18 +34,39 @@ The encoding scheme without CRC is similar to the scheme with CRC however the "p
 
 ### Blocks
 ##### JTAG TAP Controller
+The PMU utilizes a JTAG implementation from OpenCores found [here](https://github.com/freecores/jtag) as a template. Two new instrutcions: pmu_w_cs and pmu_wo_cs are added along with some control and data singals for the PMU. These two instructions are intrepreted by the tap controller and have to purpose of loading a bitstream with and without activating a checksum (CRC8).  
 ##### PMU FSM
-##### CRC8
-This is a classic implementation of cyclic redundancy check that relies on polynomial arithmetic in finite field F2 raised to the power of 8. The linear feedback shift register circuit shown below is contaned inside the CRC8 module. The LFSR below implemets CRC over F2 raised to 8 using the generating polynomial G(x) = X^8 + X^7 + X^6 + X^5 + X^3 + X + 1. It operates by shifting in n number of data bits + 8 bits of '0' padding through the shift register. Once the n bits of data plus 8-bits of padding the CRC key is the value in the LFSR. If this value is then appened to the data and again given to the LFSR the value in the LFSR should be zero. If the value is not zero it indicates that there was an error or bit flip in the data.
+The PMU contains an FSM that intpretes the the encoding scheme and control signals from JTAG tap_controller. This FSM was designed based on the decision tree below. PMU version 1 has two main functions loading a bitstream with checksum and loading a bitstream without employing a checksum. In this version CRC8 is being used to calculate a checksum. These two operations are controlled with the checksum_en_i singal. The FSM uses counters to contorl the movement between states and correctly intrepret the encoded bitstream.
 
  <p align="center">
-  <img src="/docs/figures/CRC8.png">
+  <img src="/docs/figures/FSM_decision_tree.png">
 </p>
+
+##### CRC8
+This is a classic implementation of cyclic redundancy check that relies on polynomial arithmetic in finite field F2 raised to the power of 8. The linear feedback shift register(LFSR) circuit shown below is contaned inside the CRC8 module. The LFSR below implemets CRC over F2 raised to 8 using the generating polynomial G(x) = X^8 + X^7 + X^6 + X^5 + X^3 + X + 1. It operates by shifting in n number of data bits + 8 bits of '0' padding through the shift register. Once the n bits of data plus 8-bits of padding the CRC key is the value in the LFSR. If this value is then appened to the data and again given to the LFSR the value in the LFSR should be zero. If the value is not zero it indicates that there was an error or bit flip in the data. Some basic reference to LFSRs and how they work can be forun [here](https://www.eng.auburn.edu/~strouce/class/elec6250/LFSRs.pdf).
+
+<p align="center">
+  <img src="/docs/figures/CRC8.png"> 
+</p>
+
+#### Scripts
+Included there is a [python script](https://github.com/lnis-uofu/FPGA_Secured_Bitstream/blob/v1/scripts/V1_encode.py) used to generate the bitstream with the encoding scheme and without used for pmu_top functional testing . This python script can be used as a temlplate to generate similar encdoded bitstreams. Future versions of the PMU will include more user friendly versions of this bitstream encoding script. 
+
 #### Testing
+
+##### Functional
+- JTAG TAP CONTROLLER
+- CRC8
+- PMU
+- PMU_TOP
+
+##### Unit
+- TBD
 
 ## Installation
 ## Dependencies
 ## TO-DO
- - 
+ - Unit Testing
 ## Acknoledgements
+- [MAC_unit_systolic](https://github.com/lnis-uofu/MAC_unit_systolic): Repository Organization
 - [JTAG](https://github.com/freecores/jtag): JTAG implementation from OpenCores
