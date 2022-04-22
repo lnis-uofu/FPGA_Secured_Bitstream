@@ -1,5 +1,17 @@
 # PMU V1: Bitstream Loader with JTAG interface
 
+## Getting Started
+
+1. Checkout the repository
+```sh
+git clone --recursive git@github.com:lnis-uofu/FPGA_Secured_Bitstream.git
+cd FPGA_Secured_Bitstream.git
+```
+2. Setup the environment variables in a `csh`/`tcsh` shell
+```csh
+source setup_enc.csh
+```
+
 ## Introduction
 The Programmign Management Unit will serve as a macro that can be placed near a FPGA to handle bitstream loading. While the primary functonalty of the PMU is to load a bitstream into an FPGA Core it will also incoroporate some hardware security and integrity features. This is in reponse to the need for OpenFPGA to be able to incoporate some hardware security IPs to FPGA designs. To accurately access the level of protetection the secuiry features provide to the FPGA/FPGA bitstream, an iterative apprach to the PMU design will be taken starting with version one. The iterative approach is currently defined by a threat model shown in Figure 1. As of today the primary objectives of the PMU is to accurately transfer bitstream data to the core and protect the IP that lies within a bitstream using AES. The final version of the PMU will resembel a RISC-V core that incorporates all the features of the previous PMU versions as well as post fabrication feature implementation and programming of multiple FPGA configuration chains. 
 
@@ -56,7 +68,6 @@ Included there is a [python script](https://github.com/lnis-uofu/FPGA_Secured_Bi
 #### Testing
 Information about testing is [here](https://github.com/lnis-uofu/FPGA_Secured_Bitstream/blob/v1/testbench/README.md) in the testbench/README.md file.
 
-## Installation
 ## Dependencies
 ## TO-DO
  - Unit Testing
