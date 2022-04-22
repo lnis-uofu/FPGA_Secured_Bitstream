@@ -39,9 +39,6 @@ The encoding scheme without CRC is similar to the scheme with CRC however the "p
 This is a classic implementation of cyclic redundancy check that relies on polynomial arithmetic in finite field F2 raised to the power of 8. The linear feedback shift register circuit shown below is contaned inside the CRC8 module. The LFSR below implemets CRC over F2 raised to 8 using the generating polynomial G(x) = X^8 + X^7 + X^6 + X^5 + X^3 + X + 1. It operates by shifting in n number of data bits + 8 bits of '0' padding through the shift register. Once the n bits of data plus 8-bits of padding the CRC key is the value in the LFSR. If this value is then appened to the data and again given to the LFSR the value in the LFSR should be zero. If the value is not zero it indicates that there was an error or bit flip in the data.
 
  <p align="center">
-  <img src="/docs/figures/crc8block.png">
-</p>
- <p align="center">
   <img src="/docs/figures/CRC8.png">
 </p>
 #### Testing
