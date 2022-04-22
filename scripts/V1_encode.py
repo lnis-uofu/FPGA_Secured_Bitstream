@@ -162,9 +162,7 @@ def bitstream_encoder(packet_size, file_input, file_output):
 
 
 
-
-
-
+    print(crc_8_encoder('0000000000000000000000000000000000000000000000000000000000000011', minpoly))
 
     f.close()
 
