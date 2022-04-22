@@ -1,0 +1,115 @@
+# -*- Makefile -*-
+
+ifeq (,${WORK_LIB})
+$(error "Variable WORK_LIB is mandatory")
+endif
+
+ifeq (,${PROJECT_DIR})
+$(error "Variable PROJECT_DIR is mandatory")
+endif
+
+# Set target library's name and directory
+LIB_NAME=${WORK_LIB}
+ifneq (,${WORK_DIR})
+LIB_DIR=${WORK_DIR}
+endif
+
+# Tools
+VLIB  = vlib
+VLOG  = vlog
+VCOM  = vcom
+VSIM  = vsim
+VDIR  = vdir
+
+DATE  = $(shell date +%Y-%m-%d)
+QUIET = &>/dev/null
+
+# Default options
+override VLOG_OPTIONS += -timescale "1ns/1ps" +acc
+override VCOM_OPTIONS += -93
+override VSIM_OPTIONS += -modelsimini ${MODELSIM} -voptargs="+acc"
+
+# Terminal color definitions
+tput	=
+ifneq ($(TERM),)
+ifndef NO_COLOR
+tput	= $(shell tput $1)
+endif
+endif
+
+# Standard colors
+black   := $(call tput,setaf 0)
+red     := $(call tput,setaf 1)
+green   := $(call tput,setaf 2)
+yellow  := $(call tput,setaf 3)
+blue    := $(call tput,setaf 4)
+magenta := $(call tput,setaf 5)
+cyan    := $(call tput,setaf 6)
+white   := $(call tput,setaf 7)
+bold    := $(call tput,bold)
+uline   := $(call tput,smul)
+reset   := $(call tput,sgr0)
+
+echo-info     = echo -e "$(green)$1$(reset)$(if $2, $(blue)$2$(reset),)"
+echo-debug    = echo -e "$(yellow)$1$(reset)$(if $2, $(blue)$2$(reset),)"
+echo-warning  = echo -e "$(magenta)$1$(reset)"
+echo-error    = echo -e "$(red)$1$(reset)"
+
+## Create module library as a work environment
+lib:
+	@mkdir -p $(PROJECT_BUILD_DIR)
+	@$(call echo-info,"-- Create library:",$(LIB_NAME))
+	@if [ -d $(LIB_DIR) ]; then rm -rf $(LIB_DIR); fi
+	$(VLIB) $(LIB_DIR)
+	
+## Compile RTL sources (Verilog/VHDL)
+build: lib
+	@if [ ! -z "${VERILOG_SOURCES}" ]; then \
+		$(call echo-info,"-- Compiling Verilog RTL sources"); \
+		$(VLOG) -work $(LIB_DIR) $(VLOG_OPTIONS) $(VERILOG_SOURCES); \
+	fi
+	@if [ ! -z "${VHDL_SOURCES}" ]; then \
+		$(call echo-info,"-- Compiling Verilog RTL sources"); \
+		$(VCOM) -work $(LIB_DIR) $(VCOM_OPTIONS) $(VHDL_SOURCES); \
+	fi
+
+## Start simulation of the top entity with GUI
+sim:: build
+	@$(call echo-info,"-- Start simulation in GUI mode")
+	@if [ -z "${TOP_ENTITY_NAME}" ]; then \
+		$(call echo-error,"Error: TOP_ENTITY_NAME variable must be defined."); \
+		$(call echo-error,"Error: Please run this command in the simu/ directory!"); \
+		exit 1; \
+	fi
+	$(VSIM) -gui -lib $(LIB_DIR) $(TOP_ENTITY_NAME) $(VSIM_OPTIONS) $(VSIM_GUI_OPTIONS) &
+
+## Start simulation of the top entity without GUI
+sim-nogui:: build
+	@$(call echo-info,"-- Start simulation in command mode")
+	@if [ -z "${TOP_ENTITY_NAME}" ]; then \
+		$(call echo-error,"Error: TOP_ENTITY_NAME variable must be defined."); \
+		$(call echo-error,"Error: Please run this command in the simu/ directory!"); \
+		exit 1; \
+	fi
+	$(VSIM) -c -lib $(LIB_DIR) $(TOP_ENTITY_NAME) $(VSIM_OPTIONS) $(VSIM_CMD_OPTIONS)
+
+## Clean module library and simulation outputs
+clean::
+	@$(call echo-error,"-- Cleaning simulation directory and library")
+	rm -rf $(LIB_DIR)
+	rm -f vsim.wlf
+	rm -f transcript
+
+help:
+	@echo "USAGE: make <target(s)>"
+	@echo
+	@echo "TARGETS:"
+	@echo "    lib          - Create the module library (WORK)"
+	@echo "    build        - Compile RTL sources (Verilog/VHDL)"
+	@echo "    sim          - Start simulation of the top entity with GUI"
+	@echo "    sim-nogui    - Start simulation of the top entity without GUI"
+	@echo "    clean        - Clean module library and simulation outputs"
+	@echo "    help         - Show this message"
+
+.PHONY: lib build sim sim-nogui clean help
+# vim: ft=make
