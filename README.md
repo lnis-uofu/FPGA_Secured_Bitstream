@@ -56,9 +56,17 @@ Included there is a [python script](https://github.com/lnis-uofu/FPGA_Secured_Bi
 
 ##### Functional
 - JTAG TAP CONTROLLER
+  [testbench]()
+
 - CRC8
+
+
 - PMU
+
+
 - PMU_TOP
+
+
 
 ##### Unit
 - TBD
