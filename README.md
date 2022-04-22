@@ -51,7 +51,7 @@ This is a classic implementation of cyclic redundancy check that relies on polyn
 </p>
 
 #### Scripts
-Included there is a [python script](https://github.com/lnis-uofu/FPGA_Secured_Bitstream/blob/v1/scripts/V1_encode.py) used to generate the bitstream with the encoding scheme and without used for pmu_top functional testing . This python script can be used as a temlplate to generate similar encdoded bitstreams. Future versions of the PMU will include more user friendly versions of this bitstream encoding script. 
+Included there is a [python script](https://github.com/lnis-uofu/FPGA_Secured_Bitstream/blob/v1/scripts/V1_encode.py) used to generate the bitstream with the encoding scheme and without used for pmu_top functional testing. This python script can be used as a temlplate to generate similar encdoded bitstreams. Future versions of the PMU will include more user friendly versions of this bitstream encoding script. 
 
 #### Testing
 Information about testing is [here](https://github.com/lnis-uofu/FPGA_Secured_Bitstream/blob/v1/testbench/README.md) in the testbench/README.md file.
