@@ -1,5 +1,4 @@
-`include "../communication_protocols/jtag/tap_top.v"
-`include "pmu.v"
+
 module pmu_top (
     input  tms_i,
     input  tck_i,
