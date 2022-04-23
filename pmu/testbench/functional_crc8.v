@@ -1,5 +1,3 @@
-`include "../modules/crc/crc8.v"
-
 module functional_crc8;
 
     localparam period     = 20;

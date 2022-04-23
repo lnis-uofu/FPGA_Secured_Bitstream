@@ -1,5 +1,3 @@
-`include "../modules/pmu/pmu.v"
-
 module functional_pmu;
 
     localparam period     = 20;
