@@ -3,8 +3,8 @@ module functional_pmu;
     localparam period     = 20;
     localparam halfperiod = 10;
 
-
-    reg [127:0]  header0      = 128'b00000000000000000000001011000100000000000000000000000000000000110000000000000000000000000000000000000000000000000000000000000000;
+                                                              //instr  
+    reg [127:0]  header0      = 128'b00000000000000000000010110000100000000000000000000000000000000110000000000000000000000000000000000000000000000000000000000000000;
     reg [427:0]  bitstream0   = 428'h0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789a;
 
     reg [127:0]  header1      = 128'b00000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000;
@@ -37,7 +37,9 @@ module functional_pmu;
 
     reg [127:0]  header6    = 128'b00000000000000000000101011001000000000000000000000000000000000110000000000000000000000000000000000000000000000000000000000000000;
     
-    reg [127:0]  header7    = 128'b00000000000000000000101011001001000000000000000000000000000000110000000000000000000000000000000000000000000000000000000000000000;
+    reg [127:0]  header7    = 128'b00000000000000000001101011001001000000000000000000000000000000110000000000000000000000000000000000000000000000000000000000000000;
+
+    reg [255:0] sha_key     = 256'h5448495349535448455055424c49434b4559464f52504d554245434155534521;
 
     reg clk = 1'b0;
     reg pmu_en = 1'b0;
@@ -92,9 +94,16 @@ module functional_pmu;
 
     initial begin 
     #period;
+    #period;
+    #period;
+    #period;
+    #period;
+    #period;
     pmu_rst_i = 1'b1;
     #period;
-    pmu_en = 1'b1;
+    #period;
+    #period;
+    //pmu_en = 1'b1;
 
 
 
@@ -188,7 +197,6 @@ module functional_pmu;
     /*         pmu_data_i = 1'b0; */
     /* end */
     /* #period; */
-    /* pmu_en = 1'b0; */
 
     /* #period; */
     /* #period; */
@@ -213,6 +221,7 @@ module functional_pmu;
     /* #period; */
     /* #period; */
     /* #period; */
+    /* pmu_en = 1'b0; */
     /* #period; */
 
     /* // Load key CRC - Failing */
@@ -233,7 +242,6 @@ module functional_pmu;
     /*     end else */
     /*         pmu_data_i = 1'b0; */
     /* end */
-    /* pmu_en = 1'b0; */
 
     /* #period; */
     /* #period; */
@@ -370,25 +378,25 @@ module functional_pmu;
     /* begin */
     /*     if(i < 128) begin */ 
     /*         pmu_data_i = header4[i]; */
-            /* #period; */
-        /* end else */
-            /* pmu_data_i = 1'b0; */
+    /*         #period; */
+    /*     end else */
+    /*         pmu_data_i = 1'b0; */
     /* end */
 
     /* for(i = 0; i < 385; i = i + 1) */
     /* begin */
-        /* if(i < 384) begin */ 
-            /* pmu_data_i = encipher[i]; */
-            /* #period; */
-        /* end else */
-            /* pmu_data_i = 1'b0; */
+    /*     if(i < 384) begin */ 
+    /*         pmu_data_i = encipher[i]; */
+    /*         #period; */
+    /*     end else */
+    /*         pmu_data_i = 1'b0; */
     /* end */
 
     /* pmu_en = 1'b0; */
     
     /* for(i = 0; i < 300; i = i + 1) */
     /* begin */
-        /* #period; */
+    /*     #period; */
     /* end */
     /* // ------------- */
 
@@ -465,94 +473,113 @@ module functional_pmu;
 
 
 
-    // Write NVM
+    /* // Write NVM */
 
-    // Load Key
-    pmu_en = 1'b1;
-    for(i = 0; i < 129; i = i + 1)
-    begin
-        if(i < 128) begin 
-            pmu_data_i = header1[i];
-            #period;
-        end else
-            pmu_data_i = 1'b0;
-    end
-    for(i = 0; i < 129; i = i + 1)
-    begin
-        if(i < 128) begin 
-            pmu_data_i = key3[i];
-            #period;
-        end else
-            pmu_data_i = 1'b0;
-    end
-    #period;
-    pmu_en = 1'b0;
-    #period; //1
-    #period; //2
-    #period; //3
-    #period; //4
-    #period; //5
-    #period; //6
-    #period; //7
-    #period; //8
-    #period; //9
-    #period; //10
-    #period; //11 
-    #period; //12
-    #period; //13
-    #period; //14
-    #period; //15 
-    #period; //16
-    #period; //17 
-    #period; //18 
-    #period; //19
-    #period; //20
-    #period; //21
-    #period; //22
-    #period; //23        
-    pmu_en = 1'b1;
+    /* // Load Key */
+    /* pmu_en = 1'b1; */
+    /* for(i = 0; i < 129; i = i + 1) */
+    /* begin */
+    /*     if(i < 128) begin */ 
+    /*         pmu_data_i = header1[i]; */
+    /*         #period; */
+    /*     end else */
+    /*         pmu_data_i = 1'b0; */
+    /* end */
+    /* for(i = 0; i < 129; i = i + 1) */
+    /* begin */
+    /*     if(i < 128) begin */ 
+    /*         pmu_data_i = key3[i]; */
+    /*         #period; */
+    /*     end else */
+    /*         pmu_data_i = 1'b0; */
+    /* end */
+    /* #period; */
+    /* pmu_en = 1'b0; */
+    /* #period; //1 */
+    /* #period; //2 */
+    /* #period; //3 */
+    /* #period; //4 */
+    /* #period; //5 */
+    /* #period; //6 */
+    /* #period; //7 */
+    /* #period; //8 */
+    /* #period; //9 */
+    /* #period; //10 */
+    /* #period; //11 */ 
+    /* #period; //12 */
+    /* #period; //13 */
+    /* #period; //14 */
+    /* #period; //15 */ 
+    /* #period; //16 */
+    /* #period; //17 */ 
+    /* #period; //18 */ 
+    /* #period; //19 */
+    /* #period; //20 */
+    /* #period; //21 */
+    /* #period; //22 */
+    /* #period; //23 */        
+    /* pmu_en = 1'b1; */
 
-    pmu_en = 1'b1;
-    for(i = 0; i < 129; i = i + 1)
-    begin
-        if(i < 128) begin 
-            pmu_data_i = header6[i];
-            #period;
-        end else
-            pmu_data_i = 1'b0;
-    end
-    for(i = 0; i < 385; i = i + 1)
-    begin
-        if(i < 384) begin 
-            pmu_data_i = encipher[i];
-            #period;
-        end else
-            pmu_data_i = 1'b0;
-    end
-    pmu_en = 1'b0;
-    #period; //1
-    #period; //2
-    #period; //3
-    #period; //4
-    #period; //5
+    /* pmu_en = 1'b1; */
+    /* for(i = 0; i < 129; i = i + 1) */
+    /* begin */
+    /*     if(i < 128) begin */ 
+    /*         pmu_data_i = header6[i]; */
+    /*         #period; */
+    /*     end else */
+    /*         pmu_data_i = 1'b0; */
+    /* end */
+    /* for(i = 0; i < 385; i = i + 1) */
+    /* begin */
+    /*     if(i < 384) begin */ 
+    /*         pmu_data_i = encipher[i]; */
+    /*         #period; */
+    /*     end else */
+    /*         pmu_data_i = 1'b0; */
+    /* end */
+    /* pmu_en = 1'b0; */
+    /* #period; //1 */
+    /* #period; //2 */
+    /* #period; //3 */
+    /* #period; //4 */
+    /* #period; //5 */
 
         
-    //Read NVM
-    pmu_en = 1'b1;
-    for(i = 0; i < 129; i = i + 1)
+    /* //Read NVM */
+    /* pmu_en = 1'b1; */
+    /* for(i = 0; i < 129; i = i + 1) */
+    /* begin */
+    /*     if(i < 128) begin */ 
+    /*         pmu_data_i = header7[i]; */
+    /*         #period; */
+    /*     end else */
+    /*         pmu_data_i = 1'b0; */
+    /* end */
+
+    /* for(i = 0; i < 500; i = i + 1) */
+    /* begin */
+    /*     #period; */
+    /* end */
+
+    for(i = 0; i < 200; i = i + 1)
     begin
-        if(i < 128) begin 
-            pmu_data_i = header7[i];
+        #period;
+    end 
+    pmu_en = 1;
+    for(i = 0; i < 257; i = i + 1)
+    begin
+        if(i < 256) begin 
+            pmu_data_i = sha_key[i];
             #period;
         end else
             pmu_data_i = 1'b0;
     end
-
-    for(i = 0; i < 500; i = i + 1)
+    pmu_en = 0;
+    for(i = 0; i < 200; i = i + 1)
     begin
         #period;
-    end
-
+    end 
+    pmu_en = 1;
 
 
     $stop;

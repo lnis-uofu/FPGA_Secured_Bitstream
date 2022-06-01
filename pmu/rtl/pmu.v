@@ -1,27 +1,35 @@
 
+
 `default_nettype wire
 
 
 // C -> CRC enable
 // A -> AES enable
 
-`define IDLE                 4'b0000
-`define DECODE               4'b0001
-`define LOAD_KEY             4'b0010
-`define LOAD_KEY_C           4'b0011
-`define LOAD_BITSTREAM       4'b0100 
-`define LOAD_BITSTREAM_C     4'b0101
-`define LOAD_BITSTREAM_A     4'b0110
-`define LOAD_BITSTREAM_CA    4'b0111
-`define WRITE_NVM            4'b1000
-`define READ_NVM             4'b1001
-`define EVAL_CRC             4'b1010
-`define EVAL_AES             4'b1011
-`define EVAL_CRC_AES         4'b1100
-`define RESET                4'b1101
-`define KEY_INIT             4'b1110
-`define LOCK                 4'b1111
+`define IDLE                 5'b00000
+`define DECODE               5'b00001
+`define LOAD_KEY             5'b00010
+`define LOAD_KEY_C           5'b00011
+`define LOAD_BITSTREAM       5'b00100 
+`define LOAD_BITSTREAM_C     5'b00101
+`define LOAD_BITSTREAM_A     5'b00110
+`define LOAD_BITSTREAM_CA    5'b00111
+`define WRITE_NVM            5'b01000
+`define READ_NVM             5'b01001
+`define EVAL_CRC             5'b01010
+`define EVAL_AES             5'b01011
+`define EVAL_CRC_AES         5'b01100
+`define RESET                5'b01101
+`define KEY_INIT             5'b01110
+`define LOCK                 5'b01111
+`define AUTHENTICATE         5'b10101
+`define EVAL_SHA             5'b10110
 
+
+
+
+`define SHA_KEY            256'h4c4e49536c6e69734c4e49536c6e69734c4e49536c6e69734c4e49536c6e6973 //LNISlnis x4
+`define DIGEST             256'ha663cae69292448feb7b3b82a2c9fe25227b6e9c080075dcf75a9af5ef5edec7
 
 
  module pmu (
@@ -45,14 +53,70 @@
     output [7:0]  mem_address_o,
     output [31:0] mem_data_o,
     output mem_we,
-    output mem_clk
+    output mem_clk,
+
+    //AES PORTS
+    output aes_clk,
+    output aes_reset_n,
+    output reset_dec,
+    output aes_init,
+    output aes_next,
+    output [127:0] aes_key,
+    output [127:0] aes_block,
+
+    input  [127:0] aes_result,
+    input  aes_result_valid,
+
+    //SHA PORTS
+    output sha_clk,
+    output sha_reset_n,
+    output sha_init,
+    output sha_next,
+    output sha_mode,
+    output [511:0] sha_block,
+
+    input  ready,
+    input  [255:0] digest,
+    input  digest_valid
      
+
     );
+
+    // AES Wires
+    reg  aes_init_r, aes_next_r, aes_dec_rst_r, aes_result_valid_r;
+    wire [127:0] key_wire;
+    wire [127:0] block_wire;
+    wire [127:0] result_wire;
+    reg  [127:0] aes_i_reg;
+    reg  [127:0] aes_o_reg;
+    assign aes_clk          = tck_i;
+    assign aes_reset_n      = rst_i;
+    assign aeset_dec        = aes_dec_rst_r;
+    assign aes_init         = aes_init_r;
+    assign aes_next         = aes_next_r;
+    assign aes_key          = key_wire;
+    assign aes_block        = aes_i_reg;
+    // AES Wires
+
+
+    //SHA Wires 
+    reg sha_init_r, sha_next_r;
+    wire [255:0] sha_result, sha_block_w;
+    reg  [255:0] sha_i_reg;
+
+    assign sha_clk     = tck_i; 
+    assign sha_reset_n = rst_i;
+    assign sha_init    = sha_init_r;
+    assign sha_next    = sha_next_r;
+    assign sha_mode    = 0;
+    assign sha_block   = sha_i_reg;
+    //SHA Wires 
+
     
     assign mem_clk = tck_i;
      
-    reg [3:0] state;
-    reg [3:0] next_state;
+    reg [4:0] state;
+    reg [4:0] next_state;
 
     reg [63:0] header;
     wire [6:0] counter0_o;
@@ -62,16 +126,10 @@
     assign data_o = data_o_r;
 
     reg  [127:0] temp_data_reg;
-    reg  [127:0] aes_i_reg;
-    reg  [127:0] aes_o_reg;
-    wire [127:0] temp_data;
-    wire [127:0] key_wire;
-    wire [127:0] block_wire;
-    wire [127:0] result_wire;
-     
+
+    wire [127:0] temp_data;     
     
     assign temp_data  = temp_data_reg;
-    assign block_wire = aes_i_reg; 
      
     reg  progclk_o_reg;
     assign progclk_o = progclk_o_reg;
@@ -99,14 +157,7 @@
     assign crc_rst = crc_rst_r;
     
 
-    // AES Wires
-    wire aes_rst, aes_init, aes_next, aes_dec_rst;
-    reg  aes_init_r, aes_next_r, aes_dec_rst_r;
 
-    assign aes_rst  = rst_i;
-    assign aes_init = aes_init_r;
-    assign aes_next = aes_next_r;
-    assign aes_dec_rst = aes_dec_rst_r;
 
     //key storage wires
     reg key_rst_r;
@@ -131,6 +182,9 @@
     reg  mem_we_r;
     assign mem_we = mem_we_r;
 
+     //SHA stuffs
+    reg[255:0] sha_reg;
+    reg        sha_status;
      
     counter_7_bit counter0
     (
@@ -153,19 +207,6 @@
     .rst_i(crc_rst),
     .data_i(data_i),
     .data_o(crc_data_o)
-    );
-
-    aes_core aes
-    (
-    .clk(tck_i),
-    .reset_n(aes_rst),
-    .reset_dec(aes_dec_rst),
-    .init(aes_init),
-    .next(aes_next),
-    .key(key_wire),
-    .block(block_wire),
-    .result(result_wire),
-    .result_valid()
     );
 
     key_storage key
@@ -202,10 +243,10 @@ begin
             begin 
                 if(en_i) begin
                     if(counter0_o == 7'b1111111) begin
-                        if(header[35:32] == `LOAD_KEY_C || header[35:32] == `LOAD_BITSTREAM_C || header[35:32] == `LOAD_BITSTREAM_CA)
+                        if(header[36:32] == `LOAD_KEY_C || header[36:32] == `LOAD_BITSTREAM_C || header[36:32] == `LOAD_BITSTREAM_CA)
                             next_state = `EVAL_CRC;
                         else 
-                            next_state <= header[35:32];
+                            next_state <= header[36:32];
                     end else 
                         next_state  <= `DECODE;
                 end else
@@ -235,8 +276,8 @@ begin
         `LOAD_BITSTREAM: //Operation w/o CRC or AES
             begin
                 if(en_i) begin
-                    if(header[31:0] == 0 && counter0_o == header[42:36])
-                        next_state <= `IDLE;
+                    if(header[31:0] == 1 && counter0_o == header[42:36])
+                        next_state <= `LOCK;
                     else
                         next_state <= `LOAD_BITSTREAM;
                 end else
@@ -290,7 +331,7 @@ begin
         `EVAL_CRC:
             begin
                 if(counter1_o == 3'b111) begin 
-                    case(header[35:32])
+                    case(header[36:32])
                         `LOAD_KEY_C:
                             begin 
                                 if(crc_data_o == 8'b00000000) begin
@@ -351,11 +392,11 @@ begin
                 end
             end
         `RESET:
-            next_state = `IDLE;
+            next_state = `AUTHENTICATE;
         `KEY_INIT:
             begin
                 if(counter0_o == 7'b0001101)
-                    next_state <= `IDLE;
+                    next_state <= `LOCK;
                 else
                     next_state <= `KEY_INIT;
             end
@@ -364,14 +405,34 @@ begin
                 if(en_i)
                     next_state <= `LOCK;
                 else
-                    next_state <= `IDLE;
+                    next_state <= `AUTHENTICATE;
+            end
+        `AUTHENTICATE:
+            begin
+                if(en_i) begin
+                    if(counter0_o == 7'b1111111 & sha_status)
+                        next_state <= `EVAL_SHA;
+                    else
+                        next_state <= `AUTHENTICATE;
+                end else 
+                    next_state <= `AUTHENTICATE;
+            end 
+        `EVAL_SHA:
+            begin 
+                if(counter0_o == 7'b1000010) begin 
+                    if(sha_result == `DIGEST)
+                        next_state <= `IDLE;
+                    else
+                        next_state <= `LOCK;
+                end else 
+                    next_state <= `EVAL_SHA;   
             end
         default: next_state <= `IDLE;
     endcase 
 end
 
 
-always @ (state, counter0_o, counter1_o)
+always @ (state, counter0_o, counter1_o, en_i)
 begin 
     case(state)
         `IDLE:  // reset state
@@ -472,7 +533,22 @@ begin
                 crc_en_r      = 1'b0;    
                 counter0_en_r = 1'b1;
                 counter1_en_r = 1'b0;
-        end
+            end
+        `AUTHENTICATE:
+            begin
+                crc_en_r      = 1'b0;  
+                if(en_i)
+                    counter0_en_r = 1;
+                else
+                    counter0_en_r = 0;
+                counter1_en_r = 1'b0;
+            end    
+        `EVAL_SHA:
+            begin 
+                crc_en_r      = 1'b0;    
+                counter0_en_r = 1'b1;
+                counter1_en_r = 1'b0;
+            end
     endcase 
 end
 
@@ -482,6 +558,7 @@ begin
         `IDLE:  // reset state
             begin
                 mem_w_ready = mem_w_ready;
+                sha_status = sha_status;
 
                 mem_address_r = 0;
                 mem_we_r     = 0;
@@ -505,6 +582,8 @@ begin
             end
         `DECODE:  // Read/decode header
             begin
+                sha_status = sha_status;
+
                 mem_w_ready = mem_w_ready;
                 aes_dec_rst_r = 0;
                 mem_address_r = 0;
@@ -532,6 +611,7 @@ begin
             begin
                 mem_w_ready = mem_w_ready;
                 aes_dec_rst_r = 0;
+                sha_status = sha_status;
 
                 mem_address_r = 0;
                 mem_we_r     = 0;
@@ -560,6 +640,7 @@ begin
             begin
                 mem_w_ready = mem_w_ready;
                 aes_dec_rst_r = 0;
+                sha_status = sha_status;
 
                 mem_address_r = 0;
                 mem_we_r     = 0;
@@ -583,6 +664,7 @@ begin
             begin
                 mem_w_ready = mem_w_ready;
                 aes_dec_rst_r = 0;
+                sha_status = sha_status;
 
                 mem_address_r = 0;
                 mem_we_r     = 0;
@@ -599,7 +681,7 @@ begin
                 key_rst_r     = 1;
                 key_write_en_r = 0;
                 header =header;
-                if(header[31:0] == 0 && counter0_o == header[42:36]) begin
+                if(header[31:0] == 0 && counter0_o == header[43:37]) begin
                     core_ready = 1'b1;
                     core_valid = 1'b1;
                 end
@@ -614,6 +696,7 @@ begin
             begin
                 mem_w_ready = mem_w_ready;
                 aes_dec_rst_r = 0;
+                sha_status = sha_status;
 
                 mem_address_r = 0;
                 mem_we_r     = 0;
@@ -628,7 +711,7 @@ begin
                 key_ready      = 0;
                 key_rst_r      = 1;
                 key_write_en_r = 0;
-                if(header[31:0] == 32'h00000001 && counter0_o == header[63:36]) begin
+                if(header[31:0] == 32'h00000001 && counter0_o == header[43:37]) begin
                     core_ready = 1'b1;
                     core_valid = 1'b0;
                 end 
@@ -650,6 +733,7 @@ begin
             begin 
                 mem_w_ready = mem_w_ready;
                 aes_dec_rst_r = 1;
+                sha_status = sha_status;
 
                 mem_address_r = 0;
                 mem_we_r     = 0;
@@ -674,6 +758,7 @@ begin
             begin 
                 mem_w_ready = mem_w_ready;
                 aes_dec_rst_r = 1;
+                sha_status = sha_status;
 
                 mem_address_r = 0;
                 mem_we_r     = 0;
@@ -687,8 +772,8 @@ begin
                 key_rst_r      = 1;
                 key_write_en_r = 0;
                 core_valid     = 0;
-                header[63:36] = header[63:36];
-                header[35:32] = `EVAL_CRC_AES;
+                header[63:37] = header[63:37];
+                header[36:32] = `EVAL_CRC_AES;
                 header[31:00] = header[31:00]; 
                 if(counter0_o == 7'b1111110)
                     aes_i_reg = temp_data_reg;
@@ -699,6 +784,7 @@ begin
         `WRITE_NVM:
             begin
                 aes_dec_rst_r = 0;
+                sha_status = sha_status;
 
                 aes_i_reg = aes_i_reg;
                 aes_o_reg = aes_o_reg;
@@ -710,20 +796,42 @@ begin
                 key_rst_r      = 1;
                 key_write_en_r = 0;
                 core_valid     = 0;
-                mem_address_r  = header[51:44];
+                mem_address_r  = header[52:45];
                 case(counter0_o)
-                    31:      begin mem_data_o_r = temp_data_reg[127:95]; mem_we_r = 1; header[51:44] = header[51:44] + 1; header = header; end 
-                    32:      begin mem_data_o_r = mem_data_o_r;          mem_we_r = 0; header[51:44] = header[51:44];     header[43] = 0;  end 
-                    63:      begin mem_data_o_r = temp_data_reg[127:95]; mem_we_r = 1; header[51:44] = header[51:44] + 1; header = header; end 
-                    95:      begin mem_data_o_r = temp_data_reg[127:95]; mem_we_r = 1; header[51:44] = header[51:44] + 1; header = header; end 
-                    127:     begin 
+                    31:      begin 
+                        mem_data_o_r = temp_data_reg[127:95]; 
+                        mem_we_r = 1; 
+                        if(~header[44])
+                            header[52:45] = header[52:45] + 1; 
+                        else 
+                            header = header; 
+                    end 
+                    32:      begin 
+                        mem_data_o_r = mem_data_o_r;          
+                        mem_we_r = 0; 
+                        header[52:45] = header[52:45];     
+                        header[44] = 0;  
+                    end 
+                    63:      begin 
                         mem_data_o_r = temp_data_reg[127:95];
                         mem_we_r = 1; 
-                        header[63:52] = header[63:52]; 
-                        if(~header[43])
-                            header[51:44] = header[51:44] + 1;
+                        header[52:45] = header[52:45] + 1; 
+                        //header = header;
+                    end 
+                    95:      begin 
+                        mem_data_o_r = temp_data_reg[127:95];
+                        mem_we_r = 1; 
+                        header[52:45] = header[52:45] + 1; 
+                        //header = header; 
+                    end 
+                    127:     begin
+                        mem_data_o_r = temp_data_reg[127:95];
+                        mem_we_r = 1; 
+                        header[63:53] = header[63:53]; 
+                        if(~header[44])
+                            header[52:45] = header[52:45] + 1;
                         else
-                            header[51:44] = header[51:44];
+                            header[52:45] = header[52:45];
                         header[31:0] = header[31:0] - 1; 
                     end 
                     default: begin mem_data_o_r = mem_data_o_r; mem_we_r = 0; header = header; end
@@ -736,6 +844,8 @@ begin
             end
         `READ_NVM:
             begin
+                sha_status = sha_status;
+
                 aes_dec_rst_r = 1;
                 aes_init_r     = 0;
                 crc_rst_r      = 1;
@@ -743,23 +853,23 @@ begin
                 key_valid      = key_valid;
                 key_rst_r      = 1;
                 key_write_en_r = 0;
-                mem_address_r  = header[51:44];
+                mem_address_r  = header[52:45];
                 case(counter0_o)
-                    0:  begin header[51:44] = header[51:44] + 1; header[31:0] = header[31:0];     header[43] = header[43]; aes_i_reg = aes_i_reg; aes_o_reg = aes_o_reg; end
-                    1:  begin header[51:44] = header[51:44] + 1; header[31:0] = header[31:0];     header[43] = header[43]; aes_i_reg = aes_i_reg; aes_o_reg = aes_o_reg; end 
-                    2:  begin header[51:44] = header[51:44] + 1; header[31:0] = header[31:0];     header[43] = header[43]; aes_i_reg = aes_i_reg; aes_o_reg = aes_o_reg; end
-                    3:  begin header[51:44] = header[51:44] + 1; header[31:0] = header[31:0];     header[43] = header[43]; aes_i_reg = aes_i_reg; aes_o_reg = aes_o_reg; end
+                    0:  begin header[52:45] = header[52:45] + 1; header[31:0] = header[31:0];     header[44] = header[44]; aes_i_reg = aes_i_reg; aes_o_reg = aes_o_reg; end
+                    1:  begin header[52:45] = header[52:45] + 1; header[31:0] = header[31:0];     header[44] = header[44]; aes_i_reg = aes_i_reg; aes_o_reg = aes_o_reg; end 
+                    2:  begin header[52:45] = header[52:45] + 1; header[31:0] = header[31:0];     header[44] = header[44]; aes_i_reg = aes_i_reg; aes_o_reg = aes_o_reg; end
+                    3:  begin header[52:45] = header[52:45] + 1; header[31:0] = header[31:0];     header[44] = header[44]; aes_i_reg = aes_i_reg; aes_o_reg = aes_o_reg; end
                     4:  begin
                         aes_next_r = 1;
                         aes_i_reg = temp_data_reg;
                         aes_o_reg = aes_o_reg;
-                        header[51:44] = header[51:44];
-                        if(~header[43])
+                        header[52:45] = header[52:45];
+                        if(~header[44])
                             header[31:0] = header[31:0] - 1;
-                        header[43] = header[43]; 
+                        header[44] = header[44]; 
                     end
-                    57: begin header[51:44] = header[51:44];     header[31:0] = header[31:0];     header[43] = 0; aes_i_reg = aes_i_reg; aes_o_reg = result_wire; end 
-                    default begin header[51:44] = header[51:44]; header[31:0] = header[31:0];     header[43] = header[43]; aes_i_reg = aes_i_reg; aes_next_r = 0; aes_o_reg = aes_o_reg; end
+                    57: begin header[52:45] = header[52:45];     header[31:0] = header[31:0];     header[44] = 0; aes_i_reg = aes_i_reg; aes_o_reg = result_wire; end 
+                    default begin header[52:45] = header[52:45]; header[31:0] = header[31:0];     header[44] = header[44]; aes_i_reg = aes_i_reg; aes_next_r = 0; aes_o_reg = aes_o_reg; end
                 endcase
                 if(header[31:0] == 32'h00000000 & counter0_o > header[42:36]) begin 
                     core_ready = 1;
@@ -782,13 +892,14 @@ begin
                 aes_o_reg = aes_o_reg;
 
                 head_valid = head_valid;
+                sha_status = sha_status;
 
                 header         = header;
                 aes_init_r     = 0;
                 aes_next_r     = 0;
                 crc_rst_r      = 1; 
                 key_rst_r      = 1;
-                case(header[35:32])
+                case(header[36:32])
                     `LOAD_KEY_C:
                         begin
                             core_ready     = core_ready;
@@ -821,6 +932,7 @@ begin
             begin 
                 aes_dec_rst_r = 0;
                 mem_w_ready = mem_w_ready;
+                sha_status = sha_status;
 
                 mem_address_r = 0;
                 mem_we_r     = 0;
@@ -837,7 +949,7 @@ begin
                     header[31:00] = header[31:00] - 1;
                     header[63:32] = header[63:32];
                 end else if (counter0_o == 7'b0110101) begin
-                    header[43] = 1'b0;
+                    header[44] = 1'b0;
                 end else 
                     header = header;
                 
@@ -859,6 +971,7 @@ begin
         `EVAL_CRC_AES:
             begin
                 aes_dec_rst_r = 1;
+                sha_status = sha_status;
 
                 mem_w_ready = mem_w_ready;
 
@@ -877,7 +990,7 @@ begin
                     header[31:00] = header[31:00] - 1;
                     header[63:32] = header[63:32];
                 end else if (counter0_o == 7'b0110101) begin
-                    header[43] = 1'b0;
+                    header[44] = 1'b0;
                 end else 
                     header = header;
 
@@ -900,11 +1013,11 @@ begin
             begin
                 mem_w_ready = 0;
                 aes_dec_rst_r = 0;
+                sha_status = 0;
 
                 mem_address_r = 0;
                 mem_we_r     = 0;
-
-                mem_data_o_r = 0;
+                 mem_data_o_r = 0;
                 aes_i_reg      = 0;
                 aes_o_reg      = 0;
                 head_valid     = 0;
@@ -923,10 +1036,10 @@ begin
         `KEY_INIT:
             begin 
                 mem_w_ready = mem_w_ready;
+                sha_status = sha_status;
 
                 mem_address_r = 0;
                 mem_we_r     = 0;
-
                 mem_data_o_r = 0;
                 aes_i_reg = aes_i_reg;
                 aes_o_reg = aes_o_reg;
@@ -971,8 +1084,58 @@ begin
                 key_rst_r      = key_rst_r;
                 key_write_en_r = 0;
                 head_valid     = head_valid;
+                sha_status = 0;
             end
 
+        `AUTHENTICATE:
+            begin
+                mem_w_ready = mem_w_ready;
+
+                mem_address_r = 0;
+                mem_we_r     = 0;
+
+                mem_data_o_r = 0;
+                aes_i_reg      = aes_i_reg;
+                aes_o_reg      = 0;
+                aes_dec_rst_r  = aes_dec_rst_r;
+                core_ready     = core_ready;
+                key_ready      = key_ready;
+                core_valid     = core_valid;
+                key_valid      = key_valid;
+                header         = header;
+                aes_init_r     = aes_init_r;
+                aes_next_r     = aes_next;
+                crc_rst_r      = crc_rst_r;
+                key_rst_r      = key_rst_r;
+                key_write_en_r = 0;
+                head_valid     = head_valid;
+                if(counter0_o == 7'b1111111)
+                    sha_status = 1;
+                else 
+                    sha_status = sha_status;
+            end
+        `EVAL_SHA:
+            begin
+                mem_w_ready    = mem_w_ready;
+                mem_address_r  = 0;
+                mem_we_r       = 0;
+                mem_data_o_r   = 0;
+                aes_i_reg      = aes_i_reg;
+                aes_o_reg      = 0;
+                aes_dec_rst_r  = aes_dec_rst_r;
+                core_ready     = core_ready;
+                key_ready      = key_ready;
+                core_valid     = core_valid;
+                key_valid      = key_valid;
+                header         = header;
+                aes_init_r     = aes_init_r;
+                aes_next_r     = aes_next;
+                crc_rst_r      = crc_rst_r;
+                key_rst_r      = key_rst_r;
+                key_write_en_r = 0;
+                head_valid     = head_valid;
+                sha_status     = sha_status;
+            end
 
     endcase 
 end
@@ -983,69 +1146,86 @@ begin
     case(next_state)
         `IDLE:  // reset state
             begin
+                sha_reg = 0;
                 temp_data_reg = 0;
                 data_o_r        = 0;
             end
         `DECODE:  // Read/decode header
             begin
+                sha_reg = 0;
                 temp_data_reg = 0;
                 data_o_r        = 0;
             end
         `LOAD_KEY:
             begin
+                sha_reg = 0;
                 temp_data_reg = {data_i, temp_data_reg[127:1]};
                 data_o_r        = 0;
             end
         `LOAD_KEY_C:
             begin
+                sha_reg = 0;
                 temp_data_reg = {data_i, temp_data_reg[127:1]};
                 data_o_r        = 0;
             end
         `LOAD_BITSTREAM: //FOR Ooperation w/o CRC or AES
             begin
+                sha_reg = 0;
                 temp_data_reg = 0;
                 data_o_r      = data_i;
             end
         `LOAD_BITSTREAM_C:
             begin 
+                sha_reg = 0;
                 temp_data_reg = 0;
                 data_o_r        = 0;
             end
         `LOAD_BITSTREAM_A:
             begin 
+                sha_reg = 0;
                 temp_data_reg = {data_i, temp_data_reg[127:1]};
                 data_o_r        = 0;
             end
         `LOAD_BITSTREAM_CA:
             begin 
+                sha_reg = 0;
                 temp_data_reg = {data_i, temp_data_reg[127:1]};
                 data_o_r      = 0;
             end
         `WRITE_NVM:
             begin
+                sha_reg = 0;
                 temp_data_reg = {data_i, temp_data_reg[127:1]};
                 data_o_r      = 0;
             end
         `READ_NVM:
             begin
-                data_o_r      = 0;
+                sha_reg = 0;
+
                 case(counter0_o)
                     1: temp_data_reg[031:00] = mem_data_in;
                     2: temp_data_reg[063:32] = mem_data_in;
                     3: temp_data_reg[095:64] = mem_data_in;
                     4: temp_data_reg[127:96] = mem_data_in;
                     default: temp_data_reg   = temp_data_reg;
-
                 endcase
+                if(header[44] || counter0_o == 1 || counter0_o == 2 || counter0_o == 3 || counter0_o == 4 || (header[31:0] == 32'h00000000 & counter0_o > header[43:37]))
+                    data_o_r = 0;
+                else
+                    data_o_r = aes_o_reg[counter0_o - 7'b0110101];
             end
         `EVAL_CRC:
             begin
+                sha_reg = 0;
+
                 temp_data_reg = temp_data_reg;
                 data_o_r        = 0;
             end
         `EVAL_AES:
             begin
-                if(header[43]) begin 
+                sha_reg = 0;
+
+                if(header[44]) begin 
                     data_o_r = 0;
                 end else
                     data_o_r = aes_o_reg[counter0_o - 7'b0110101];
@@ -1057,7 +1237,9 @@ begin
             end
         `EVAL_CRC_AES:
             begin
-                if(header[43]) begin 
+                sha_reg = 0;
+
+                if(header[44]) begin 
                     data_o_r = 0;
                 end else
                     data_o_r = aes_o_reg[counter0_o - 7'b0110101];
@@ -1067,11 +1249,42 @@ begin
                 else
                     temp_data_reg = {data_i, temp_data_reg[127:1]};
             end
-        `LOCK:
+        `RESET:
             begin 
+                sha_reg = 0;
+
                 temp_data_reg = 0;
                 data_o_r      = 0;
             end
+        `KEY_INIT:
+            begin 
+                sha_reg = 0;
+
+                temp_data_reg = 0;
+                data_o_r      = 0;
+            end
+        `LOCK:
+            begin 
+                sha_reg = 0;
+                temp_data_reg = 0;
+                data_o_r      = 0;
+            end
+        `AUTHENTICATE:
+            begin
+                if(en_i)
+                    sha_reg = {data_i, sha_reg[255:1]};
+                else
+                    sha_reg = sha_reg;
+                data_o_r      = 0;
+                temp_data_reg = temp_data_reg;
+            end
+        `EVAL_SHA:
+            begin 
+                sha_reg = 0;
+                temp_data_reg = 0;
+                data_o_r      = 0;
+            end
+        default: begin temp_data_reg = 0; data_o_r = 0; sha_reg = 0; end
     endcase 
     end else begin 
                 temp_data_reg = temp_data_reg;
@@ -1125,7 +1338,7 @@ begin
             end
         `READ_NVM:
             begin
-                if(header[43] || counter0_o == 1 || counter0_o == 2 || counter0_o == 3 || counter0_o == 4 || (header[31:0] == 32'h00000000 & counter0_o > header[42:36]))
+                if(header[44] || counter0_o == 1 || counter0_o == 2 || counter0_o == 3 || counter0_o == 4 || (header[31:0] == 32'h00000000 & counter0_o > header[43:37]))
                     progclk_o_reg = 0;
                 else
                     progclk_o_reg = tck_i;
@@ -1136,27 +1349,40 @@ begin
             end
         `EVAL_AES:
             begin 
-                if(header[43] == 0)
+                if(header[44] == 0)
                     progclk_o_reg = tck_i;
                 else
                     progclk_o_reg = 0;
             end
         `EVAL_CRC_AES:
             begin
-                if(header[43] == 0)
+                if(header[44] == 0)
                     progclk_o_reg = tck_i;
                 else
                     progclk_o_reg = 0;
+            end
+        `RESET:
+            begin
+                 progclk_o_reg = 0;
+            end
+        `KEY_INIT:
+            begin
+                 progclk_o_reg = 0;
             end
         `LOCK:
             begin
                  progclk_o_reg = 0;
             end
+        `AUTHENTICATE:
+            begin
+                 progclk_o_reg = 0;
+            end
+        `EVAL_SHA:
+            begin 
+                progclk_o_reg  = 0;
+            end
     endcase 
 end
-
-
-
 endmodule
  
 
