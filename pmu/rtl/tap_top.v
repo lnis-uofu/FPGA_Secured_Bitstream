@@ -38,8 +38,7 @@
 `define REG_OBSERV      5'b01000
 `define REG6            5'b01001
 `define BYPASS          5'b11111
-`define PMU_W_CS        5'b11011
-`define PMU_WO_CS       5'b11010
+`define PMU             5'b11011
 
 // Top module
 module tap_top (
@@ -56,23 +55,21 @@ module tap_top (
   capture_dr_o,
 
   // Select signals for boundary scan or mbist
-  memory_sel_o,
-  fifo_sel_o,
-  confreg_sel_o,
-  clk_byp_sel_o,
-  observ_sel_o,
-  pmu_w_cs_sel_o,
-  pmu_wo_cs_sel_o,
+  /* memory_sel_o, */
+  /* fifo_sel_o, */
+  /* confreg_sel_o, */
+  /* clk_byp_sel_o, */
+  /* observ_sel_o, */
+  /* pmu_sel_o, */
 
-
-  checksum_en,
-  pmu_en,
 
   // TDO signal that is connected to TDI of sub-modules.
   scan_in_o,
   pmu_tdi_o,
   pmu_tck_o,
   pmu_rst_o,
+  pmu_en_o,
+
 
   // TDI signals from sub-modules
   memory_out_i,     // from reg1 module
@@ -97,25 +94,22 @@ output  shift_dr_o;
 output  update_dr_o;
 output  capture_dr_o;
 
-// Select signals for boundary scan or mbist
-output  memory_sel_o;
-output  fifo_sel_o;
-output  confreg_sel_o;
-output  clk_byp_sel_o;
-output  observ_sel_o;
-output  pmu_w_cs_sel_o;
-output  pmu_wo_cs_sel_o;
+/* // Select signals for boundary scan or mbist */
+/* output  memory_sel_o; */
+/* output  fifo_sel_o; */
+/* output  confreg_sel_o; */
+/* output  clk_byp_sel_o; */
+/* output  observ_sel_o; */
+/* output  pmu_sel_o; */
 
-
-output  checksum_en;
-output  pmu_en;
 
 // TDO signal that is connected to TDI of sub-modules.
 output  scan_in_o;
 output  pmu_tdi_o;
 output  pmu_tck_o;
 output  pmu_rst_o;
-// TDI signals from sub-modules
+output  pmu_en_o;
+// TDI signals from sub-module
 input   memory_out_i;      // from reg1 module
 input   fifo_out_i;    // from reg2 module
 input   confreg_out_i;     // from reg4 module
@@ -146,8 +140,7 @@ reg     memory_sel;
 reg     fifo_sel;
 reg     confreg_sel;
 reg     bypass_sel;
-reg     pmu_w_cs_sel;
-reg     pmu_wo_cs_sel;
+reg     pmu_sel;
 
 
 
@@ -157,11 +150,10 @@ reg     observ_sel;
 reg     tdo_comb;
 reg     td_o;
 reg     pmu_tdi_o_reg;
-//reg     tdo_padoe_o;
+
 reg     tms_q1, tms_q2, tms_q3, tms_q4;
 wire    tms_reset;
 
-reg    checksum_en_reg;
 reg    pmu_en_reg;
 
 assign scan_in_o = td_i;
@@ -173,11 +165,9 @@ assign capture_dr_o = capture_dr;
 assign memory_sel_o = memory_sel;
 assign fifo_sel_o = fifo_sel;
 assign confreg_sel_o = confreg_sel;
-assign pmu_w_cs_sel_o = pmu_w_cs_sel;
-assign pmu_wo_cs_sel_o = pmu_wo_cs_sel;
+assign pmu_sel_o = pmu_sel;
 
 
-assign checksum_en = checksum_en_reg;
 assign pmu_en = pmu_en_reg;
 assign pmu_tck_o = tck_i;
 assign pmu_rst_o = rst_ni; 
@@ -552,9 +542,7 @@ begin
   bypass_sel           = 1'b0;
   clk_byp_sel          = 1'b0;
   observ_sel           = 1'b0;
-  pmu_w_cs_sel         = 1'b0;
-  pmu_wo_cs_sel        = 1'b0;
-  checksum_en_reg      = 1'b0;
+  pmu_sel              = 1'b0;
   pmu_en_reg           = 1'b0;
 
   case(latched_jtag_ir)    /* synthesis parallel_case */
@@ -565,33 +553,16 @@ begin
     `REG_CLK_BYP:       clk_byp_sel          = 1'b1;    // REG4
     `REG_OBSERV:        observ_sel           = 1'b1;    // REG5
     `BYPASS:            bypass_sel           = 1'b1;    // BYPASS
-    `PMU_W_CS:          pmu_w_cs_sel         = 1'b1; //checksum_en_reg = 1'b1; pmu_en_reg = 1'b1; end 
-    `PMU_WO_CS:         pmu_wo_cs_sel        = 1'b1; //checksum_en_reg = 1'b0; pmu_en_reg = 1'b1; end
+    `PMU:               pmu_sel              = 1'b1;    
     default:            bypass_sel           = 1'b1; //checksum_en_reg = 1'b0; pmu_en_reg = 1'b0; end  // BYPASS
   endcase
     
-    if(pmu_w_cs_sel | pmu_wo_cs_sel)
-    begin
+    if(pmu_sel) begin
         if(!(tms_i))
-        begin
-            if(pmu_w_cs_sel)
-            begin
-                checksum_en_reg = 1'b1;
-                pmu_en_reg      = 1'b1;
-            end
-            if(pmu_wo_cs_sel)
-            begin
-                checksum_en_reg = 1'b0;
-                pmu_en_reg      = 1'b1;
-            end
-        end
-        else
-        begin
-            pmu_en_reg      = 1'b0;
-            checksum_en_reg = 1'b0;
-        end
+            pmu_en_reg = 1'b1;
+        else 
+            pmu_en_reg = 1'b0;
     end
-    
 end
 
 
@@ -617,8 +588,7 @@ begin
         `REG_CLK_BYP:       tdo_comb = confreg_out_i;     // REG4
         `REG_OBSERV:        tdo_comb = clk_byp_out_i;     // REG5
         `BYPASS:            tdo_comb = bypassed_tdo;     // BYPASS
-        `PMU_W_CS:          tdo_comb = pmu_tdo_i;            
-        `PMU_WO_CS:         tdo_comb = pmu_tdo_i;   
+        `PMU:               tdo_comb = pmu_tdo_i;            
         default:            tdo_comb = bypassed_tdo;   // BYPASS instruction
       endcase
     end
@@ -629,15 +599,10 @@ end
 always @ (negedge tck_i)
 begin
   td_o   <=  tdo_comb;
-  if(pmu_w_cs_sel || pmu_wo_cs_sel)
-  begin
+  if(pmu_sel)
       pmu_tdi_o_reg = td_i;
-  end
   else
-  begin
       pmu_tdi_o_reg = 0;
-  end
-//  tdo_padoe_o <=  shift_ir | shift_dr ;
 end
 /**********************************************************************************
 *                                                                                 *

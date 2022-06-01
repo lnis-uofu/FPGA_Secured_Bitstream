@@ -9,5 +9,13 @@ VERILOG_SOURCES += \
 	pmu.v \
 	pmu_top.v \
 	tap_top.v \
+	aes/aes_decipher_block.v \
+	aes/aes_inv_sbox.v \
+	aes/round_key.v \
+	aes/aes_key_mem.v \
+	aes/aes_sbox.v \
+	aes/aes_core.v \
+	key_storage.v \
+	mem.v 
 
 include ${PROJECT_CONFIG_DIR}/Makefile.def

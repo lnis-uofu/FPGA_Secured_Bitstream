@@ -27,7 +27,7 @@
 `timescale 1ns/10ps     // time-unit = 1ns, precision = 10ps
 `default_nettype none
 
-module tap_top_tb;
+module functional_tap_top;
 
 	reg  	clk = 1'b0;	
 
@@ -42,6 +42,7 @@ module tap_top_tb;
     reg debug               = 1'b0;
     reg bs_chain            = 8'h45;
     reg mbist               = 1'b0;
+    reg tdo_i               = 1'b1;
 
 
     reg [10:0] tdi_header = 11'b01101100000;
@@ -62,22 +63,20 @@ module tap_top_tb;
 	.update_dr_o(),
 	.capture_dr_o(),
 
-    // Select signals for boundary scan or mbist
-    .memory_sel_o(),
-    .fifo_sel_o(),
-    .confreg_sel_o(),
-    .clk_byp_sel_o(),
-    .observ_sel_o(),
-    .pmu_w_cs_sel_o(),
-    .pmu_wo_cs_sel_o(),
-
-    .checksum_en(),
-    .pmu_en(),
+    /* // Select signals for boundary scan or mbist */
+    /* .memory_sel_o(), */
+    /* .fifo_sel_o(), */
+    /* .confreg_sel_o(), */
+    /* .clk_byp_sel_o(), */
+    /* .observ_sel_o(), */
+    /* .pmu_sel_o(), */
         
 	.scan_in_o(),
     .pmu_tdi_o(),
     .pmu_tck_o(),
     .pmu_rst_o(),
+    .pmu_en_o(),
+
 
     // TDI signals from sub-modules
     .memory_out_i(),     // from reg1 module
@@ -85,7 +84,7 @@ module tap_top_tb;
     .confreg_out_i(),     // from reg3 module
     .clk_byp_out_i(),
     .observ_out_i(),
-    .pmu_tdo_i()
+    .pmu_tdo_i(tdo_i)
     );    
 
     //start of simulation
@@ -129,43 +128,6 @@ module tap_top_tb;
 
         #period;
         #period;
-
-        //-------------------------------------------- without checksum 
-        tdi_header = 11'b01101000000;
-
-
-        
-        #halfperiod
-        //reset to initiate tap logic
-        trst <= 1'b0;
-        #period
-        trst <= 1'b1;
-        #period;
-       
-        for(i = 0; i < 11; i = i + 1)
-        begin
-            tms = tms_header[i];
-            tdi = tdi_header[i];
-            #period;
-
-        end
-        for(i = 0; i < 2500; i = i + 1)
-        begin
-            tms = 0;
-            tdi = 1;
-            #period;
-
-        end
-        for(i = 0; i < 5; i = i + 1)
-        begin
-            tms = tms_footer[i];
-            tdi = tdi_footer[i];
-            #period;
-        end
-
-        #period;
-        #period;
-
 
         
         $stop; 
