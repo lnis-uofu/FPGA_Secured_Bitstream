@@ -1,1427 +1,156 @@
 
 
-`default_nettype wire
-
-
-// C -> CRC enable
-// A -> AES enable
-
-`define IDLE                 5'b00000
-`define DECODE               5'b00001
-`define LOAD_KEY             5'b00010
-`define LOAD_KEY_C           5'b00011
-`define LOAD_BITSTREAM       5'b00100 
-`define LOAD_BITSTREAM_C     5'b00101
-`define LOAD_BITSTREAM_A     5'b00110
-`define LOAD_BITSTREAM_CA    5'b00111
-`define WRITE_NVM            5'b01000
-`define READ_NVM             5'b01001
-`define EVAL_CRC             5'b01010
-`define EVAL_AES             5'b01011
-`define EVAL_CRC_AES         5'b01100
-`define RESET                5'b01101
-`define KEY_INIT             5'b01110
-`define LOCK                 5'b01111
-`define AUTHENTICATE         5'b10101
-`define EVAL_SHA             5'b10110
 
 
 
+module pmu 
+    (
 
-`define SHA_KEY            256'h4c4e49536c6e69734c4e49536c6e69734c4e49536c6e69734c4e49536c6e6973 //LNISlnis x4
-`define DIGEST             256'ha663cae69292448feb7b3b82a2c9fe25227b6e9c080075dcf75a9af5ef5edec7
-
-
- module pmu (
-    input  data_i,
-    input  rst_i,
-    input  en_i,
+    //JTAG Interface   
+    input  tms_i,
     input  tck_i,
+    input  rst_i,
+    input  tdi_i,
+    output td_o,
 
-    output progclk_o,
-    output flag_o_jtag,
-    output flag_o_fpga,
-    output data_o,
-
-    //from core
-    input  data_ccff_i,
-    //to jtag
-    output data_ccff_o,
-
-    //mem ports
-    input  [31:0] mem_data_in,
-    output [7:0]  mem_address_o,
+    //NVM  Interface
+    input  [31:0] mem_data_i,
     output [31:0] mem_data_o,
-    output mem_we,
-    output mem_clk,
+    output [07:0] mem_address_o,
+    output mem_we_o,
+    output mem_clk_o,
 
-    //AES PORTS
-    output aes_clk,
-    output aes_reset_n,
-    output reset_dec,
-    output aes_init,
-    output aes_next,
-    output [127:0] aes_key,
-    output [127:0] aes_block,
-
-    input  [127:0] aes_result,
-    input  aes_result_valid,
-
-    //SHA PORTS
-    output sha_clk,
-    output sha_reset_n,
-    output sha_init,
-    output sha_next,
-    output sha_mode,
-    output [511:0] sha_block,
-
-    input  ready,
-    input  [255:0] digest,
-    input  digest_valid
-     
-
+    //2x2 FPGA Interface
+    output progclk_o,
+    output pReset_o,
+    output data_o,
+    input  ccff_tail_i
     );
 
-    // AES Wires
-    reg  aes_init_r, aes_next_r, aes_dec_rst_r, aes_result_valid_r;
-    wire [127:0] key_wire;
-    wire [127:0] block_wire;
-    wire [127:0] result_wire;
-    reg  [127:0] aes_i_reg;
-    reg  [127:0] aes_o_reg;
-    assign aes_clk          = tck_i;
-    assign aes_reset_n      = rst_i;
-    assign aeset_dec        = aes_dec_rst_r;
-    assign aes_init         = aes_init_r;
-    assign aes_next         = aes_next_r;
-    assign aes_key          = key_wire;
-    assign aes_block        = aes_i_reg;
-    // AES Wires
+    //PMU Wires
+    wire pmu_tdi_w;
+    wire pmu_tck_w;
+    wire pmu_rst_w;
+    wire pmu_en_w;
 
+    //AES Wires
+    wire aes_reset_n_w;
+    wire aes_reset_dec_w;
+    wire aes_init_w;
+    wire aes_next_w;
+    wire [127:0] aes_key_w;
+    wire [127:0] aes_block_w;
+    wire [127:0] aes_result_w;
+    wire aes_result_valid_w;
 
-    //SHA Wires 
-    reg sha_init_r, sha_next_r;
-    wire [255:0] sha_result, sha_block_w;
-    reg  [255:0] sha_i_reg;
+    //SHA Wires
+    wire sha_reset_n_w;
+    wire sha_init_w;
+    wire sha_next_w;
+    wire sha_mode_w;
+    wire [255:0] sha_block_w;
+    wire sha_ready_w;
+    wire [255:0] sha_digest_w;
+    wire sha_digest_valid_w;
 
-    assign sha_clk     = tck_i; 
-    assign sha_reset_n = rst_i;
-    assign sha_init    = sha_init_r;
-    assign sha_next    = sha_next_r;
-    assign sha_mode    = 0;
-    assign sha_block   = sha_i_reg;
-    //SHA Wires 
+    //MEM Wires
+    wire [31:0] mem_data_o_w;
+
+    assign mem_data_o = mem_data_o_w;
+    
+    wire ccff_tail_o;
+    assign td_o = ccff_tail_o;
 
     
-    assign mem_clk = tck_i;
-     
-    reg [4:0] state;
-    reg [4:0] next_state;
-
-    reg [63:0] header;
-    wire [6:0] counter0_o;
-    wire [2:0] counter1_o;
-
-    reg data_o_r;
-    assign data_o = data_o_r;
-
-    reg  [127:0] temp_data_reg;
-
-    wire [127:0] temp_data;     
-    
-    assign temp_data  = temp_data_reg;
-     
-    reg  progclk_o_reg;
-    assign progclk_o = progclk_o_reg;
-     
-    reg head_valid;
-    reg core_ready; // Indicates a finished squence
-    reg key_ready;
-    reg core_valid; // Indicates a correct sequence ())
-    reg key_valid;
-    reg mem_w_ready;
-
-    reg counter0_en_r;
-    reg counter1_en_r;
-    wire  counter0_en;
-    wire  counter1_en;
-    assign counter0_en = counter0_en_r;
-    assign counter1_en = counter1_en_r;
-
-
-    // CRC8 Wires
-    wire crc_en, crc_rst;
-    wire [7:0] crc_data_o;
-    reg  crc_en_r, crc_rst_r;
-    assign crc_en = crc_en_r;
-    assign crc_rst = crc_rst_r;
-    
-
-
-
-    //key storage wires
-    reg key_rst_r;
-    wire key_rst;
-    reg key_write_en_r;
-    wire key_write_en;
-
-    assign key_rst = key_rst_r;
-    assign key_write_en = key_write_en_r;
-
-
-    //NVM wires
-
-    reg  [31:0] mem_data_o_r;
-    assign mem_data_o = mem_data_o_r;
-
-
-    reg  [7:0] mem_address_r;
-    assign mem_address_o = mem_address_r;
-
-
-    reg  mem_we_r;
-    assign mem_we = mem_we_r;
-
-     //SHA stuffs
-    reg[255:0] sha_reg;
-    reg        sha_status;
-     
-    counter_7_bit counter0
+    tap_top tap_core_
     (
-    .clk_i(tck_i),
-    .en_i(counter0_en),
-    .count(counter0_o)
+    .tms_i(tms_i),
+    .tck_i(tck_i),
+    .rst_ni(rst_i),
+    .td_i(tdi_i),
+    .td_o(td_o),
+
+    .shift_dr_o(),
+    .update_dr_o(),
+    .capture_dr_o(),
+    .scan_in_o(),
+
+    .pmu_tdi_o(pmu_tdi_w),
+    .pmu_tck_o(pmu_tck_w),
+    .pmu_rst_o(pmu_rst_w),
+    .pmu_en_o(pmu_en_w),
+
+    .memory_out_i(),     // from reg1 module
+    .fifo_out_i(),       // from reg2 module
+    .confreg_out_i(),     // from reg3 module
+    .clk_byp_out_i(),
+    .observ_out_i(),
+
+    .pmu_tdo_i(ccff_tail_o)
     );
 
-    counter_3_bit counter1
+
+    pmu_core pmu_core_
     (
-    .clk_i(tck_i),
-    .en_i(counter1_en),
-    .count(counter1_o)
+    .data_i(pmu_tdi_w),
+    .rst_i(pmu_rst_w),
+    .en_i(pmu_en_w),
+    .tck_i(pmu_tck_w),
+    .progclk_o(progclk_o),
+    .pReset(pReset_o),
+    .data_o(data_o),
+    .data_ccff_i(ccff_tail_i),
+    .data_ccff_o(ccff_tail_o),
+    .mem_data_in(mem_data_i),
+    .mem_address_o(mem_address_o),
+    .mem_data_o(mem_data_o_w),
+    .mem_we(mem_we_o),
+    .mem_clk(mem_clk_o),
+    .aes_reset_n(aes_reset_n_w),
+    .reset_dec(aes_reset_dec_w),
+    .aes_init(aes_init_w),
+    .aes_next(aes_next_w),
+    .aes_key(aes_key_w),
+    .aes_block(aes_block_w),
+    .aes_result(aes_result_w),
+    .aes_result_valid(aes_result_valid_w),
+    .sha_reset_n(sha_reset_n_w),
+    .sha_init(sha_init_w),
+    .sha_next(sha_next_w),
+    .sha_mode(sha_mode_w),
+    .sha_block(sha_block_w),
+    .sha_ready(sha_ready_w),
+    .digest(sha_digest_w),
+    .digest_valid(sha_digest_valid_w)
     );
 
-    crc_8 crc
-    (
-    .clk_i(tck_i),
-    .en_i(crc_en),
-    .rst_i(crc_rst),
-    .data_i(data_i),
-    .data_o(crc_data_o)
-    );
-
-    key_storage key
+    aes_core aes_core_
     (
     .clk(tck_i),
-    .rst(key_rst),
-    .we(key_write_en),
-    .write_data(temp_data),
-    .read_data(key_wire)
+    .reset_n(aes_reset_n_w),
+    .reset_dec(aes_reset_dec_w),
+    .init(aes_init_w),
+    .next(aes_next_w),
+    .key(aes_key_w),
+    .block(aes_block_w),
+    .result(aes_result_w),
+    .result_valid(aes_result_valid_w)
     );
 
-always @ (posedge tck_i)
-begin
-    if(~rst_i)
-        state <= `RESET;
-    else
-        state <= next_state;
-end
+    sha256_core   sha256_core_
+    (
+    .clk(tck_i),
+    .reset_n(sha_reset_n_w),
+    .init(sha_init_w),
+    .next(sha_next_w),
+    .mode(sha_mode_w),
+    .block(sha_block_w),
+    .ready(sha_ready_w),
+    .digest(sha_digest_w),
+    .digest_valid(sha_digest_valid_w)
+    );
 
 
-    
-always @ (state, en_i, counter0_o, counter1_o)
-begin 
-    
-    case(state)
-        `IDLE:  // reset state
-            begin
-                if(en_i) 
-                    next_state <= `DECODE;
-                else
-                    next_state <= `IDLE;
-            end
-        `DECODE:  // Read/decode header
-            begin 
-                if(en_i) begin
-                    if(counter0_o == 7'b1111111) begin
-                        if(header[36:32] == `LOAD_KEY_C || header[36:32] == `LOAD_BITSTREAM_C || header[36:32] == `LOAD_BITSTREAM_CA)
-                            next_state = `EVAL_CRC;
-                        else 
-                            next_state <= header[36:32];
-                    end else 
-                        next_state  <= `DECODE;
-                end else
-                    next_state <= `IDLE;
-            end
-        `LOAD_KEY:
-            begin 
-                if(en_i) begin
-                    if(counter0_o == 7'b1111111)
-                        next_state <= `KEY_INIT;
-                    else 
-                        next_state <= `LOAD_KEY;
-                end else
-                    next_state <=   `IDLE;
-            end
-        `LOAD_KEY_C:
-            begin 
-                if(en_i) begin
-                    if(counter0_o == 7'b1111111)
-                        next_state <= `EVAL_CRC;
-                    else 
-                        next_state <= `LOAD_KEY_C;
-                end else
-                    next_state <=   `IDLE;
-            end
 
-        `LOAD_BITSTREAM: //Operation w/o CRC or AES
-            begin
-                if(en_i) begin
-                    if(header[31:0] == 1 && counter0_o == header[42:36])
-                        next_state <= `LOCK;
-                    else
-                        next_state <= `LOAD_BITSTREAM;
-                end else
-                    next_state <= `IDLE;
-            end
-        `LOAD_BITSTREAM_C:
-            begin 
-                if(en_i) begin
-                    if(counter0_o == 7'b1111111)
-                        next_state <= `EVAL_CRC;
-                    else
-                        next_state <= `LOAD_BITSTREAM_C;
-                end else 
-                    next_state <= `IDLE;
 
-            end
-        `LOAD_BITSTREAM_A:
-            begin 
-                if(en_i) begin
-                    if(counter0_o == 7'b1111111)
-                        next_state <= `EVAL_AES;
-                    else
-                        next_state <= `LOAD_BITSTREAM_A;
-                end else 
-                    next_state <= `IDLE;
-            end
-        `LOAD_BITSTREAM_CA:
-            begin 
-                if(en_i) begin
-                    if(counter0_o == 7'b1111111)
-                        next_state <= `EVAL_CRC;
-                    else
-                        next_state <= `LOAD_BITSTREAM_CA;
-                end else 
-                    next_state <= `IDLE;
-            end
-        `WRITE_NVM:
-            begin
-                if(header[31:0] == 0 & counter0_o == 7'b0000000)
-                    next_state <= `IDLE;
-                else
-                    next_state <=`WRITE_NVM;
-            end
-        `READ_NVM:
-            begin
-                if(header[31:0] == 0 & counter0_o == 7'b0110101)
-                    next_state <= `IDLE;
-                else
-                    next_state <=`READ_NVM;
-             end
-        `EVAL_CRC:
-            begin
-                if(counter1_o == 3'b111) begin 
-                    case(header[36:32])
-                        `LOAD_KEY_C:
-                            begin 
-                                if(crc_data_o == 8'b00000000) begin
-                                   if(~head_valid)
-                                        next_state <= `LOAD_KEY_C;
-                                    else
-                                        next_state <= `KEY_INIT;
-                                end else
-                                        next_state <= `LOCK;
-                                end
-                        `LOAD_BITSTREAM_C:
-                                begin 
-                                    if(crc_data_o == 8'b00000000) begin 
-                                        if(header[31:0] == 32'h00000000)
-                                            next_state <= `IDLE;
-                                        else 
-                                            next_state <= `LOAD_BITSTREAM_C;
-                                    end else
-                                        next_state <= `LOCK;
-                                end
-                        `LOAD_BITSTREAM_CA:
-                                begin 
-                                    if(crc_data_o == 8'b00000000) begin 
-                                        if(header[31:0] == 32'h00000000)
-                                            next_state <= `IDLE;
-                                        else 
-                                            next_state <= `LOAD_BITSTREAM_CA;
-                                    end else
-                                        next_state <= `LOCK;
-                                end
-                        `EVAL_CRC_AES:
-                               begin 
-                                    if(crc_data_o == 8'b00000000)
-                                        next_state <= `EVAL_CRC_AES;
-                                   else
-                                        next_state <= `LOCK;
-                                end
-                        endcase 
-                    end else 
-                        next_state <= `EVAL_CRC;
-            end
-        `EVAL_AES:
-            begin 
-                if(header[31:0] == 32'h00000000 & counter0_o == 7'b0110101)  
-                    next_state <= `IDLE;
-                else
-                    next_state <= `EVAL_AES;
-            end
-        `EVAL_CRC_AES:
-            begin
-                if(counter0_o == 7'b1111111)
-                    next_state <= `EVAL_CRC;
-                else begin
-                    if(counter0_o == 7'b0110101 && header[31:0] == 32'h00000000)
-                        next_state <= `IDLE;
-                    else 
-                        next_state <= `EVAL_CRC_AES;
-                end
-            end
-        `RESET:
-            next_state = `AUTHENTICATE;
-        `KEY_INIT:
-            begin
-                if(counter0_o == 7'b0001101)
-                    next_state <= `LOCK;
-                else
-                    next_state <= `KEY_INIT;
-            end
-        `LOCK:
-            begin
-                if(en_i)
-                    next_state <= `LOCK;
-                else
-                    next_state <= `AUTHENTICATE;
-            end
-        `AUTHENTICATE:
-            begin
-                if(en_i) begin
-                    if(counter0_o == 7'b1111111 & sha_status)
-                        next_state <= `EVAL_SHA;
-                    else
-                        next_state <= `AUTHENTICATE;
-                end else 
-                    next_state <= `AUTHENTICATE;
-            end 
-        `EVAL_SHA:
-            begin 
-                if(counter0_o == 7'b1000010) begin 
-                    if(sha_result == `DIGEST)
-                        next_state <= `IDLE;
-                    else
-                        next_state <= `LOCK;
-                end else 
-                    next_state <= `EVAL_SHA;   
-            end
-        default: next_state <= `IDLE;
-    endcase 
-end
-
-
-always @ (state, counter0_o, counter1_o, en_i)
-begin 
-    case(state)
-        `IDLE:  // reset state
-            begin
-                crc_en_r      = 1'b0;  
-                counter0_en_r = 1'b0;
-                counter1_en_r = 1'b0;
-            end
-        `DECODE:  // Read/decode header
-            begin
-                crc_en_r      = 1'b1;
-                counter0_en_r = 1'b1;
-                counter1_en_r = 1'b0;
-            end
-        `LOAD_KEY:
-            begin 
-                crc_en_r      = 1'b0;    
-                counter0_en_r = 1'b1;
-                counter1_en_r = 1'b0;
-            end
-        `LOAD_KEY_C:
-            begin 
-                crc_en_r      = 1'b1; 
-                counter0_en_r = 1'b1;
-                counter1_en_r = 1'b0;
-            end
-        `LOAD_BITSTREAM:
-            begin
-                crc_en_r      = 1'b0;  
-                counter0_en_r = 1'b1;
-                counter1_en_r = 1'b0;
-
-            end
-        `LOAD_BITSTREAM_C:
-            begin 
-                crc_en_r      = 1'b1;  
-                counter0_en_r = 1'b1;
-                counter1_en_r = 1'b0;
-
-            end
-        `LOAD_BITSTREAM_A:
-            begin 
-                crc_en_r      = 1'b0;
-                counter0_en_r = 1'b1;
-                counter1_en_r = 1'b0;
-
-            end
-        `LOAD_BITSTREAM_CA:
-            begin 
-                crc_en_r      = 1'b1;
-                counter0_en_r = 1'b1;
-                counter1_en_r = 1'b0;
-            end
-        `WRITE_NVM:
-            begin
-                crc_en_r      = 1'b0;
-                counter0_en_r = 1'b1;
-                counter1_en_r = 1'b0;
-            end
-        `READ_NVM:
-            begin
-                crc_en_r      = 1'b0;
-                counter0_en_r = 1'b1;
-                counter1_en_r = 1'b0;
-            end
-        `EVAL_CRC:
-            begin
-                crc_en_r      = 1'b1;
-                counter0_en_r = 1'b0;
-                counter1_en_r = 1'b1;
-            end
-        `EVAL_AES:
-            begin 
-                crc_en_r      = 1'b0; 
-                counter0_en_r = 1'b1;
-                counter1_en_r = 1'b0;
-            end
-        `EVAL_CRC_AES:
-            begin
-                crc_en_r      = 1'b1; 
-                counter0_en_r = 1'b1;
-                counter1_en_r = 1'b0;
-            end
-        `RESET:
-            begin 
-                crc_en_r      = 1'b0;    
-                counter0_en_r = 1'b0;
-                counter1_en_r = 1'b0;
-            end
-        `KEY_INIT:
-            begin 
-                crc_en_r      = 1'b0;    
-                counter0_en_r = 1'b1;
-                counter1_en_r = 1'b0;
-            end
-        `LOCK:
-            begin 
-                crc_en_r      = 1'b0;    
-                counter0_en_r = 1'b1;
-                counter1_en_r = 1'b0;
-            end
-        `AUTHENTICATE:
-            begin
-                crc_en_r      = 1'b0;  
-                if(en_i)
-                    counter0_en_r = 1;
-                else
-                    counter0_en_r = 0;
-                counter1_en_r = 1'b0;
-            end    
-        `EVAL_SHA:
-            begin 
-                crc_en_r      = 1'b0;    
-                counter0_en_r = 1'b1;
-                counter1_en_r = 1'b0;
-            end
-    endcase 
-end
-
-always @ (posedge tck_i)
-begin 
-    case(state)
-        `IDLE:  // reset state
-            begin
-                mem_w_ready = mem_w_ready;
-                sha_status = sha_status;
-
-                mem_address_r = 0;
-                mem_we_r     = 0;
-
-                mem_data_o_r = 0;
-                aes_i_reg      = 0;
-                aes_o_reg      = 0;
-                aes_dec_rst_r  = 0;
-                core_ready     = core_ready;
-                key_ready      = key_ready;
-                core_valid     = core_valid;
-                key_valid      = key_valid;
-                header         = header;
-                aes_init_r     = aes_init_r;
-                aes_next_r     = 0;
-                crc_rst_r      = crc_rst_r;
-                key_rst_r      = key_rst_r;
-                key_write_en_r = 0;
-                head_valid     = 0;
-
-            end
-        `DECODE:  // Read/decode header
-            begin
-                sha_status = sha_status;
-
-                mem_w_ready = mem_w_ready;
-                aes_dec_rst_r = 0;
-                mem_address_r = 0;
-                mem_we_r     = 0;
-                mem_data_o_r = 0;
-                aes_i_reg      = aes_i_reg;
-                aes_o_reg = aes_o_reg;
-                core_ready     = core_ready;
-                core_valid     = core_valid;
-                key_ready      = key_ready;
-                key_valid      = key_valid;
-                aes_init_r     = 0;
-                aes_next_r     = 0;
-                crc_rst_r      = 1; 
-                key_rst_r      = 1;
-                key_write_en_r = 0;
-                head_valid     = 0;
-
-                if(counter0_o < 7'b0111111 || counter0_o == 7'b1111111)
-                    header = header;
-                else
-                    header = {data_i, header[63:1]};
-            end
-        `LOAD_KEY:
-            begin
-                mem_w_ready = mem_w_ready;
-                aes_dec_rst_r = 0;
-                sha_status = sha_status;
-
-                mem_address_r = 0;
-                mem_we_r     = 0;
-
-                mem_data_o_r = 0;
-                aes_i_reg = aes_i_reg;
-                aes_o_reg = aes_o_reg;
-                head_valid    = 1;
-                core_ready    = 0;
-                core_valid    = 0;
-                key_ready     = 0;
-                header = header;
-                aes_init_r    = 0;
-                aes_next_r    = 0;
-                crc_rst_r     = 0; 
-                key_rst_r     = 1;
-                if(counter0_o == 7'b1111110 ||counter0_o == 7'b1111111) begin
-                    key_valid      = 1;
-                    key_write_en_r = 1;
-                end else begin
-                    key_write_en_r = 0;
-                    key_valid      = 0;
-                end
-            end
-        `LOAD_KEY_C:
-            begin
-                mem_w_ready = mem_w_ready;
-                aes_dec_rst_r = 0;
-                sha_status = sha_status;
-
-                mem_address_r = 0;
-                mem_we_r     = 0;
-
-                mem_data_o_r = 0;
-                aes_i_reg = aes_i_reg;
-                aes_o_reg = aes_o_reg;
-                head_valid     = 1;
-                core_ready     = 0;
-                core_valid     = 0;
-                key_ready      = 0;
-                header         = header;
-                aes_init_r     = 0;
-                aes_next_r     = 0;
-                crc_rst_r      = 1; 
-                key_rst_r      = 1;
-                key_write_en_r = 0;
-
-            end
-        `LOAD_BITSTREAM: //FOR Operation w/o CRC or AES
-            begin
-                mem_w_ready = mem_w_ready;
-                aes_dec_rst_r = 0;
-                sha_status = sha_status;
-
-                mem_address_r = 0;
-                mem_we_r     = 0;
-
-                mem_data_o_r = 0;
-                aes_i_reg = aes_i_reg;
-                aes_o_reg = aes_o_reg;
-
-                head_valid    = 1;
-                aes_init_r    = 0;
-                aes_next_r    = 0;
-                crc_rst_r     = 1;
-                key_ready     = 0;
-                key_rst_r     = 1;
-                key_write_en_r = 0;
-                header =header;
-                if(header[31:0] == 0 && counter0_o == header[43:37]) begin
-                    core_ready = 1'b1;
-                    core_valid = 1'b1;
-                end
-                if(counter0_o == 7'b1111111) begin
-                    header[31:00] = header[31:00] - 1;
-                    header[63:32] = header[63:32];
-                end else
-                    header = header;
-   
-            end
-        `LOAD_BITSTREAM_C:
-            begin
-                mem_w_ready = mem_w_ready;
-                aes_dec_rst_r = 0;
-                sha_status = sha_status;
-
-                mem_address_r = 0;
-                mem_we_r     = 0;
-
-                mem_data_o_r = 0;
-                aes_i_reg      = aes_i_reg;
-                aes_o_reg      = aes_o_reg;
-                head_valid     = 1;
-                aes_init_r     = 0;
-                aes_next_r     = 0;
-                crc_rst_r      = 1;
-                key_ready      = 0;
-                key_rst_r      = 1;
-                key_write_en_r = 0;
-                if(header[31:0] == 32'h00000001 && counter0_o == header[43:37]) begin
-                    core_ready = 1'b1;
-                    core_valid = 1'b0;
-                end 
-                if(counter0_o == 7'b1111111) begin
-                    header[31:00] = header[31:00] - 1;
-                    header[63:32] = header[63:32];
-                    if(crc_data_o == 8'h00)
-                        core_valid = 1;
-                    else 
-                        core_valid = 0;
-                end else begin
-                    core_valid = 0;
-                    header     = header;
-                end
-                    
-
-            end
-        `LOAD_BITSTREAM_A:
-            begin 
-                mem_w_ready = mem_w_ready;
-                aes_dec_rst_r = 1;
-                sha_status = sha_status;
-
-                mem_address_r = 0;
-                mem_we_r     = 0;
-
-                mem_data_o_r = 0;
-                aes_o_reg = aes_o_reg;
-                head_valid     = 1;
-                aes_init_r     = 0;
-                aes_next_r     = 0;
-                crc_rst_r      = 1;
-                key_ready      = key_ready;
-                key_rst_r      = 1;
-                key_write_en_r = 0;
-                core_valid     = 0;
-                header = header;
-                if(counter0_o == 7'b1111110)
-                    aes_i_reg = temp_data_reg;
-                else
-                    aes_i_reg = aes_i_reg;
-            end
-        `LOAD_BITSTREAM_CA:
-            begin 
-                mem_w_ready = mem_w_ready;
-                aes_dec_rst_r = 1;
-                sha_status = sha_status;
-
-                mem_address_r = 0;
-                mem_we_r     = 0;
-                mem_data_o_r = 0;
-                aes_o_reg = aes_o_reg;
-                head_valid     = 1;
-                aes_init_r     = 0;
-                aes_next_r     = 0;
-                crc_rst_r      = 1;
-                key_ready      = key_ready;
-                key_rst_r      = 1;
-                key_write_en_r = 0;
-                core_valid     = 0;
-                header[63:37] = header[63:37];
-                header[36:32] = `EVAL_CRC_AES;
-                header[31:00] = header[31:00]; 
-                if(counter0_o == 7'b1111110)
-                    aes_i_reg = temp_data_reg;
-                else
-                    aes_i_reg = aes_i_reg;
-
-            end
-        `WRITE_NVM:
-            begin
-                aes_dec_rst_r = 0;
-                sha_status = sha_status;
-
-                aes_i_reg = aes_i_reg;
-                aes_o_reg = aes_o_reg;
-                head_valid     = 1;
-                aes_init_r     = 0;
-                aes_next_r     = 0;
-                crc_rst_r      = 1;
-                key_ready      = key_ready;
-                key_rst_r      = 1;
-                key_write_en_r = 0;
-                core_valid     = 0;
-                mem_address_r  = header[52:45];
-                case(counter0_o)
-                    31:      begin 
-                        mem_data_o_r = temp_data_reg[127:95]; 
-                        mem_we_r = 1; 
-                        if(~header[44])
-                            header[52:45] = header[52:45] + 1; 
-                        else 
-                            header = header; 
-                    end 
-                    32:      begin 
-                        mem_data_o_r = mem_data_o_r;          
-                        mem_we_r = 0; 
-                        header[52:45] = header[52:45];     
-                        header[44] = 0;  
-                    end 
-                    63:      begin 
-                        mem_data_o_r = temp_data_reg[127:95];
-                        mem_we_r = 1; 
-                        header[52:45] = header[52:45] + 1; 
-                        //header = header;
-                    end 
-                    95:      begin 
-                        mem_data_o_r = temp_data_reg[127:95];
-                        mem_we_r = 1; 
-                        header[52:45] = header[52:45] + 1; 
-                        //header = header; 
-                    end 
-                    127:     begin
-                        mem_data_o_r = temp_data_reg[127:95];
-                        mem_we_r = 1; 
-                        header[63:53] = header[63:53]; 
-                        if(~header[44])
-                            header[52:45] = header[52:45] + 1;
-                        else
-                            header[52:45] = header[52:45];
-                        header[31:0] = header[31:0] - 1; 
-                    end 
-                    default: begin mem_data_o_r = mem_data_o_r; mem_we_r = 0; header = header; end
-                endcase
-                if(header[31:0] == 0 & counter0_o == 7'b0000000)
-                    mem_w_ready = 1;
-                else 
-                    mem_w_ready = 0;
-
-            end
-        `READ_NVM:
-            begin
-                sha_status = sha_status;
-
-                aes_dec_rst_r = 1;
-                aes_init_r     = 0;
-                crc_rst_r      = 1;
-                key_ready      = key_ready;
-                key_valid      = key_valid;
-                key_rst_r      = 1;
-                key_write_en_r = 0;
-                mem_address_r  = header[52:45];
-                case(counter0_o)
-                    0:  begin header[52:45] = header[52:45] + 1; header[31:0] = header[31:0];     header[44] = header[44]; aes_i_reg = aes_i_reg; aes_o_reg = aes_o_reg; end
-                    1:  begin header[52:45] = header[52:45] + 1; header[31:0] = header[31:0];     header[44] = header[44]; aes_i_reg = aes_i_reg; aes_o_reg = aes_o_reg; end 
-                    2:  begin header[52:45] = header[52:45] + 1; header[31:0] = header[31:0];     header[44] = header[44]; aes_i_reg = aes_i_reg; aes_o_reg = aes_o_reg; end
-                    3:  begin header[52:45] = header[52:45] + 1; header[31:0] = header[31:0];     header[44] = header[44]; aes_i_reg = aes_i_reg; aes_o_reg = aes_o_reg; end
-                    4:  begin
-                        aes_next_r = 1;
-                        aes_i_reg = temp_data_reg;
-                        aes_o_reg = aes_o_reg;
-                        header[52:45] = header[52:45];
-                        if(~header[44])
-                            header[31:0] = header[31:0] - 1;
-                        header[44] = header[44]; 
-                    end
-                    57: begin header[52:45] = header[52:45];     header[31:0] = header[31:0];     header[44] = 0; aes_i_reg = aes_i_reg; aes_o_reg = result_wire; end 
-                    default begin header[52:45] = header[52:45]; header[31:0] = header[31:0];     header[44] = header[44]; aes_i_reg = aes_i_reg; aes_next_r = 0; aes_o_reg = aes_o_reg; end
-                endcase
-                if(header[31:0] == 32'h00000000 & counter0_o > header[42:36]) begin 
-                    core_ready = 1;
-                    core_valid = 1;
-                end else begin 
-                    core_ready = 0;
-                    core_valid = 0;
-                end
-            end
-        `EVAL_CRC:
-            begin
-                aes_dec_rst_r = 0;
-
-                mem_w_ready = mem_w_ready;
-                mem_address_r = 0;
-                mem_we_r      = 0;
-
-                mem_data_o_r = 0;
-                aes_i_reg = aes_i_reg;
-                aes_o_reg = aes_o_reg;
-
-                head_valid = head_valid;
-                sha_status = sha_status;
-
-                header         = header;
-                aes_init_r     = 0;
-                aes_next_r     = 0;
-                crc_rst_r      = 1; 
-                key_rst_r      = 1;
-                case(header[36:32])
-                    `LOAD_KEY_C:
-                        begin
-                            core_ready     = core_ready;
-                            core_valid     = core_valid;
-                            if(counter1_o == 3'b111 && crc_data_o == 8'b00000000 && head_valid) begin 
-                                key_write_en_r = 1;
-                                key_valid      = 1;
-                            end else begin
-                                key_write_en_r = 0;
-                                key_valid      = 0;
-                            end 
-                        end
-                    `LOAD_BITSTREAM_C:
-                        begin 
-                            key_ready      = key_ready;
-                            key_write_en_r = 1'b0;
-                            key_valid      = key_valid;
-                            if(counter1_o == 3'b111 && crc_data_o != 8'b00000000) begin 
-                                core_valid = 1'b0;
-                                core_ready = 1'b0;
-                            end else begin
-                                core_valid = 1'b1;
-                                core_ready = core_ready; 
-                        end 
-                        end
-
-                endcase 
-              end
-        `EVAL_AES:
-            begin 
-                aes_dec_rst_r = 0;
-                mem_w_ready = mem_w_ready;
-                sha_status = sha_status;
-
-                mem_address_r = 0;
-                mem_we_r     = 0;
-
-                mem_data_o_r = 0;
-                aes_dec_rst_r  = 1;
-                head_valid     = 1;
-                aes_init_r     = 0;
-                crc_rst_r      = 1;
-                key_ready      = key_ready;
-                key_rst_r      = 1;
-                key_write_en_r = 0;
-                if(counter0_o == 7'b1111111) begin
-                    header[31:00] = header[31:00] - 1;
-                    header[63:32] = header[63:32];
-                end else if (counter0_o == 7'b0110101) begin
-                    header[44] = 1'b0;
-                end else 
-                    header = header;
-                
-                   if(header[31:0] != 0) begin 
-                    case(counter0_o)
-                        0:   begin aes_next_r = 1; aes_i_reg = aes_i_reg;aes_o_reg = aes_o_reg; core_ready = 0; core_valid = 0; end 
-                        53:  begin aes_next_r = 0; aes_i_reg = aes_i_reg; aes_o_reg = result_wire; core_ready = 0; core_valid = 0; end
-                        126: begin aes_next_r = 0; aes_i_reg = temp_data_reg; aes_o_reg = aes_o_reg; core_ready = 0; core_valid = 0; end
-                        default: begin aes_next_r = 0; aes_i_reg = aes_i_reg; aes_o_reg = aes_o_reg; core_ready = 0; core_valid = 0; end 
-                    endcase
-                end else begin
-                    case(counter0_o)
-                        0:   begin aes_next_r = 0; aes_i_reg = aes_i_reg;aes_o_reg = aes_o_reg; core_ready = 0; core_valid = 0; end 
-                        53:  begin aes_next_r = 0; aes_i_reg = aes_i_reg; aes_o_reg = result_wire; core_ready = 1; core_valid = 1; end
-                        default: begin aes_next_r = 0; aes_i_reg = aes_i_reg; aes_o_reg = aes_o_reg; core_ready = 0; core_valid = 0; end 
-                    endcase
-                end
-            end
-        `EVAL_CRC_AES:
-            begin
-                aes_dec_rst_r = 1;
-                sha_status = sha_status;
-
-                mem_w_ready = mem_w_ready;
-
-                mem_address_r = 0;
-                mem_we_r     = 0;
-
-                mem_data_o_r = 0;
-                aes_dec_rst_r  = 1;
-                head_valid     = 1;
-                aes_init_r     = 0;
-                crc_rst_r      = 1;
-                key_ready      = key_ready;
-                key_rst_r      = 1;
-                key_write_en_r = 0;
-                if(counter0_o == 7'b1111111) begin
-                    header[31:00] = header[31:00] - 1;
-                    header[63:32] = header[63:32];
-                end else if (counter0_o == 7'b0110101) begin
-                    header[44] = 1'b0;
-                end else 
-                    header = header;
-
-                if(header[31:0] != 0) begin 
-                    case(counter0_o)
-                        0:   begin aes_next_r = 1; aes_i_reg = aes_i_reg;aes_o_reg = aes_o_reg; core_ready = 0; core_valid = 0; end 
-                        53:  begin aes_next_r = 0; aes_i_reg = aes_i_reg; aes_o_reg = result_wire; core_ready = 0; core_valid = 0; end
-                        126: begin aes_next_r = 0; aes_i_reg = temp_data_reg; aes_o_reg = aes_o_reg; core_ready = 0; core_valid = 0; end
-                        default: begin aes_next_r = 0; aes_i_reg = aes_i_reg; aes_o_reg = aes_o_reg; core_ready = 0; core_valid = 0; end 
-                    endcase
-                end else begin
-                    case(counter0_o)
-                        0:   begin aes_next_r = 0; aes_i_reg = aes_i_reg;aes_o_reg = aes_o_reg; core_ready = 0; core_valid = 0; end 
-                        53:  begin aes_next_r = 0; aes_i_reg = aes_i_reg; aes_o_reg = result_wire; core_ready = 1; core_valid = 1; end
-                        default: begin aes_next_r = 0; aes_i_reg = aes_i_reg; aes_o_reg = aes_o_reg; core_ready = 0; core_valid = 0; end 
-                    endcase
-                end
-            end
-        `RESET:
-            begin
-                mem_w_ready = 0;
-                aes_dec_rst_r = 0;
-                sha_status = 0;
-
-                mem_address_r = 0;
-                mem_we_r     = 0;
-                 mem_data_o_r = 0;
-                aes_i_reg      = 0;
-                aes_o_reg      = 0;
-                head_valid     = 0;
-                core_ready     = 0;
-                key_ready      = 0;
-                core_valid     = 0;
-                key_valid      = 0;
-                header         = 0;
-                aes_init_r     = 0;
-                aes_next_r     = 0;
-                crc_rst_r      = 0; 
-                key_rst_r      = 0;
-                key_write_en_r = 0;
-
-            end
-        `KEY_INIT:
-            begin 
-                mem_w_ready = mem_w_ready;
-                sha_status = sha_status;
-
-                mem_address_r = 0;
-                mem_we_r     = 0;
-                mem_data_o_r = 0;
-                aes_i_reg = aes_i_reg;
-                aes_o_reg = aes_o_reg;
-                head_valid  = 1;
-                core_ready    = 0;
-                key_ready     = 0;
-                key_valid = key_valid;
-                aes_next_r    = 0;
-                crc_rst_r     = 1; 
-                key_rst_r     = 1;
-                key_write_en_r = 0;
-                header = header;
-                case(counter0_o)
-                        0: aes_init_r = 1'b1;
-                        3: aes_init_r = 1'b1;
-                    default: aes_init_r = 1'b0;
-                endcase
-                if(counter0_o == 7'b0001101)
-                    key_ready = 1'b1;
-                else
-                    key_ready = 1'b0;
-            end
-        `LOCK:
-            begin
-                mem_w_ready = mem_w_ready;
-
-                mem_address_r = 0;
-                mem_we_r     = 0;
-
-                mem_data_o_r = 0;
-                aes_i_reg      = aes_i_reg;
-                aes_o_reg      = 0;
-                aes_dec_rst_r  = aes_dec_rst_r;
-                core_ready     = core_ready;
-                key_ready      = key_ready;
-                core_valid     = core_valid;
-                key_valid      = key_valid;
-                header         = header;
-                aes_init_r     = aes_init_r;
-                aes_next_r     = aes_next;
-                crc_rst_r      = crc_rst_r;
-                key_rst_r      = key_rst_r;
-                key_write_en_r = 0;
-                head_valid     = head_valid;
-                sha_status = 0;
-            end
-
-        `AUTHENTICATE:
-            begin
-                mem_w_ready = mem_w_ready;
-
-                mem_address_r = 0;
-                mem_we_r     = 0;
-
-                mem_data_o_r = 0;
-                aes_i_reg      = aes_i_reg;
-                aes_o_reg      = 0;
-                aes_dec_rst_r  = aes_dec_rst_r;
-                core_ready     = core_ready;
-                key_ready      = key_ready;
-                core_valid     = core_valid;
-                key_valid      = key_valid;
-                header         = header;
-                aes_init_r     = aes_init_r;
-                aes_next_r     = aes_next;
-                crc_rst_r      = crc_rst_r;
-                key_rst_r      = key_rst_r;
-                key_write_en_r = 0;
-                head_valid     = head_valid;
-                if(counter0_o == 7'b1111111)
-                    sha_status = 1;
-                else 
-                    sha_status = sha_status;
-            end
-        `EVAL_SHA:
-            begin
-                mem_w_ready    = mem_w_ready;
-                mem_address_r  = 0;
-                mem_we_r       = 0;
-                mem_data_o_r   = 0;
-                aes_i_reg      = aes_i_reg;
-                aes_o_reg      = 0;
-                aes_dec_rst_r  = aes_dec_rst_r;
-                core_ready     = core_ready;
-                key_ready      = key_ready;
-                core_valid     = core_valid;
-                key_valid      = key_valid;
-                header         = header;
-                aes_init_r     = aes_init_r;
-                aes_next_r     = aes_next;
-                crc_rst_r      = crc_rst_r;
-                key_rst_r      = key_rst_r;
-                key_write_en_r = 0;
-                head_valid     = head_valid;
-                sha_status     = sha_status;
-            end
-
-    endcase 
-end
-
-always @ (tck_i)
-begin 
-    if(~tck_i) begin
-    case(next_state)
-        `IDLE:  // reset state
-            begin
-                sha_reg = 0;
-                temp_data_reg = 0;
-                data_o_r        = 0;
-            end
-        `DECODE:  // Read/decode header
-            begin
-                sha_reg = 0;
-                temp_data_reg = 0;
-                data_o_r        = 0;
-            end
-        `LOAD_KEY:
-            begin
-                sha_reg = 0;
-                temp_data_reg = {data_i, temp_data_reg[127:1]};
-                data_o_r        = 0;
-            end
-        `LOAD_KEY_C:
-            begin
-                sha_reg = 0;
-                temp_data_reg = {data_i, temp_data_reg[127:1]};
-                data_o_r        = 0;
-            end
-        `LOAD_BITSTREAM: //FOR Ooperation w/o CRC or AES
-            begin
-                sha_reg = 0;
-                temp_data_reg = 0;
-                data_o_r      = data_i;
-            end
-        `LOAD_BITSTREAM_C:
-            begin 
-                sha_reg = 0;
-                temp_data_reg = 0;
-                data_o_r        = 0;
-            end
-        `LOAD_BITSTREAM_A:
-            begin 
-                sha_reg = 0;
-                temp_data_reg = {data_i, temp_data_reg[127:1]};
-                data_o_r        = 0;
-            end
-        `LOAD_BITSTREAM_CA:
-            begin 
-                sha_reg = 0;
-                temp_data_reg = {data_i, temp_data_reg[127:1]};
-                data_o_r      = 0;
-            end
-        `WRITE_NVM:
-            begin
-                sha_reg = 0;
-                temp_data_reg = {data_i, temp_data_reg[127:1]};
-                data_o_r      = 0;
-            end
-        `READ_NVM:
-            begin
-                sha_reg = 0;
-
-                case(counter0_o)
-                    1: temp_data_reg[031:00] = mem_data_in;
-                    2: temp_data_reg[063:32] = mem_data_in;
-                    3: temp_data_reg[095:64] = mem_data_in;
-                    4: temp_data_reg[127:96] = mem_data_in;
-                    default: temp_data_reg   = temp_data_reg;
-                endcase
-                if(header[44] || counter0_o == 1 || counter0_o == 2 || counter0_o == 3 || counter0_o == 4 || (header[31:0] == 32'h00000000 & counter0_o > header[43:37]))
-                    data_o_r = 0;
-                else
-                    data_o_r = aes_o_reg[counter0_o - 7'b0110101];
-            end
-        `EVAL_CRC:
-            begin
-                sha_reg = 0;
-
-                temp_data_reg = temp_data_reg;
-                data_o_r        = 0;
-            end
-        `EVAL_AES:
-            begin
-                sha_reg = 0;
-
-                if(header[44]) begin 
-                    data_o_r = 0;
-                end else
-                    data_o_r = aes_o_reg[counter0_o - 7'b0110101];
-
-                if(header[31:0] == 32'h00000001 || header[31:0] == 32'h00000000 || (header[31:0] == 32'h00000002 & counter0_o == 7'b1111111))
-                    temp_data_reg = temp_data_reg;
-                else
-                    temp_data_reg = {data_i, temp_data_reg[127:1]};
-            end
-        `EVAL_CRC_AES:
-            begin
-                sha_reg = 0;
-
-                if(header[44]) begin 
-                    data_o_r = 0;
-                end else
-                    data_o_r = aes_o_reg[counter0_o - 7'b0110101];
-
-                if((header[31:0] == 32'h00000001 & counter0_o <= 54) || header[31:0] == 32'h00000000)
-                    temp_data_reg = temp_data_reg;
-                else
-                    temp_data_reg = {data_i, temp_data_reg[127:1]};
-            end
-        `RESET:
-            begin 
-                sha_reg = 0;
-
-                temp_data_reg = 0;
-                data_o_r      = 0;
-            end
-        `KEY_INIT:
-            begin 
-                sha_reg = 0;
-
-                temp_data_reg = 0;
-                data_o_r      = 0;
-            end
-        `LOCK:
-            begin 
-                sha_reg = 0;
-                temp_data_reg = 0;
-                data_o_r      = 0;
-            end
-        `AUTHENTICATE:
-            begin
-                if(en_i)
-                    sha_reg = {data_i, sha_reg[255:1]};
-                else
-                    sha_reg = sha_reg;
-                data_o_r      = 0;
-                temp_data_reg = temp_data_reg;
-            end
-        `EVAL_SHA:
-            begin 
-                sha_reg = 0;
-                temp_data_reg = 0;
-                data_o_r      = 0;
-            end
-        default: begin temp_data_reg = 0; data_o_r = 0; sha_reg = 0; end
-    endcase 
-    end else begin 
-                temp_data_reg = temp_data_reg;
-                data_o_r      = data_o_r;
-
-    end
-end
-
-    
-always @ (tck_i)
-begin 
-    case(next_state)
-        `IDLE:  // reset state
-            begin
-                progclk_o_reg = 0;
-            end
-        `DECODE:  // Read/decode header
-            begin
-                progclk_o_reg = 0;
-            end
-        `LOAD_KEY:
-            begin
-                progclk_o_reg = 0;
-            end
-        `LOAD_KEY_C:
-            begin
-                progclk_o_reg = 0;
-            end
-        `LOAD_BITSTREAM: //FOR Ooperation w/o CRC or AES
-            begin
-                progclk_o_reg = tck_i;
-            end
-        `LOAD_BITSTREAM_C:
-            begin
-                if(header[31:0] == 32'h00000001 & counter0_o > header[42:36])
-                    progclk_o_reg = 0;
-                else
-                    progclk_o_reg = tck_i;
-            end
-        `LOAD_BITSTREAM_A:
-            begin 
-                progclk_o_reg = 0;
-            end
-        `LOAD_BITSTREAM_CA:
-            begin 
-                progclk_o_reg = 0;
-            end
-        `WRITE_NVM:
-            begin
-                progclk_o_reg = 0;        
-            end
-        `READ_NVM:
-            begin
-                if(header[44] || counter0_o == 1 || counter0_o == 2 || counter0_o == 3 || counter0_o == 4 || (header[31:0] == 32'h00000000 & counter0_o > header[43:37]))
-                    progclk_o_reg = 0;
-                else
-                    progclk_o_reg = tck_i;
-            end
-        `EVAL_CRC:
-            begin
-                 progclk_o_reg = 0;
-            end
-        `EVAL_AES:
-            begin 
-                if(header[44] == 0)
-                    progclk_o_reg = tck_i;
-                else
-                    progclk_o_reg = 0;
-            end
-        `EVAL_CRC_AES:
-            begin
-                if(header[44] == 0)
-                    progclk_o_reg = tck_i;
-                else
-                    progclk_o_reg = 0;
-            end
-        `RESET:
-            begin
-                 progclk_o_reg = 0;
-            end
-        `KEY_INIT:
-            begin
-                 progclk_o_reg = 0;
-            end
-        `LOCK:
-            begin
-                 progclk_o_reg = 0;
-            end
-        `AUTHENTICATE:
-            begin
-                 progclk_o_reg = 0;
-            end
-        `EVAL_SHA:
-            begin 
-                progclk_o_reg  = 0;
-            end
-    endcase 
-end
-endmodule
- 
-
-
-
-module counter_3_bit (clk_i, en_i, count);
-
-    input  clk_i;
-    input  en_i;
-    output [2:0] count;
-
-    reg [2:0] counter;
-
-    assign count = counter;
-
-always @ (posedge clk_i)
-begin
-    if(~en_i)
-        counter = 0;
-    else
-        counter = counter + 1;
-end
-endmodule
-
-module counter_7_bit (clk_i, en_i, count);
-
-    input  clk_i;
-    input  en_i;
-    output [6:0] count;
-
-    reg [6:0] counter;
-
-    assign count = counter;
-
-always @ (posedge clk_i)
-begin
-    if(~en_i)
-        counter = 0;
-    else
-        counter = counter + 1;
-end
 endmodule

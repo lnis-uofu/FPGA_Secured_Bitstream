@@ -168,7 +168,7 @@ assign confreg_sel_o = confreg_sel;
 assign pmu_sel_o = pmu_sel;
 
 
-assign pmu_en = pmu_en_reg;
+assign pmu_en_o = pmu_en_reg;
 assign pmu_tck_o = tck_i;
 assign pmu_rst_o = rst_ni; 
     

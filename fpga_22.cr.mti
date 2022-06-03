@@ -1,0 +1,15 @@
+/home/u1375766/SecuredBitstream/pmu/rtl/fpga/fpga_top.v {1 {vlog -work work -vopt -stats=none /home/u1375766/SecuredBitstream/pmu/rtl/fpga/fpga_top.v
+QuestaSim-64 vlog 2019.4 Compiler 2019.10 Oct 15 2019
+-- Compiling module fpga_top
+
+Top level modules:
+	fpga_top
+
+} {} {}} /home/u1375766/SecuredBitstream/pmu/testbench/functional_pmu.v {1 {vlog -work work -vopt -stats=none /home/u1375766/SecuredBitstream/pmu/testbench/functional_pmu.v
+QuestaSim-64 vlog 2019.4 Compiler 2019.10 Oct 15 2019
+-- Compiling module functional_pmu
+
+Top level modules:
+	functional_pmu
+
+} {} {}}

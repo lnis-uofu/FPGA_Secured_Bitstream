@@ -15,6 +15,14 @@ module mem (
 
     reg [31:0] mem [256:0];
 
+    integer i;
+
+    initial begin 
+        for(i = 0; i < 257; i = i + 1)
+            mem[i] = 0;
+
+    end
+
 always @ (posedge clk)
 begin 
     if(we)

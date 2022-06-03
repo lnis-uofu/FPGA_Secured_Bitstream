@@ -96,7 +96,6 @@ module functional_tap_top;
     end
     integer i; 
     initial begin
-        //--------------------------------------------- with checksum 
         
         #halfperiod
         //reset to initiate tap logic
