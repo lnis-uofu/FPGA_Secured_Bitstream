@@ -1,0 +1,12 @@
+[submodule "pmu/testbench/skywater-pdk-libs-sky130_fd_sc_hd"]
+	path = pmu/testbench/skywater-pdk-libs-sky130_fd_sc_hd
+	url = git@github.com:google/skywater-pdk-libs-sky130_fd_sc_hd.git
+[submodule "skywater-pdk-libs-sky130_fd_sc_hd"]
+	path = skywater-pdk-libs-sky130_fd_sc_hd
+	url = git@github.com:google/skywater-pdk-libs-sky130_fd_sc_hd.git
+[submodule "pmu/testbench/pmu/testbench"]
+	path = pmu/testbench/pmu/testbench
+	url = git@github.com:google/skywater-pdk-libs-sky130_fd_sc_hd.git
+[submodule "pmu/testbench/--force"]
+	path = pmu/testbench/--force
+	url = git@github.com:google/skywater-pdk-libs-sky130_fd_sc_hd.git
