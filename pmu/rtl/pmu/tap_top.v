@@ -543,7 +543,6 @@ begin
   clk_byp_sel          = 1'b0;
   observ_sel           = 1'b0;
   pmu_sel              = 1'b0;
-  pmu_en_reg           = 1'b0;
 
   case(latched_jtag_ir)    /* synthesis parallel_case */
     `IDCODE:            idcode_sel           = 1'b1;    // ID Code
@@ -557,12 +556,15 @@ begin
     default:            bypass_sel           = 1'b1; 
   endcase
     
-    if(pmu_sel) begin
-        if(!(tms_i))
+end
+
+always @ (tck_i)
+begin 
+    if(pmu_sel && ~tms_i)
             pmu_en_reg = 1'b1;
-        else 
+    else 
             pmu_en_reg = 1'b0;
-    end
+
 end
 
 

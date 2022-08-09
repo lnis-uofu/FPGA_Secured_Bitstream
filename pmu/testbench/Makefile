@@ -8,8 +8,8 @@ WORK_DIR     = ${PROJECT_BUILD_DIR}/${WORK_LIB}
 #TOP_ENTITY_NAME = functional_load_bitstream
 #TOP_ENTITY_NAME = functional_load_bitstream_sha
 #TOP_ENTITY_NAME = functional_load_bitstream_aes
-#TOP_ENTITY_NAME = functional_load_bitstream_sha_aes
-TOP_ENTITY_NAME = functional_push_bitstream
+TOP_ENTITY_NAME = functional_load_bitstream_sha_aes
+#TOP_ENTITY_NAME = functional_push_bitstream
 #TOP_ENTITY_NAME = functional_fpga
 #TOP_ENTITY_NAME = functional_tap_top
 
@@ -37,34 +37,7 @@ VERILOG_SOURCES += \
 		${PMU_RTL_DIR}/sha/sha256_core.v \
 		${PMU_RTL_DIR}/sha/sha256_k_constants.v \
 		${PMU_RTL_DIR}/sha/sha256_w_mem.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/sky130_fd_sc_hd__mux2_1.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/sky130_fd_sc_hd__mux2.functional.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/sky130_fd_sc_hd__inv.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/sky130_fd_sc_hd__inv_1.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/sky130_fd_sc_hd__inv.functional.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/dfrtp/sky130_fd_sc_hd__dfrtp.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/dfrtp/sky130_fd_sc_hd__dfrtp_1.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/dfrtp/sky130_fd_sc_hd__dfrtp.functional.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/sky130_fd_sc_hd__or2.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/sky130_fd_sc_hd__or2_1.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/sky130_fd_sc_hd__or2.functional.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/sky130_fd_sc_hd__buf.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/sky130_fd_sc_hd__buf_1.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/sky130_fd_sc_hd__buf_2.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/sky130_fd_sc_hd__buf_4.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/sky130_fd_sc_hd__buf.functional.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/or2b/sky130_fd_sc_hd__or2b_1.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/or2b/sky130_fd_sc_hd__or2b_4.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/or2b/sky130_fd_sc_hd__or2b.functional.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/ebufn/sky130_fd_sc_hd__ebufn.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/ebufn/sky130_fd_sc_hd__ebufn_1.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/ebufn/sky130_fd_sc_hd__ebufn_4.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/ebufn/sky130_fd_sc_hd__ebufn.functional.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/sdfrtp/sky130_fd_sc_hd__sdfrtp.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/sdfrtp/sky130_fd_sc_hd__sdfrtp_1.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/sdfrtp/sky130_fd_sc_hd__sdfrtp_4.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/sdfrtp/sky130_fd_sc_hd__sdfrtp.functional.v \
-		${PMU_RTL_DIR}/fpga_22/fpga_top.v \
+		#${PMU_RTL_DIR}/fpga_22/fpga_top.v \
 		${PMU_RTL_DIR}/fpga_22/lb/grid_clb.v \
 		${PMU_RTL_DIR}/fpga_22/lb/grid_io_bottom_bottom.v \
 		${PMU_RTL_DIR}/fpga_22/lb/grid_io_top_top.v \
@@ -106,9 +79,34 @@ VERILOG_SOURCES += \
 		${PMU_RTL_DIR}/fpga_22/routing/sb_1__2_.v \
 		${PMU_RTL_DIR}/fpga_22/routing/sb_2__0_.v \
 		${PMU_RTL_DIR}/fpga_22/routing/sb_2__1_.v \
-		${PMU_RTL_DIR}/fpga_22/routing/sb_2__2_.v
-
-
+		${PMU_RTL_DIR}/fpga_22/routing/sb_2__2_.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/sky130_fd_sc_hd__mux2_1.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/mux2/sky130_fd_sc_hd__mux2.functional.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/sky130_fd_sc_hd__inv.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/sky130_fd_sc_hd__inv_1.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/inv/sky130_fd_sc_hd__inv.functional.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/dfrtp/sky130_fd_sc_hd__dfrtp.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/dfrtp/sky130_fd_sc_hd__dfrtp_1.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/dfrtp/sky130_fd_sc_hd__dfrtp.functional.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/sky130_fd_sc_hd__or2.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/sky130_fd_sc_hd__or2_1.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/or2/sky130_fd_sc_hd__or2.functional.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/sky130_fd_sc_hd__buf.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/sky130_fd_sc_hd__buf_1.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/sky130_fd_sc_hd__buf_2.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/sky130_fd_sc_hd__buf_4.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/buf/sky130_fd_sc_hd__buf.functional.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/or2b/sky130_fd_sc_hd__or2b_1.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/or2b/sky130_fd_sc_hd__or2b_4.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/or2b/sky130_fd_sc_hd__or2b.functional.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/ebufn/sky130_fd_sc_hd__ebufn.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/ebufn/sky130_fd_sc_hd__ebufn_1.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/ebufn/sky130_fd_sc_hd__ebufn_4.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/ebufn/sky130_fd_sc_hd__ebufn.functional.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/sdfrtp/sky130_fd_sc_hd__sdfrtp.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/sdfrtp/sky130_fd_sc_hd__sdfrtp_1.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/sdfrtp/sky130_fd_sc_hd__sdfrtp_4.v \
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/sdfrtp/sky130_fd_sc_hd__sdfrtp.functional.v \
 
 
 

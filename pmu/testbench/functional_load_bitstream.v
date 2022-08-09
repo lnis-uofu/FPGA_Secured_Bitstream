@@ -10,6 +10,8 @@ module functional_load_bitstream;
     reg [259:0] bitstream3  = 260'hf0123456789abcdef0123546789abcdef0123456789abcdef0123456789abcdef;
     reg [259:0] bitstream4  = 260'hf0123456789abcdef0123546789abcdef0123456789abcdef0123456789abcdef;
 
+    
+
 
     reg [31:0] pmu_header0  = 32'h00000007; // 548 bits *
     reg [31:0] pmu_header1  = 32'h00000007; // 936 bits *
@@ -20,10 +22,7 @@ module functional_load_bitstream;
     localparam period     = 100;
     localparam halfperiod = 50;
 
-    // MEM Wires
-    wire mem_clk, mem_we;
-    wire [31:0] mem_data_i, mem_data_o;
-    wire [7:0]  mem_address;
+
     
     reg clk = 0; 
     // FPGA Wires
@@ -32,6 +31,27 @@ module functional_load_bitstream;
     //wire data_o;
     wire ccff_w;
     wire pReset;
+
+
+    // AES WIRES
+    wire aes_reset_n_w;
+    wire aes_reset_dec_w;
+    wire aes_init_w;
+    wire aes_next_w;
+    wire [127:0] aes_key_w;
+    wire [127:0] aes_block_w;
+    wire [127:0] aes_result_w;
+    wire aes_result_valid_w;
+    wire aes_ready_w;
+
+    // SHA WIRES
+    wire sha_reset_n_w;
+    wire sha_cs_w;
+    wire sha_we_w;
+    wire sha_wc_w;
+    wire [2:0] sha_address_w;
+    wire [31:0] sha_write_data_w;
+    wire sha_digest_valid_w;
 
     // TEST REGISTERS
     //
@@ -63,7 +83,7 @@ module functional_load_bitstream;
 
         pmu pmu_
         (
-        .clk_i(clk)
+        .clk_i(clk),
         .tms_i(tms_i),
         .tck_i(clk),
         .rst_i(rst_i),
@@ -77,18 +97,51 @@ module functional_load_bitstream;
         .ccff_tail_i(ccff_wire),
         .key_ready(),
         .core_ready(),
-        .locked()
+        .locked(),
+        .aes_reset_n_w(aes_reset_n_w),
+        .aes_reset_dec_w(aes_reset_dec_w),
+        .aes_init_w(aes_init_w),
+        .aes_next_w(aes_next_w),
+        .aes_key_w(aes_key_w),
+        .aes_block_w(aes_block_w),
+        .aes_result_w(aes_result_w),
+        .aes_result_valid_w(aes_result_valid_w),
+        .aes_key_ready(aes_ready_w),
+        .sha_reset_n_w(sha_reset_n_w),
+        .sha_cs_w(sha_cs_w), 
+        .sha_we_w(sha_we_w),
+        .sha_wc_w(sha_wc_w),
+        .sha_address_w(sha_address_w),
+        .sha_write_data_w(sha_write_data_w),
+        .sha_digest_valid_w(sha_digest_valid_w)
+   
         );
 
-        mem mem_
+        aes_core aes_core_
         (
-        .clk(mem_clk),
-        .we(mem_we),
-        .data_i(mem_data_o),
-        .address(mem_address),
-        .data_o(mem_data_i)
+        .clk(clk),
+        .reset_n(aes_reset_n_w),
+        .reset_dec(aes_reset_dec_w),
+        .init(aes_init_w),
+        .next(aes_next_w),
+        .key(aes_key_w),
+        .block(aes_block_w),
+        .result(aes_result_w),
+        .key_ready(aes_ready_w),
+        .result_valid(aes_result_valid_w)
         );
-
+       
+        sha256 sha256_
+        (
+        .clk(clk),
+        .reset_n(sha_reset_n_w),
+        .cs(sha_cs_w),
+        .we(sha_we_w),
+        .wc(sha_wc_w),
+        .address(sha_address_w),
+        .write_data(sha_write_data_w),
+        .digest_valid(sha_digest_valid_w)
+        );
         /* fpga_top fpga_top_ */
         /* ( */
         /* .clk(clk & fpga_o_clk_en), */
@@ -117,9 +170,9 @@ module functional_load_bitstream;
 
 
     // JTAG HEADER/FOOTER ==================
-    reg [10:0] tdi_header = 11'b01101100000;
+    reg [11:0] tdi_header = 12'b001101100000;
     reg [4:0] tdi_footer  =  5'b00000;
-    reg [10:0] tms_header = 11'b11000000110;
+    reg [11:0] tms_header = 12'b011000000110;
     reg [4:0] tms_footer  =  5'b11111;
     // JTAG HEADER/FOOTER ==================
 
@@ -141,7 +194,7 @@ module functional_load_bitstream;
     //LOAD JTAG HEADER
     #period;
 
-    for(i = 0; i < 11; i = i + 1)
+    for(i = 0; i < 12; i = i + 1)
     begin
         tms_i = tms_header[i];
         tdi_i = tdi_header[i];
@@ -195,7 +248,7 @@ module functional_load_bitstream;
     //LOAD JTAG HEADER
     #period;
 
-    for(i = 0; i < 11; i = i + 1)
+    for(i = 0; i < 12; i = i + 1)
     begin
         tms_i = tms_header[i];
         tdi_i = tdi_header[i];
@@ -248,7 +301,7 @@ module functional_load_bitstream;
     //LOAD JTAG HEADER
     #period;
 
-    for(i = 0; i < 11; i = i + 1)
+    for(i = 0; i < 12; i = i + 1)
     begin
         tms_i = tms_header[i];
         tdi_i = tdi_header[i];
@@ -301,7 +354,7 @@ module functional_load_bitstream;
     //LOAD JTAG HEADER
     #period;
 
-    for(i = 0; i < 11; i = i + 1)
+    for(i = 0; i < 12; i = i + 1)
     begin
         tms_i = tms_header[i];
         tdi_i = tdi_header[i];
@@ -354,7 +407,7 @@ module functional_load_bitstream;
     //LOAD JTAG HEADER
     #period;
 
-    for(i = 0; i < 11; i = i + 1)
+    for(i = 0; i < 12; i = i + 1)
     begin
         tms_i = tms_header[i];
         tdi_i = tdi_header[i];
@@ -396,7 +449,7 @@ module functional_load_bitstream;
     initial begin 
 
     load_bitstream0;
-    load_bitstream1;
+    //load_bitstream1;
     /* load_bitstream2; */
     /* load_bitstream3; */
     /* load_bitstream4; */

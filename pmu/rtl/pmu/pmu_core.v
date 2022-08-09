@@ -125,6 +125,8 @@
     reg stop_r;
     reg locked_r;
     assign locked_o = locked_r;
+    wire sha_status_w;
+    assign sha_status_w = sha_status_r;
      
     // FPGA INTERFACE Wires/Register
     reg progclk_o_r;
@@ -163,6 +165,7 @@
     .read_data(aes_key)
     );
 
+
 always @ (posedge tck_i, negedge rst_i)
 begin
     if(~rst_i)
@@ -172,15 +175,15 @@ begin
 end
 
 
-    
-always @ (negedge tck_i, en_i)
+//always @ (*)
+always @ (negedge tck_i) //make en_i come clk cycle earlier?
 begin 
     case(state)
         `RESET: //Reset state
             if(rst_i)
                 next_state = `IDLE;
             else
-                next_state = `LOCK;
+                next_state = `RESET;
         `IDLE:  //PMU locked
             begin
                 if(en_i)
@@ -198,12 +201,12 @@ begin
         `DECODE:  // Read/decode header/public sha key
             begin 
                 if(en_i) begin
-                    if(counter1_o == 8'b00011110) begin
+                    if(counter1_o == 8'h1e) begin
                         if(header[4:0] == `LOAD_KEY || header[4:0] == `LOAD_BITSTREAM ||  header[4:0] == `LOAD_BITSTREAM_AES || header[4:0] == `PUSH_BITSTREAM)
                             next_state  <= header[4:0];
                         else 
                             next_state <= `DECODE;
-                    end else if(counter1_o == 8'b11111111)
+                    end else if(counter1_o == 8'hff)
                         next_state <= `EVAL_SHA;
                     else 
                         next_state <= `DECODE;
@@ -244,7 +247,7 @@ begin
                     next_state <= `IDLE;    
             end
         `LOAD_BITSTREAM:
-            begin 
+            begin  
                 if(en_i)
                     next_state <= `LOAD_BITSTREAM;
                 else 
@@ -273,9 +276,9 @@ begin
         `AES_OUT:
             begin 
                 if(en_i) begin
-                    if(counter0_o == header[21:15] - 1) begin 
-                        next_state <= `IDLE;
-                    end else
+                    /* if(counter1_o[6:0] == header[21:15] -1) begin */ 
+                    /*     next_state <= `IDLE; */
+                    /* end else */
                         next_state <= `AES_OUT;
                 end else
                     next_state <= `IDLE;
@@ -320,6 +323,7 @@ begin
     endcase
 end
 
+
 always @ (tck_i)
 begin 
     case(state)
@@ -339,40 +343,38 @@ begin
     endcase
 end
 
-
-    
-always @ (posedge tck_i, posedge sha_status_r)
+always @ (posedge tck_i) // yosys does not like
 begin 
-    case(state)
+    case(next_state)
         `RESET:                 counter0_en_r = 0;
-        `IDLE:                  counter0_en_r = 0;
+        `IDLE:                  counter0_en_r = 0;        
         `LOCK:                  counter0_en_r = 0;
         `DECODE:            
             begin 
-                if((counter1_o == 8'h1e && header[4:0] == `LOAD_BITSTREAM_AES) || (counter1_o == 8'h1e && header[4:0] == `LOAD_KEY))
-                    counter0_en_r = 0;
-                else
-                    counter0_en_r = 1;
+                /* if((counter1_o == 8'h1e && header[4:0] == `LOAD_BITSTREAM_AES) || (counter1_o == 8'h1e && header[4:0] == `LOAD_KEY) || (counter1_o == 8'h1e && header[4:0] == `LOAD_BITSTREAM)) */
+                    counter0_en_r = 0; 
+                /* else */
+                /*     counter0_en_r = 1; */
             end
-        `EVAL_SHA:             counter0_en_r = 1;
+        `EVAL_SHA:             counter0_en_r = 0;
         `LOAD_KEY:             counter0_en_r = 1;
         `KEY_INIT:             counter0_en_r = 1;
-        `LOAD_BITSTREAM:       counter0_en_r = 1;
+        `LOAD_BITSTREAM:       counter0_en_r = 0;
         `LOAD_BITSTREAM_SHA:
-            begin 
-                if(~sha_status_r || counter1_o == 8'hfe)
-                    counter0_en_r = 0;
-                else
+            begin
+                if(header[14:5] == 0 && counter1_o < 8'hfd)
                     counter0_en_r = 1;
+                else
+                    counter0_en_r = 0;
             end
         `LOAD_BITSTREAM_AES: 
             begin
-                if(header[14:5] == 0 && counter0_o == 7'h32)
-                    counter0_en_r = 0;
-                else
+                /* if(header[14:5] == 0 && next_state <= `AES_OUT) */
+                /*     counter0_en_r = 0; */
+                /* else */
                     counter0_en_r = 1;
             end
-        `AES_OUT:             counter0_en_r = 1;
+        `AES_OUT:             counter0_en_r = 0;
         `LOAD_BITSTREAM_SHA_AES:
             begin
                 if(header[14:5] == 0 && counter1_o >= 8'hb1)
@@ -385,12 +387,12 @@ begin
     endcase
 end
 
-
-always @ (posedge tck_i, next_state)
+  
+always @ (posedge tck_i) 
 begin
-    case(state)
+    case(next_state)
         `RESET:                 counter1_en_r = 0;
-        `IDLE:                  counter1_en_r = 0;
+        `IDLE:                  counter1_en_r = 0;        
         `LOCK:                  counter1_en_r = 0;
         `DECODE:                counter1_en_r = 1;
         `EVAL_SHA:              counter1_en_r = 1;
@@ -398,17 +400,20 @@ begin
         `KEY_INIT:              counter1_en_r = 0;
         `LOAD_BITSTREAM:        counter1_en_r = 0;
         `LOAD_BITSTREAM_SHA:    counter1_en_r = 1;
-        `LOAD_BITSTREAM_AES:    counter1_en_r = 0;
-        `AES_OUT: 
+        `LOAD_BITSTREAM_AES:
             begin 
-                if(counter0_o == 7'h32)
-                counter1_en_r = 0;
+               if(header[14:5] == 0 && counter0_o >= 7'h31)
+                    counter1_en_r = 1;
+                else
+                    counter1_en_r = 0;
             end
+        `AES_OUT:               counter1_en_r = 1;
        `LOAD_BITSTREAM_SHA_AES: counter1_en_r = 1;
         `PUSH_BITSTREAM:        counter1_en_r = 0;
         default:                counter1_en_r = 0;
     endcase
 end
+
 
 always @ (counter0_o)
 begin 
@@ -423,7 +428,7 @@ begin
         `LOAD_BITSTREAM:  stop_r = 0;
         `LOAD_BITSTREAM_SHA:
             begin
-                if(counter0_o == (header[21:15] - 1) && header[14:5] == 0)
+                if(counter0_o == (header[21:15]) && header[14:5] == 0)
                     stop_r = 1;
                 else
                     stop_r = stop_r; 
@@ -481,8 +486,7 @@ begin
 end
 
 
-    
-always @ (posedge tck_i, state)
+always @ (posedge tck_i) //yosys does not like
 begin 
     case(state)
          `RESET:
@@ -490,6 +494,8 @@ begin
                 sha_reset_r   = 0;
                 sha_cs_r      = 0;
                 sha_wc_r      = 0;
+                sha_we_r      = 0;
+
                 sha_address_r = 0;
                 key_rst_r     = 0;
                 aes_reset_r   = 0;
@@ -504,6 +510,8 @@ begin
                 sha_reset_r   = 1;
                 sha_cs_r      = 0;
                 sha_wc_r      = 0;
+                sha_we_r      = 0;
+
                 sha_address_r = 0;
                 key_rst_r     = 1;
                 aes_reset_r   = 1;
@@ -518,6 +526,7 @@ begin
                 sha_reset_r   = 1;
                 sha_cs_r      = 0;
                 sha_wc_r      = 0;
+                sha_we_r      = 0;
                 sha_address_r = 0;
                 key_rst_r     = 1;
                 aes_reset_r   = 1;
@@ -572,8 +581,8 @@ begin
                      30: begin sha_address_r = sha_address_r + 1; sha_cs_r = 0; end
                      62: begin sha_address_r = sha_address_r + 1; sha_cs_r = 0; end
                      94: begin sha_address_r = sha_address_r + 1; sha_cs_r = 0; end
-                    128: begin sha_address_r = sha_address_r + 1; sha_cs_r = 0; end
-                    159: begin sha_address_r = sha_address_r + 1; sha_cs_r = 0; end
+                    126: begin sha_address_r = sha_address_r + 1; sha_cs_r = 0; end
+                    158: begin sha_address_r = sha_address_r + 1; sha_cs_r = 0; end
                     190: begin sha_address_r = sha_address_r + 1; sha_cs_r = 0; end
                     222: begin sha_address_r = sha_address_r + 1; sha_cs_r = 0; end
                     254: begin sha_address_r = sha_address_r + 1; sha_cs_r = 0; end
@@ -617,6 +626,7 @@ begin
                 sha_reset_r   = 1;
                 sha_cs_r      = 0;
                 sha_wc_r      = 0;
+                sha_we_r      = 0;
                 sha_address_r = 0;
                 key_rst_r     = 1;
                 aes_reset_r   = 1;
@@ -634,6 +644,7 @@ begin
                 sha_reset_r   = 1;
                 sha_cs_r      = 0;
                 sha_wc_r      = 0;
+                sha_we_r      = 0;
                 sha_address_r = 0;
                 key_rst_r     = 1;
                 aes_reset_r   = 1;
@@ -762,6 +773,7 @@ begin
                 sha_reset_r   = 1;
                 sha_cs_r      = 0;
                 sha_wc_r      = 0;
+                sha_we_r      = 0;
                 sha_address_r = 0;
                 key_rst_r     = 1;
                 aes_reset_r   = 1;
@@ -815,7 +827,7 @@ begin
     endcase 
 end
 
-always @ (posedge tck_i, posedge en_i)
+always @ (posedge tck_i) //yosys does not like
 begin 
     case(state)
         `RESET:                  temp_data_r   = 0;
@@ -837,7 +849,7 @@ begin
     endcase 
 end
 
-always @ (posedge tck_i, posedge en_i)
+always @ (posedge tck_i) // yosys does not like
 begin 
     case(next_state)
         `RESET:     header = 0;
@@ -851,7 +863,7 @@ begin
         `LOCK:      header = 0;
         `DECODE:
             begin 
-                if(counter1_o < 8'b00011110)
+                if(counter1_o <= 8'h1d)
                     header = {data_i, header[31:1]};
                 else
                     header = header;
@@ -898,7 +910,6 @@ begin
     endcase 
 end
 
-
 always @ (posedge tck_i)
 begin 
     case(next_state)
@@ -907,7 +918,7 @@ begin
         `LOCK:  temp_key_r    = 0;
         `DECODE:   
             begin
-                if(counter1_o > 8'b00011101 && counter1_o < 8'b10011110)
+                if(counter1_o > 8'b00011100 && counter1_o < 8'b10011110 && header[4:0] == `KEY_INIT)
                     temp_key_r = {data_i, temp_key_r[127:1]};
                 else
                     temp_key_r = temp_key_r;
@@ -928,8 +939,7 @@ begin
         default: temp_key_r = temp_key_r;
     endcase
 end
-
-
+    
 always @ (tck_i)
 begin 
     case(state)
@@ -966,20 +976,23 @@ begin
     endcase
 end
 
-    
-always @ (posedge tck_i)
+always @ (negedge tck_i)
 begin
-
-
     case(state)
         `RESET:    key_we_r      = 0;
         `IDLE:     key_we_r      = 0;
         `LOCK:     key_we_r      = 0;
         `DECODE:   key_we_r      = 0;
-        `EVAL_SHA: key_we_r = 0;
+        `EVAL_SHA: 
+            begin 
+               if(header[4:0] == `KEY_INIT && counter1_o == 8'hfe)
+                    key_we_r = 1;
+                else
+                    key_we_r = 0;
+            end
         `LOAD_KEY:
             begin 
-                if(counter0_o == 7'b1111110)
+                if(counter0_o == 7'b1111111)
                     key_we_r    = 1;
                     else
                     key_we_r    = 0;
@@ -991,13 +1004,11 @@ begin
         `AES_OUT: key_we_r      = 0;
         `LOAD_BITSTREAM_SHA_AES: key_we_r = 0;
         `PUSH_BITSTREAM:         key_we_r = 0;
-        endcase
+        default: key_we_r = 0;
+    endcase
 end
 
-
-
-
-
+ 
 always @ (tck_i, data_i, next_state, buffer_o_r)
 begin 
     case(state)
@@ -1056,12 +1067,13 @@ begin
             end
         `LOAD_BITSTREAM:
             begin
-                if(next_state != `LOAD_BITSTREAM)
+                if(~en_i) begin 
                     progclk_o_r = 0;
-                else
+                    data_o_r    = 0;
+                end else begin
+                    data_o_r    = data_i;
                     progclk_o_r = 1;
-
-                data_o_r        = data_i;
+                end
             end
         `LOAD_BITSTREAM_SHA:
             begin
@@ -1084,9 +1096,14 @@ begin
                 end
             end
         `AES_OUT:
-            begin 
+            begin
+                if(en_i) begin 
                     progclk_o_r = 1;
                     data_o_r    = buffer_o_r[0];
+                end else begin 
+                    progclk_o_r = 0;
+                    data_o_r = 0;
+                end
             end
         `LOAD_BITSTREAM_SHA_AES:
             begin
@@ -1126,7 +1143,7 @@ module counter_7_bit (clk_i, en_i, count);
 always @ (posedge clk_i)
 begin
     if(~en_i)
-        counter = 1;
+        counter = 0;
     else 
         counter = counter + 1;
 
@@ -1146,7 +1163,7 @@ module counter_8_bit (clk_i, en_i, count);
 always @ (posedge clk_i)
 begin
     if(~en_i)
-        counter = 1;
+        counter = 0;
     else
         counter = counter + 1;
 end

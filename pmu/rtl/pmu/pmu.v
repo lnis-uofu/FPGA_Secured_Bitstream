@@ -5,7 +5,10 @@
 
 module pmu 
     (
+
+    // Clock
     input  clk_i,
+
     //JTAG Interface   
     input  tms_i,
     input  tck_i,
@@ -23,40 +26,37 @@ module pmu
 
     output key_ready,
     output core_ready,
-    output locked
+    output locked,
+
+    // AES INTERFACE
+    output aes_reset_n_w,
+    output aes_reset_dec_w,
+    output aes_init_w,
+    output aes_next_w,
+    output [127:0] aes_key_w,
+    output [127:0] aes_block_w,
+        
+    input  [127:0] aes_result_w,
+    input  aes_key_ready,
+    input  aes_result_valid_w,
+   
+    
+    // SHA INTERFACE
+    output sha_reset_n_w,
+    output sha_cs_w,
+    output sha_we_w,
+    output sha_wc_w,
+    output [02:0] sha_address_w,
+    output [31:0] sha_write_data_w,
+    input  sha_digest_valid_w
+
     );
 
     //PMU Wires
     wire pmu_tdi_w;
     wire pmu_tck_w;
     wire pmu_rst_w;
-    wire pmu_en_w;
-
-    //AES Wires
-    wire aes_reset_n_w;
-    wire aes_reset_dec_w;
-    wire aes_init_w;
-    wire aes_next_w;
-    wire [127:0] aes_key_w;
-    wire [127:0] aes_block_w;
-    wire [127:0] aes_result_w;
-    wire aes_result_valid_w;
-    wire ready_w;
-
-    //SHA Wires
-    wire sha_reset_n_w;
-    wire sha_cs_w; 
-    wire sha_we_w;
-    wire sha_wc_w;
-    wire [02:0] sha_address_w;
-    wire [31:0] sha_write_data_w;
-    wire sha_digest_valid_w;
-
-    //MEM Wires
-    wire [31:0] mem_data_o_w;
-
-    assign mem_data_o = mem_data_o_w;
-    
+    wire pmu_en_w; 
     wire ccff_tail_o;
 
     
@@ -90,7 +90,7 @@ module pmu
 
     pmu_core pmu_core_
     (
-    .clk_i(clk_i)
+    .clk_i(clk_i),
     .data_i(pmu_tdi_w),
     .rst_i(pmu_rst_w),
     .en_i(pmu_en_w),
@@ -109,7 +109,7 @@ module pmu
     .aes_key(aes_key_w),
     .aes_block(aes_block_w),
     .aes_result(aes_result_w),
-    .aes_key_ready(ready_w),
+    .aes_key_ready(aes_key_ready),
     .aes_result_valid(aes_result_valid_w),
     .sha_reset_n(sha_reset_n_w),
     .sha_cs(sha_cs_w),
@@ -123,31 +123,6 @@ module pmu
     .locked_o(locked)
     );
 
-    aes_core aes_core_
-    (
-    .clk(tck_i),
-    .reset_n(aes_reset_n_w),
-    .reset_dec(aes_reset_dec_w),
-    .init(aes_init_w),
-    .next(aes_next_w),
-    .key(aes_key_w),
-    .block(aes_block_w),
-    .result(aes_result_w),
-    .key_ready(ready_w),
-    .result_valid(aes_result_valid_w)
-    );
-
-    sha256   sha256_
-    (
-    .clk(tck_i),
-    .reset_n(sha_reset_n_w),
-    .cs(sha_cs_w),
-    .we(sha_we_w),
-    .wc(sha_wc_w),
-    .address(sha_address_w),
-    .write_data(sha_write_data_w),
-    .digest_valid(sha_digest_valid_w)
-    );
 
 
 

@@ -51,9 +51,9 @@ module aes_core(
                 input wire [127 : 0]  key,
 
 
-                input wire [127 : 0]  block,
+                input wire  [127 : 0] block,
                 output wire [127 : 0] result,
-                output wire        key_ready,
+                output wire           key_ready,
                 output wire           result_valid
                );
 

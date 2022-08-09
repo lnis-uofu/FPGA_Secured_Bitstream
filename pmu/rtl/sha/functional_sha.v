@@ -24,7 +24,7 @@ module functional_sha;
     reg [255:0] digest       = 256'hff72cbbaea5985ec88e8ff35b384b521d59dc2addff9f9b39d59f41ac8169e09;
 
 
-    reg [255:0] public_key   = 256'h3ad77bb40d7a3660a89ecaf32466ef973ad77bb40d7a3660a89ecaf32466ef97;
+    reg [255:0] public_key   = 256'hff484953495354480123456789abcdef0123456789abcdefff48495300250239;
 
 
     sha256 uut 
