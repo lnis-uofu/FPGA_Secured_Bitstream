@@ -1,5 +1,6 @@
 # -*- Makefile -*-
 
+<<<<<<< HEAD
 WORK_LIB     = pmu_tb_lib
 WORK_DIR     = ${PROJECT_BUILD_DIR}/${WORK_LIB}
 
@@ -107,6 +108,7 @@ VERILOG_SOURCES += \
 		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/sdfrtp/sky130_fd_sc_hd__sdfrtp_1.v \
 		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/sdfrtp/sky130_fd_sc_hd__sdfrtp_4.v \
 		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/sdfrtp/sky130_fd_sc_hd__sdfrtp.functional.v \
+
 
 
 
