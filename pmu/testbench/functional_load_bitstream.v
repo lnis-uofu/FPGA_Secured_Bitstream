@@ -38,9 +38,12 @@ module functional_load_bitstream;
     wire aes_reset_dec_w;
     wire aes_init_w;
     wire aes_next_w;
-    wire [127:0] aes_key_w;
-    wire [127:0] aes_block_w;
-    wire [127:0] aes_result_w;
+    wire aes_wc_w;
+    wire aes_we_w;
+    wire [1:0]  aes_address_w;
+    wire [31:0] aes_write_data_w;
+    wire [31:0] aes_read_data_w;
+
     wire aes_result_valid_w;
     wire aes_ready_w;
 
@@ -102,9 +105,11 @@ module functional_load_bitstream;
         .aes_reset_dec_w(aes_reset_dec_w),
         .aes_init_w(aes_init_w),
         .aes_next_w(aes_next_w),
-        .aes_key_w(aes_key_w),
-        .aes_block_w(aes_block_w),
-        .aes_result_w(aes_result_w),
+        .aes_wc(aes_wc_w),
+        .aes_we(aes_we_w),
+        .aes_address(aes_address_w),
+        .aes_write_data(aes_write_data_w),
+        .aes_read_data(aes_read_data_w),
         .aes_result_valid_w(aes_result_valid_w),
         .aes_key_ready(aes_ready_w),
         .sha_reset_n_w(sha_reset_n_w),
@@ -117,16 +122,18 @@ module functional_load_bitstream;
    
         );
 
-        aes_core aes_core_
+        aes aes128_
         (
         .clk(clk),
         .reset_n(aes_reset_n_w),
         .reset_dec(aes_reset_dec_w),
         .init(aes_init_w),
         .next(aes_next_w),
-        .key(aes_key_w),
-        .block(aes_block_w),
-        .result(aes_result_w),
+        .wc(aes_wc_w),
+        .we(aes_we_w),
+        .address(aes_address_w),
+        .write_data(aes_write_data_w),
+        .read_data(aes_read_data_),
         .key_ready(aes_ready_w),
         .result_valid(aes_result_valid_w)
         );

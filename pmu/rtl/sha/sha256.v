@@ -52,7 +52,7 @@ module sha256(
    );
     
 
-always @ (negedge clk, negedge reset_n)
+always @ (negedge clk)
 begin 
     if (~reset_n)
         begin

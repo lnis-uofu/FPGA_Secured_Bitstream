@@ -216,7 +216,7 @@ module functional_load_bitstream_sha_aes;
         #period;
     end
     // NOP
-    for(i = 0; i < 14; i = i + 1)
+    for(i = 0; i < 18; i = i + 1)
     begin
         tms_i = 0;
         tdi_i = 0;

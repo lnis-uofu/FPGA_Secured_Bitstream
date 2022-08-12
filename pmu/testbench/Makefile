@@ -1,6 +1,6 @@
 # -*- Makefile -*-
 
-<<<<<<< HEAD
+
 WORK_LIB     = pmu_tb_lib
 WORK_DIR     = ${PROJECT_BUILD_DIR}/${WORK_LIB}
 
@@ -8,8 +8,8 @@ WORK_DIR     = ${PROJECT_BUILD_DIR}/${WORK_LIB}
 #TOP_ENTITY_NAME = functional_load_key
 #TOP_ENTITY_NAME = functional_load_bitstream
 #TOP_ENTITY_NAME = functional_load_bitstream_sha
-#TOP_ENTITY_NAME = functional_load_bitstream_aes
-TOP_ENTITY_NAME = functional_load_bitstream_sha_aes
+TOP_ENTITY_NAME = functional_load_bitstream_aes
+#TOP_ENTITY_NAME = functional_load_bitstream_sha_aes
 #TOP_ENTITY_NAME = functional_push_bitstream
 #TOP_ENTITY_NAME = functional_fpga
 #TOP_ENTITY_NAME = functional_tap_top
@@ -34,6 +34,7 @@ VERILOG_SOURCES += \
 		${PMU_RTL_DIR}/aes/aes_key_mem.v \
 		${PMU_RTL_DIR}/aes/aes_sbox.v \
 		${PMU_RTL_DIR}/aes/aes_core.v \
+		${PMU_RTL_DIR}/aes/aes.v \
 		${PMU_RTL_DIR}/sha/sha256.v \
 		${PMU_RTL_DIR}/sha/sha256_core.v \
 		${PMU_RTL_DIR}/sha/sha256_k_constants.v \
