@@ -1,4 +1,4 @@
-# PMU V1: Bitstream Loader with JTAG interface
+# PMU V3: Bitstream Loader with JTAG interface
 
 ## Getting Started
 
@@ -20,12 +20,15 @@ The Programmign Management Unit will serve as a macro that can be placed near a 
 </p>
 
 ## Programming Management Unit: PMU
-### Version 1
-  PMU V1 consists of a JTAG Tap Controller, PMU FSM, and a CRC8 module. Version 1 incorporates no security features and will act as a baseline to compare other versions of the PMU. This is in order to accuratly evaluate the countermeasures with respect to expected security risks according to the PMU threat model as described in the introduction. A hierarchial overview is shown in Figure 2 and mored detailed diagrams of each block are presented later in the README.
+### Version 3
+  PMU V3 consists of a JTAG Tap Controller, PMU FSM, with SHA and AES cores. Version 3 incoportates AES for bitstream encryption and SHA for bitstream data integrity and user authentication. A hierarchial overview is shown in Figure 2 and mored detailed diagrams of each block are presented later in the README.
+  
   
  <p align="center">
   <img src="/docs/figures/hierarchy_overview.png">
 </p>
+
+# TO BE UPDATED
 
 ### Encoding Scheme
 PMU V1 is capable of intrepreting two encoding schemes: one with CRC data integrity check and one without. To be compliant with JTAG communicaton protocol the bitstream encoding requires two signals: tdi and tms. Tdi contains the bitstream data and JTAG instructions. The tms signal controls the tap controller fsm and consists of a tms header to initialze tap controller and a footer to reset tap contoller. It is filled with zeros between the header and footer to work simutaneouly with tdi signal. The high level overview of the encoding scheme is shown in Figure 4. 
