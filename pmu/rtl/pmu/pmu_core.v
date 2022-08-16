@@ -33,11 +33,14 @@
     input  en_i,
     input  tck_i,
 
+    output config_readback,
+    output config_enable,
     output progclk_o,
     output pReset,
     output fpga_rst,
     output fpga_clk,
     output data_o,
+
 
     //from core
     input  data_ccff_i,
@@ -142,10 +145,14 @@
     assign sha_status_w = sha_status_r;
      
     // FPGA INTERFACE Wires/Register
+    reg config_readback_r;
+    reg config_enable_r;
     reg progclk_o_r;
     reg pReset_r;
     reg data_o_r;
     reg ccff_en_r;
+    assign config_readback = config_readback_r;
+    assign config_enable  = config_enable_r;
     assign progclk_o = progclk_o_r & tck_i;
     assign pReset = pReset_r;
     assign fpga_rst = rst_i;
@@ -387,7 +394,7 @@ begin
         `AES_OUT:             counter0_en_r = 0;
         `LOAD_BITSTREAM_SHA_AES:
             begin
-                if(header[14:5] == 0 && counter1_o >= 8'hb1)
+                if(header[14:5] == 0 && counter1_o >= 8'hb2)
                     counter0_en_r = 1;
                 else
                     counter0_en_r = 0;
@@ -453,7 +460,7 @@ begin
             end
         `LOAD_BITSTREAM_SHA_AES:
             begin
-                if(counter0_o == (header[21:15] - 1) && header[14:5] == 0)
+                if(counter0_o == (header[21:15]) && header[14:5] == 0)
                     stop_r = 1;
                 else
                     stop_r = stop_r; 
@@ -543,14 +550,31 @@ begin
                      30:  aes_we_r = 1;
                      62:  aes_we_r = 1;
                      94:  aes_we_r = 1;
-                    126: aes_we_r = 1;
+                    126:  aes_we_r = 1;
                     default:aes_we_r = 0;
                     endcase
                 end else
                     aes_we_r = 0;
             end
         `AES_OUT:               aes_we_r = 0;
-       `LOAD_BITSTREAM_SHA_AES: aes_we_r = 0;
+       `LOAD_BITSTREAM_SHA_AES: 
+            begin 
+                if(header != 0) begin 
+                    case(counter1_o)
+                     29:  aes_we_r = 1;
+                     61:  aes_we_r = 1;
+                     93:  aes_we_r = 1;
+                    125:  aes_we_r = 1;
+                    157:  aes_we_r = 1;
+                    189:  aes_we_r = 1;
+                    221:  aes_we_r = 1;
+                    253:  aes_we_r = 1;
+
+                    default:aes_we_r = 0;
+                    endcase
+                end else
+                    aes_we_r = 0;
+            end
         `PUSH_BITSTREAM:        aes_we_r = 0;
         default:                aes_we_r = 0;
     endcase
@@ -563,7 +587,18 @@ begin
         `IDLE:                  aes_address_r = 0;        
         `LOCK:                  aes_address_r = 0;
         `DECODE:                aes_address_r = 0;
-        `EVAL_SHA:              aes_address_r = 0;
+        `EVAL_SHA:
+            begin 
+                case(counter1_o)
+                        50: aes_address_r = 0;
+                        51: aes_address_r = 1;
+                        52: aes_address_r = 2;
+                        53: aes_address_r = 3;
+                        54: aes_address_r = 0;
+                    default: aes_address_r = aes_address_r;
+                endcase
+                
+            end
         `LOAD_KEY:              aes_address_r = 0;
         `KEY_INIT:
             begin
@@ -601,7 +636,30 @@ begin
                 default: aes_address_r = aes_address_r;
                 endcase
             end
-        `LOAD_BITSTREAM_SHA_AES:aes_address_r = 0;
+        `LOAD_BITSTREAM_SHA_AES:
+                        begin
+                case(counter1_o)
+                     30: aes_address_r  = 1;
+                     /* 51: aes_address_r  = 0; */
+                     /* 52: aes_address_r  = 1; */
+                     /* 53: aes_address_r  = 2; */
+                     /* 54: aes_address_r  = 3; */
+                     //56: aes_address_r  = 1;                       
+                     62: aes_address_r  = 2;
+                     94: aes_address_r  = 3;
+                    126: aes_address_r  = 0;
+                    //158: aes_address_r  = 1;
+                    178: aes_address_r  = 0;
+                    179: aes_address_r  = 1;
+                    180: aes_address_r  = 2;
+                    181: aes_address_r  = 3;
+                    182: aes_address_r  = 1;
+                    190: aes_address_r  = 2;
+                    222: aes_address_r  = 3;
+                    254: aes_address_r  = 0;
+                    default: aes_address_r = aes_address_r;
+                endcase
+            end
         `PUSH_BITSTREAM:        aes_address_r = 0;
         default:                aes_address_r = 0;
     endcase
@@ -633,7 +691,7 @@ begin
         `LOAD_BITSTREAM:         aes_mux_r = 0;
         `LOAD_BITSTREAM_AES:     aes_mux_r = temp_data_r[127:96];
         `LOAD_BITSTREAM_SHA:     aes_mux_r = 0;
-        `LOAD_BITSTREAM_SHA_AES: aes_mux_r = temp_data_r;
+        `LOAD_BITSTREAM_SHA_AES: aes_mux_r = temp_data_r[127:96];
         `PUSH_BITSTREAM:         aes_mux_r = 0;
             default:             aes_mux_r = 0;
     endcase
@@ -948,11 +1006,39 @@ begin
         `DECODE:                 buffer_o_r   = 0;
         `EVAL_SHA:
             begin 
-                if(header[4:0] == `LOAD_BITSTREAM_SHA_AES && counter1_o == 8'h31)
-                    buffer_o_r = aes_read_data;
-                else if(header[4:0] == `LOAD_BITSTREAM_SHA_AES && counter1_o <= 8'hb1)
-                    buffer_o_r = {1'b0, buffer_o_r[127:1]};
-                else
+                if(header[4:0] == `LOAD_BITSTREAM_SHA_AES) begin
+                    case(counter1_o)
+                    51: 
+                        begin
+                            buffer_o_r[127:32] <= buffer_o_r[127:32];
+                            buffer_o_r[31:0]   <= aes_read_data;
+                        end
+                    52:
+                        begin 
+                            buffer_o_r[127:63]  <= 0;
+                            buffer_o_r[62:31]   <= aes_read_data;
+                            buffer_o_r[30:0]    <= buffer_o_r[31:1];
+                        end
+                    53:
+                        begin
+                            buffer_o_r[127:94]  <= 0;
+                            buffer_o_r[93:62]   <= aes_read_data;
+                            buffer_o_r[61:0]    <= buffer_o_r[62:1];
+                        end
+                    54:
+                        begin
+                            buffer_o_r[127:125] <= 0;
+                            buffer_o_r[124:93]  <= aes_read_data;
+                            buffer_o_r[92:0]    <= buffer_o_r[93:1];
+
+                        end
+                    default: buffer_o_r = {1'b0, buffer_o_r[127:1]};
+                endcase
+
+                    /* buffer_o_r = aes_read_data; */
+                /* else if(header[4:0] == `LOAD_BITSTREAM_SHA_AES && counter1_o <= 8'hb1) */
+                    /* buffer_o_r = {1'b0, buffer_o_r[127:1]}; */
+                    end else
                     buffer_o_r = buffer_o_r;
             end
         `LOAD_KEY:               buffer_o_r   = 0;
@@ -994,7 +1080,7 @@ begin
                 case(counter1_o)
                     2: 
                         begin
-                               buffer_o_r[127:32] <= buffer_o_r[127:32];
+                            buffer_o_r[127:32] <= buffer_o_r[127:32];
                             buffer_o_r[31:0]   <= aes_read_data;
                         end
                     3:
@@ -1022,12 +1108,32 @@ begin
             end
         `LOAD_BITSTREAM_SHA_AES: 
             begin 
-                if(counter1_o == 8'hb1)
-                    buffer_o_r   = aes_read_data;
-                else if (counter1_o > 8'hb1)
-                    buffer_o_r = {1'b0, buffer_o_r[127:1]};
-                else
-                    buffer_o_r = buffer_o_r;
+                case(counter1_o)
+                    179: 
+                        begin
+                            buffer_o_r[127:32] <= buffer_o_r[127:32];
+                            buffer_o_r[31:0]   <= aes_read_data;
+                        end
+                    180:
+                        begin 
+                            buffer_o_r[127:63]  <= 0;
+                            buffer_o_r[62:31]   <= aes_read_data;
+                            buffer_o_r[30:0]    <= buffer_o_r[31:1];
+                        end
+                    181:
+                        begin
+                            buffer_o_r[127:94]  <= 0;
+                            buffer_o_r[93:62]   <= aes_read_data;
+                            buffer_o_r[61:0]    <= buffer_o_r[62:1];
+                        end
+                    182:
+                        begin
+                            buffer_o_r[127:125] <= 0;
+                            buffer_o_r[124:93]  <= aes_read_data;
+                            buffer_o_r[92:0]    <= buffer_o_r[93:1];
+                        end
+                    default: buffer_o_r = {1'b0, buffer_o_r[127:1]};
+                endcase
             end
         `PUSH_BITSTREAM: buffer_o_r = 0;
     endcase 
@@ -1220,27 +1326,38 @@ begin
     case(state)
         `RESET:
             begin
-                progclk_o_r = 0;
-                data_o_r    = 0;
+                progclk_o_r       = 0;
+                data_o_r          = 0;
+                config_readback_r = 0;
+                config_enable_r   = 0;
             end
         `IDLE:
             begin 
-                progclk_o_r = 0;
-                data_o_r    = 0;
+                progclk_o_r       = 0;
+                data_o_r          = 0;
+                config_readback_r = 0;
+                config_enable_r   = 0;
+
             end
         `LOCK:
             begin
                 progclk_o_r = 0;
                 data_o_r    = 0;
+                config_readback_r = 0;
+                config_enable_r   = 0;
             end
         `DECODE:
             begin
                 if(counter1_o >= 8'h1e && (header[4:0] == `LOAD_BITSTREAM)) begin 
                     progclk_o_r = 1;
                     data_o_r    = data_i;
+                    config_readback_r = 0;
+                    config_enable_r   = 1;
                 end else begin 
                     progclk_o_r = 0;
                     data_o_r    = 0;
+                    config_readback_r = 0;
+                    config_enable_r   = 0;
                 end
             end
         `EVAL_SHA:
@@ -1248,37 +1365,53 @@ begin
                 if((counter1_o >= 8'hfe && (header[4:0] == `LOAD_BITSTREAM_SHA)) && header[14:5] != 10'b1111111111) begin 
                     progclk_o_r = 1;
                     data_o_r    = data_i;
-                end else if(counter1_o <= 8'hb1 && sha_status_r && header[14:5] != 10'b1111111111) begin 
+                    config_readback_r = 0;
+                    config_enable_r   = 1;
+                end else if(counter1_o <= 8'hb2 && sha_status_r && header[14:5] != 10'b1111111111) begin 
                     if(stop_r) begin 
                         progclk_o_r = 0;
                         data_o_r    = 0;
+                        config_readback_r = 0;
+                        config_enable_r   = 0;
                     end else begin 
                         progclk_o_r = 1;
                         data_o_r    = buffer_o_r[0];
+                        config_readback_r = 0;
+                        config_enable_r   = 1;
                     end 
                  end else begin 
                     progclk_o_r = 0;
                     data_o_r    = 0;
+                    config_readback_r = 0;
+                    config_enable_r   = 0;
                 end
             end
         `LOAD_KEY:
             begin 
                 progclk_o_r = 0;
                 data_o_r    = 0;
+                config_readback_r = 0;
+                config_enable_r   = 0;
             end
         `KEY_INIT:
             begin 
                 progclk_o_r = 0;
                 data_o_r    = 0;
+                config_readback_r = 0;
+                config_enable_r   = 0;
             end
         `LOAD_BITSTREAM:
             begin
                 if(~en_i) begin 
                     progclk_o_r = 0;
                     data_o_r    = 0;
+                    config_readback_r = 0;
+                    config_enable_r   = 0;
                 end else begin
                     data_o_r    = data_i;
                     progclk_o_r = 1;
+                    config_readback_r = 0;
+                    config_enable_r   = 1;
                 end
             end
         `LOAD_BITSTREAM_SHA:
@@ -1286,9 +1419,13 @@ begin
                 if(stop_r) begin 
                     progclk_o_r = 0;
                     data_o_r    = 0;
+                    config_readback_r = 0;
+                    config_enable_r   = 0;
                 end else begin 
                     progclk_o_r = 1;
                     data_o_r    = data_i;
+                    config_readback_r = 0;
+                    config_enable_r   = 1;
                 end
             end
         `LOAD_BITSTREAM_AES:
@@ -1296,9 +1433,13 @@ begin
                 if(sha_status_r) begin 
                     progclk_o_r = 1;
                     data_o_r    = buffer_o_r[0];
+                    config_readback_r = 0;
+                    config_enable_r   = 1;
                 end else begin 
                     progclk_o_r = 0;
                     data_o_r    = 0;
+                    config_readback_r = 0;
+                    config_enable_r   = 0;
                 end
             end
         `AES_OUT:
@@ -1306,25 +1447,35 @@ begin
                 if(en_i) begin 
                     progclk_o_r = 1;
                     data_o_r    = buffer_o_r[0];
+                    config_readback_r = 0;
+                    config_enable_r   = 1;
                 end else begin 
                     progclk_o_r = 0;
                     data_o_r = 0;
+                    config_readback_r = 0;
+                    config_enable_r   = 0;
                 end
             end
         `LOAD_BITSTREAM_SHA_AES:
             begin
-                if(counter1_o >= 8'hb1 && ~stop_r) begin 
+                if(counter1_o >= 8'hb3 && ~stop_r) begin 
                     progclk_o_r = 1;
                     data_o_r    = buffer_o_r[0];
+                    config_readback_r = 0;
+                    config_enable_r   = 1;
                 end else begin 
                     progclk_o_r = 0;
                     data_o_r    = 0;
+                    config_readback_r = 0;
+                    config_enable_r   = 0;
                 end
             end
         `PUSH_BITSTREAM:
             begin
                 progclk_o_r = 1;
                 data_o_r    = 0;
+                config_readback_r = 0;
+                config_enable_r   = 1;
             end
         default: begin progclk_o_r = 0; data_o_r = 0; end
     endcase

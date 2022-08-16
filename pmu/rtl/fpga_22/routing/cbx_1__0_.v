@@ -3,14 +3,18 @@
 //	Description: Verilog modules for Unique Connection Blocks[1][0]
 //	Author: Xifan TANG
 //	Organization: University of Utah
+//	Date: Mon Aug  8 10:08:34 2022
 //-------------------------------------------
 //----- Time scale -----
 `timescale 1ns / 1ps
 
 //----- Default net type -----
+`default_nettype wire
 
 // ----- Verilog module for cbx_1__0_ -----
-module cbx_1__0_(pReset,
+module cbx_1__0_(config_readback,
+                 config_enable,
+                 pReset,
                  prog_clk,
                  chanx_left_in,
                  chanx_right_in,
@@ -27,6 +31,10 @@ module cbx_1__0_(pReset,
                  bottom_grid_top_width_0_height_0_subtile_7__pin_outpad_0_,
                  bottom_grid_top_width_0_height_0_subtile_8__pin_outpad_0_,
                  ccff_tail);
+//----- GLOBAL PORTS -----
+input [0:0] config_readback;
+//----- GLOBAL PORTS -----
+input [0:0] config_enable;
 //----- GLOBAL PORTS -----
 input [0:0] pReset;
 //----- GLOBAL PORTS -----
@@ -397,6 +405,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.out(bottom_grid_top_width_0_height_0_subtile_8__pin_outpad_0_));
 
 	mux_tree_tapbuf_size12_mem mem_top_ipin_0 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(ccff_head),
@@ -404,6 +414,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size12_0_sram[0:3]));
 
 	mux_tree_tapbuf_size12_mem mem_top_ipin_1 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size12_mem_0_ccff_tail),
@@ -411,6 +423,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size12_1_sram[0:3]));
 
 	mux_tree_tapbuf_size12_mem mem_top_ipin_2 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size12_mem_1_ccff_tail),
@@ -418,6 +432,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size12_2_sram[0:3]));
 
 	mux_tree_tapbuf_size12_mem mem_top_ipin_3 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size12_mem_2_ccff_tail),
@@ -425,6 +441,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size12_3_sram[0:3]));
 
 	mux_tree_tapbuf_size12_mem mem_top_ipin_4 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size12_mem_3_ccff_tail),
@@ -432,6 +450,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size12_4_sram[0:3]));
 
 	mux_tree_tapbuf_size12_mem mem_top_ipin_5 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size12_mem_4_ccff_tail),
@@ -439,6 +459,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size12_5_sram[0:3]));
 
 	mux_tree_tapbuf_size12_mem mem_top_ipin_6 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size12_mem_5_ccff_tail),
@@ -446,6 +468,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size12_6_sram[0:3]));
 
 	mux_tree_tapbuf_size12_mem mem_top_ipin_7 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size12_mem_6_ccff_tail),
@@ -453,6 +477,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size12_7_sram[0:3]));
 
 	mux_tree_tapbuf_size12_mem mem_top_ipin_8 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size12_mem_7_ccff_tail),
@@ -463,6 +489,7 @@ endmodule
 // ----- END Verilog module for cbx_1__0_ -----
 
 //----- Default net type -----
+`default_nettype none
 
 
 

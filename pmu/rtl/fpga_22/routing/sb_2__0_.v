@@ -3,14 +3,18 @@
 //	Description: Verilog modules for Unique Switch Blocks[2][0]
 //	Author: Xifan TANG
 //	Organization: University of Utah
+//	Date: Mon Aug  8 10:08:34 2022
 //-------------------------------------------
 //----- Time scale -----
 `timescale 1ns / 1ps
 
 //----- Default net type -----
+`default_nettype wire
 
 // ----- Verilog module for sb_2__0_ -----
-module sb_2__0_(pReset,
+module sb_2__0_(config_readback,
+                config_enable,
+                pReset,
                 prog_clk,
                 chany_top_in,
                 top_left_grid_right_width_0_height_0_subtile_0__pin_O_8_,
@@ -36,6 +40,10 @@ module sb_2__0_(pReset,
                 chany_top_out,
                 chanx_left_out,
                 ccff_tail);
+//----- GLOBAL PORTS -----
+input [0:0] config_readback;
+//----- GLOBAL PORTS -----
+input [0:0] config_enable;
 //----- GLOBAL PORTS -----
 input [0:0] pReset;
 //----- GLOBAL PORTS -----
@@ -362,6 +370,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.out(chanx_left_out[5]));
 
 	mux_tree_tapbuf_size4_mem mem_top_track_0 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(ccff_head),
@@ -369,6 +379,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size4_0_sram[0:2]));
 
 	mux_tree_tapbuf_size4_mem mem_top_track_2 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size4_mem_0_ccff_tail),
@@ -376,6 +388,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size4_1_sram[0:2]));
 
 	mux_tree_tapbuf_size4_mem mem_top_track_4 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size4_mem_1_ccff_tail),
@@ -383,6 +397,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size4_2_sram[0:2]));
 
 	mux_tree_tapbuf_size4_mem mem_top_track_6 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size4_mem_2_ccff_tail),
@@ -390,6 +406,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size4_3_sram[0:2]));
 
 	mux_tree_tapbuf_size4_mem mem_top_track_8 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size4_mem_3_ccff_tail),
@@ -397,6 +415,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size4_4_sram[0:2]));
 
 	mux_tree_tapbuf_size4_mem mem_top_track_10 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size4_mem_4_ccff_tail),
@@ -404,6 +424,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size4_5_sram[0:2]));
 
 	mux_tree_tapbuf_size4_mem mem_left_track_1 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_14_ccff_tail),
@@ -411,6 +433,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size4_6_sram[0:2]));
 
 	mux_tree_tapbuf_size4_mem mem_left_track_3 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size4_mem_6_ccff_tail),
@@ -418,6 +442,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size4_7_sram[0:2]));
 
 	mux_tree_tapbuf_size4_mem mem_left_track_5 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size4_mem_7_ccff_tail),
@@ -425,6 +451,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size4_8_sram[0:2]));
 
 	mux_tree_tapbuf_size4_mem mem_left_track_7 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size4_mem_8_ccff_tail),
@@ -432,6 +460,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size4_9_sram[0:2]));
 
 	mux_tree_tapbuf_size4_mem mem_left_track_9 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size4_mem_9_ccff_tail),
@@ -439,6 +469,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size4_10_sram[0:2]));
 
 	mux_tree_tapbuf_size4_mem mem_left_track_11 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size4_mem_10_ccff_tail),
@@ -476,6 +508,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.out(chanx_left_out[22]));
 
 	mux_tree_tapbuf_size3_mem mem_top_track_12 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size4_mem_5_ccff_tail),
@@ -483,6 +517,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size3_0_sram[0:1]));
 
 	mux_tree_tapbuf_size3_mem mem_top_track_44 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_11_ccff_tail),
@@ -490,6 +526,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size3_1_sram[0:1]));
 
 	mux_tree_tapbuf_size3_mem mem_left_track_13 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size4_mem_11_ccff_tail),
@@ -497,6 +535,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size3_2_sram[0:1]));
 
 	mux_tree_tapbuf_size3_mem mem_left_track_29 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_21_ccff_tail),
@@ -504,6 +544,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size3_3_sram[0:1]));
 
 	mux_tree_tapbuf_size3_mem mem_left_track_45 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_28_ccff_tail),
@@ -727,6 +769,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.out(chanx_left_out[29]));
 
 	mux_tree_tapbuf_size2_mem mem_top_track_14 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size3_mem_0_ccff_tail),
@@ -734,6 +778,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_0_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_top_track_16 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_0_ccff_tail),
@@ -741,6 +787,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_1_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_top_track_18 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_1_ccff_tail),
@@ -748,6 +796,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_2_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_top_track_20 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_2_ccff_tail),
@@ -755,6 +805,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_3_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_top_track_22 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_3_ccff_tail),
@@ -762,6 +814,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_4_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_top_track_24 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_4_ccff_tail),
@@ -769,6 +823,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_5_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_top_track_26 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_5_ccff_tail),
@@ -776,6 +832,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_6_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_top_track_28 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_6_ccff_tail),
@@ -783,6 +841,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_7_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_top_track_36 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_7_ccff_tail),
@@ -790,6 +850,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_8_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_top_track_38 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_8_ccff_tail),
@@ -797,6 +859,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_9_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_top_track_40 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_9_ccff_tail),
@@ -804,6 +868,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_10_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_top_track_42 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_10_ccff_tail),
@@ -811,6 +877,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_11_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_top_track_46 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size3_mem_1_ccff_tail),
@@ -818,6 +886,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_12_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_top_track_48 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_12_ccff_tail),
@@ -825,6 +895,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_13_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_top_track_50 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_13_ccff_tail),
@@ -832,6 +904,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_14_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_left_track_15 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size3_mem_2_ccff_tail),
@@ -839,6 +913,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_15_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_left_track_17 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_15_ccff_tail),
@@ -846,6 +922,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_16_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_left_track_19 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_16_ccff_tail),
@@ -853,6 +931,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_17_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_left_track_21 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_17_ccff_tail),
@@ -860,6 +940,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_18_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_left_track_23 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_18_ccff_tail),
@@ -867,6 +949,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_19_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_left_track_25 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_19_ccff_tail),
@@ -874,6 +958,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_20_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_left_track_27 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_20_ccff_tail),
@@ -881,6 +967,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_21_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_left_track_31 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size3_mem_3_ccff_tail),
@@ -888,6 +976,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_22_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_left_track_33 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_22_ccff_tail),
@@ -895,6 +985,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_23_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_left_track_35 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_23_ccff_tail),
@@ -902,6 +994,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_24_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_left_track_37 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_24_ccff_tail),
@@ -909,6 +1003,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_25_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_left_track_39 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_25_ccff_tail),
@@ -916,6 +1012,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_26_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_left_track_41 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_26_ccff_tail),
@@ -923,6 +1021,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_27_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_left_track_43 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_27_ccff_tail),
@@ -930,6 +1030,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_28_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_left_track_47 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size3_mem_4_ccff_tail),
@@ -937,6 +1039,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_29_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_left_track_49 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_29_ccff_tail),
@@ -944,6 +1048,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_30_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_left_track_51 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_30_ccff_tail),
@@ -951,6 +1057,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_31_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_left_track_53 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_31_ccff_tail),
@@ -958,6 +1066,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_32_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_left_track_55 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_32_ccff_tail),
@@ -965,6 +1075,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_33_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_left_track_57 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_33_ccff_tail),
@@ -972,6 +1084,8 @@ wire [0:0] mux_tree_tapbuf_size4_mem_9_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size2_34_sram[0:1]));
 
 	mux_tree_tapbuf_size2_mem mem_left_track_59 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size2_mem_34_ccff_tail),
@@ -982,6 +1096,7 @@ endmodule
 // ----- END Verilog module for sb_2__0_ -----
 
 //----- Default net type -----
+`default_nettype none
 
 
 

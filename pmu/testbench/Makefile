@@ -8,8 +8,8 @@ WORK_DIR     = ${PROJECT_BUILD_DIR}/${WORK_LIB}
 #TOP_ENTITY_NAME = functional_load_key
 #TOP_ENTITY_NAME = functional_load_bitstream
 #TOP_ENTITY_NAME = functional_load_bitstream_sha
-TOP_ENTITY_NAME = functional_load_bitstream_aes
-#TOP_ENTITY_NAME = functional_load_bitstream_sha_aes
+#TOP_ENTITY_NAME = functional_load_bitstream_aes
+TOP_ENTITY_NAME = functional_load_bitstream_sha_aes
 #TOP_ENTITY_NAME = functional_push_bitstream
 #TOP_ENTITY_NAME = functional_fpga
 #TOP_ENTITY_NAME = functional_tap_top
@@ -39,7 +39,7 @@ VERILOG_SOURCES += \
 		${PMU_RTL_DIR}/sha/sha256_core.v \
 		${PMU_RTL_DIR}/sha/sha256_k_constants.v \
 		${PMU_RTL_DIR}/sha/sha256_w_mem.v \
-		#${PMU_RTL_DIR}/fpga_22/fpga_top.v \
+		${PMU_RTL_DIR}/fpga_22/fpga_top.v \
 		${PMU_RTL_DIR}/fpga_22/lb/grid_clb.v \
 		${PMU_RTL_DIR}/fpga_22/lb/grid_io_bottom_bottom.v \
 		${PMU_RTL_DIR}/fpga_22/lb/grid_io_top_top.v \
@@ -50,8 +50,7 @@ VERILOG_SOURCES += \
 		${PMU_RTL_DIR}/fpga_22/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric.v\
 		${PMU_RTL_DIR}/fpga_22/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__ff.v \
 		${PMU_RTL_DIR}/fpga_22/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic.v \
-		${PMU_RTL_DIR}/fpga_22/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic_mode_default__carry_follower.v \
-		${PMU_RTL_DIR}/fpga_22/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic_mode_default__frac_lut4.v \
+		${PMU_RTL_DIR}/fpga_22/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic_mode_default__frac_lut4_arith.v \
 		${PMU_RTL_DIR}/fpga_22/lb/logical_tile_io_mode_io_.v \
 		${PMU_RTL_DIR}/fpga_22/lb/logical_tile_io_mode_physical__iopad.v \
 		${PMU_RTL_DIR}/fpga_22/sub_module/arch_encoder.v \
@@ -63,10 +62,6 @@ VERILOG_SOURCES += \
 		${PMU_RTL_DIR}/fpga_22/sub_module/muxes.v \
 		${PMU_RTL_DIR}/fpga_22/sub_module/shift_register_banks.v \
 		${PMU_RTL_DIR}/fpga_22/sub_module/wires.v \
-		${PMU_RTL_DIR}/fpga_22/CustomModules/digital_io_hd.v \
-		${PMU_RTL_DIR}/fpga_22/CustomModules/sky130_fd_sc_hd_wrapper.v \
-		${PMU_RTL_DIR}/fpga_22/CustomModules/ql_ccff.v \
-		${PMU_RTL_DIR}/fpga_22/CustomModules/ql_iso_io_logic.v \
 		${PMU_RTL_DIR}/fpga_22/routing/cbx_1__0_.v \
 		${PMU_RTL_DIR}/fpga_22/routing/cbx_1__1_.v \
 		${PMU_RTL_DIR}/fpga_22/routing/cbx_1__2_.v \
@@ -110,6 +105,13 @@ VERILOG_SOURCES += \
 		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/sdfrtp/sky130_fd_sc_hd__sdfrtp_4.v \
 		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/sdfrtp/sky130_fd_sc_hd__sdfrtp.functional.v \
 
+
+#		${PMU_RTL_DIR}/fpga_22/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic_mode_default__carry_follower.v \
+		${PMU_RTL_DIR}/fpga_22/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic_mode_default__frac_lut4.v \
+		${PMU_RTL_DIR}/fpga_22/CustomModules/digital_io_hd.v \
+		${PMU_RTL_DIR}/fpga_22/CustomModules/sky130_fd_sc_hd_wrapper.v \
+		${PMU_RTL_DIR}/fpga_22/CustomModules/ql_ccff.v \
+		${PMU_RTL_DIR}/fpga_22/CustomModules/ql_iso_io_logic.v \
 
 
 

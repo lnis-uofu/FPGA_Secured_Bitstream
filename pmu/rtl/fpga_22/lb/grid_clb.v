@@ -3,6 +3,7 @@
 //	Description: Verilog modules for physical tile: clb]
 //	Author: Xifan TANG
 //	Organization: University of Utah
+//	Date: Mon Aug  8 10:08:34 2022
 //-------------------------------------------
 //----- Time scale -----
 `timescale 1ns / 1ps
@@ -11,7 +12,9 @@
 //----- Default net type -----
 
 // ----- Verilog module for grid_clb -----
-module grid_clb(pReset,
+module grid_clb(config_readback,
+                config_enable,
+                pReset,
                 prog_clk,
                 Test_en,
                 top_width_0_height_0_subtile_0__pin_I0_0_,
@@ -30,7 +33,6 @@ module grid_clb(pReset,
                 top_width_0_height_0_subtile_0__pin_I3_1_,
                 top_width_0_height_0_subtile_0__pin_I3i_0_,
                 top_width_0_height_0_subtile_0__pin_I3i_1_,
-                top_width_0_height_0_subtile_0__pin_reg_in_0_,
                 top_width_0_height_0_subtile_0__pin_sc_in_0_,
                 top_width_0_height_0_subtile_0__pin_cin_0_,
                 right_width_0_height_0_subtile_0__pin_I4_0_,
@@ -84,164 +86,163 @@ module grid_clb(pReset,
                 right_width_0_height_0_subtile_0__pin_O_14_lower,
                 right_width_0_height_0_subtile_0__pin_O_15_upper,
                 right_width_0_height_0_subtile_0__pin_O_15_lower,
-                bottom_width_0_height_0_subtile_0__pin_reg_out_0_,
                 bottom_width_0_height_0_subtile_0__pin_sc_out_0_,
                 bottom_width_0_height_0_subtile_0__pin_cout_0_,
                 ccff_tail);
 //----- GLOBAL PORTS -----
-input [0:0] pReset;
+input wire [0:0] config_readback;
 //----- GLOBAL PORTS -----
-input [0:0] prog_clk;
+input wire [0:0] config_enable;
 //----- GLOBAL PORTS -----
-input [0:0] Test_en;
+input wire [0:0] pReset;
+//----- GLOBAL PORTS -----
+input wire [0:0] prog_clk;
+//----- GLOBAL PORTS -----
+input wire [0:0] Test_en;
 //----- INPUT PORTS -----
-input [0:0] top_width_0_height_0_subtile_0__pin_I0_0_;
+input wire [0:0] top_width_0_height_0_subtile_0__pin_I0_0_;
 //----- INPUT PORTS -----
-input [0:0] top_width_0_height_0_subtile_0__pin_I0_1_;
+input wire [0:0] top_width_0_height_0_subtile_0__pin_I0_1_;
 //----- INPUT PORTS -----
-input [0:0] top_width_0_height_0_subtile_0__pin_I0i_0_;
+input wire [0:0] top_width_0_height_0_subtile_0__pin_I0i_0_;
 //----- INPUT PORTS -----
-input [0:0] top_width_0_height_0_subtile_0__pin_I0i_1_;
+input wire [0:0] top_width_0_height_0_subtile_0__pin_I0i_1_;
 //----- INPUT PORTS -----
-input [0:0] top_width_0_height_0_subtile_0__pin_I1_0_;
+input wire [0:0] top_width_0_height_0_subtile_0__pin_I1_0_;
 //----- INPUT PORTS -----
-input [0:0] top_width_0_height_0_subtile_0__pin_I1_1_;
+input wire [0:0] top_width_0_height_0_subtile_0__pin_I1_1_;
 //----- INPUT PORTS -----
-input [0:0] top_width_0_height_0_subtile_0__pin_I1i_0_;
+input wire [0:0] top_width_0_height_0_subtile_0__pin_I1i_0_;
 //----- INPUT PORTS -----
-input [0:0] top_width_0_height_0_subtile_0__pin_I1i_1_;
+input wire [0:0] top_width_0_height_0_subtile_0__pin_I1i_1_;
 //----- INPUT PORTS -----
-input [0:0] top_width_0_height_0_subtile_0__pin_I2_0_;
+input wire [0:0] top_width_0_height_0_subtile_0__pin_I2_0_;
 //----- INPUT PORTS -----
-input [0:0] top_width_0_height_0_subtile_0__pin_I2_1_;
+input wire [0:0] top_width_0_height_0_subtile_0__pin_I2_1_;
 //----- INPUT PORTS -----
-input [0:0] top_width_0_height_0_subtile_0__pin_I2i_0_;
+input wire [0:0] top_width_0_height_0_subtile_0__pin_I2i_0_;
 //----- INPUT PORTS -----
-input [0:0] top_width_0_height_0_subtile_0__pin_I2i_1_;
+input wire [0:0] top_width_0_height_0_subtile_0__pin_I2i_1_;
 //----- INPUT PORTS -----
-input [0:0] top_width_0_height_0_subtile_0__pin_I3_0_;
+input wire [0:0] top_width_0_height_0_subtile_0__pin_I3_0_;
 //----- INPUT PORTS -----
-input [0:0] top_width_0_height_0_subtile_0__pin_I3_1_;
+input wire [0:0] top_width_0_height_0_subtile_0__pin_I3_1_;
 //----- INPUT PORTS -----
-input [0:0] top_width_0_height_0_subtile_0__pin_I3i_0_;
+input wire [0:0] top_width_0_height_0_subtile_0__pin_I3i_0_;
 //----- INPUT PORTS -----
-input [0:0] top_width_0_height_0_subtile_0__pin_I3i_1_;
+input wire [0:0] top_width_0_height_0_subtile_0__pin_I3i_1_;
 //----- INPUT PORTS -----
-input [0:0] top_width_0_height_0_subtile_0__pin_reg_in_0_;
+input wire [0:0] top_width_0_height_0_subtile_0__pin_sc_in_0_;
 //----- INPUT PORTS -----
-input [0:0] top_width_0_height_0_subtile_0__pin_sc_in_0_;
+input wire [0:0] top_width_0_height_0_subtile_0__pin_cin_0_;
 //----- INPUT PORTS -----
-input [0:0] top_width_0_height_0_subtile_0__pin_cin_0_;
+input wire [0:0] right_width_0_height_0_subtile_0__pin_I4_0_;
 //----- INPUT PORTS -----
-input [0:0] right_width_0_height_0_subtile_0__pin_I4_0_;
+input wire [0:0] right_width_0_height_0_subtile_0__pin_I4_1_;
 //----- INPUT PORTS -----
-input [0:0] right_width_0_height_0_subtile_0__pin_I4_1_;
+input wire [0:0] right_width_0_height_0_subtile_0__pin_I4i_0_;
 //----- INPUT PORTS -----
-input [0:0] right_width_0_height_0_subtile_0__pin_I4i_0_;
+input wire [0:0] right_width_0_height_0_subtile_0__pin_I4i_1_;
 //----- INPUT PORTS -----
-input [0:0] right_width_0_height_0_subtile_0__pin_I4i_1_;
+input wire [0:0] right_width_0_height_0_subtile_0__pin_I5_0_;
 //----- INPUT PORTS -----
-input [0:0] right_width_0_height_0_subtile_0__pin_I5_0_;
+input wire [0:0] right_width_0_height_0_subtile_0__pin_I5_1_;
 //----- INPUT PORTS -----
-input [0:0] right_width_0_height_0_subtile_0__pin_I5_1_;
+input wire [0:0] right_width_0_height_0_subtile_0__pin_I5i_0_;
 //----- INPUT PORTS -----
-input [0:0] right_width_0_height_0_subtile_0__pin_I5i_0_;
+input wire [0:0] right_width_0_height_0_subtile_0__pin_I5i_1_;
 //----- INPUT PORTS -----
-input [0:0] right_width_0_height_0_subtile_0__pin_I5i_1_;
+input wire [0:0] right_width_0_height_0_subtile_0__pin_I6_0_;
 //----- INPUT PORTS -----
-input [0:0] right_width_0_height_0_subtile_0__pin_I6_0_;
+input wire [0:0] right_width_0_height_0_subtile_0__pin_I6_1_;
 //----- INPUT PORTS -----
-input [0:0] right_width_0_height_0_subtile_0__pin_I6_1_;
+input wire [0:0] right_width_0_height_0_subtile_0__pin_I6i_0_;
 //----- INPUT PORTS -----
-input [0:0] right_width_0_height_0_subtile_0__pin_I6i_0_;
+input wire [0:0] right_width_0_height_0_subtile_0__pin_I6i_1_;
 //----- INPUT PORTS -----
-input [0:0] right_width_0_height_0_subtile_0__pin_I6i_1_;
+input wire [0:0] right_width_0_height_0_subtile_0__pin_I7_0_;
 //----- INPUT PORTS -----
-input [0:0] right_width_0_height_0_subtile_0__pin_I7_0_;
+input wire [0:0] right_width_0_height_0_subtile_0__pin_I7_1_;
 //----- INPUT PORTS -----
-input [0:0] right_width_0_height_0_subtile_0__pin_I7_1_;
+input wire [0:0] right_width_0_height_0_subtile_0__pin_I7i_0_;
 //----- INPUT PORTS -----
-input [0:0] right_width_0_height_0_subtile_0__pin_I7i_0_;
+input wire [0:0] right_width_0_height_0_subtile_0__pin_I7i_1_;
 //----- INPUT PORTS -----
-input [0:0] right_width_0_height_0_subtile_0__pin_I7i_1_;
+input wire [0:0] left_width_0_height_0_subtile_0__pin_reset_0_;
 //----- INPUT PORTS -----
-input [0:0] left_width_0_height_0_subtile_0__pin_reset_0_;
+input wire [0:0] left_width_0_height_0_subtile_0__pin_clk_0_;
 //----- INPUT PORTS -----
-input [0:0] left_width_0_height_0_subtile_0__pin_clk_0_;
-//----- INPUT PORTS -----
-input [0:0] ccff_head;
+input wire [0:0] ccff_head;
 //----- OUTPUT PORTS -----
-output [0:0] top_width_0_height_0_subtile_0__pin_O_0_upper;
+output wire [0:0] top_width_0_height_0_subtile_0__pin_O_0_upper;
 //----- OUTPUT PORTS -----
-output [0:0] top_width_0_height_0_subtile_0__pin_O_0_lower;
+output wire [0:0] top_width_0_height_0_subtile_0__pin_O_0_lower;
 //----- OUTPUT PORTS -----
-output [0:0] top_width_0_height_0_subtile_0__pin_O_1_upper;
+output wire [0:0] top_width_0_height_0_subtile_0__pin_O_1_upper;
 //----- OUTPUT PORTS -----
-output [0:0] top_width_0_height_0_subtile_0__pin_O_1_lower;
+output wire [0:0] top_width_0_height_0_subtile_0__pin_O_1_lower;
 //----- OUTPUT PORTS -----
-output [0:0] top_width_0_height_0_subtile_0__pin_O_2_upper;
+output wire [0:0] top_width_0_height_0_subtile_0__pin_O_2_upper;
 //----- OUTPUT PORTS -----
-output [0:0] top_width_0_height_0_subtile_0__pin_O_2_lower;
+output wire [0:0] top_width_0_height_0_subtile_0__pin_O_2_lower;
 //----- OUTPUT PORTS -----
-output [0:0] top_width_0_height_0_subtile_0__pin_O_3_upper;
+output wire [0:0] top_width_0_height_0_subtile_0__pin_O_3_upper;
 //----- OUTPUT PORTS -----
-output [0:0] top_width_0_height_0_subtile_0__pin_O_3_lower;
+output wire [0:0] top_width_0_height_0_subtile_0__pin_O_3_lower;
 //----- OUTPUT PORTS -----
-output [0:0] top_width_0_height_0_subtile_0__pin_O_4_upper;
+output wire [0:0] top_width_0_height_0_subtile_0__pin_O_4_upper;
 //----- OUTPUT PORTS -----
-output [0:0] top_width_0_height_0_subtile_0__pin_O_4_lower;
+output wire [0:0] top_width_0_height_0_subtile_0__pin_O_4_lower;
 //----- OUTPUT PORTS -----
-output [0:0] top_width_0_height_0_subtile_0__pin_O_5_upper;
+output wire [0:0] top_width_0_height_0_subtile_0__pin_O_5_upper;
 //----- OUTPUT PORTS -----
-output [0:0] top_width_0_height_0_subtile_0__pin_O_5_lower;
+output wire [0:0] top_width_0_height_0_subtile_0__pin_O_5_lower;
 //----- OUTPUT PORTS -----
-output [0:0] top_width_0_height_0_subtile_0__pin_O_6_upper;
+output wire [0:0] top_width_0_height_0_subtile_0__pin_O_6_upper;
 //----- OUTPUT PORTS -----
-output [0:0] top_width_0_height_0_subtile_0__pin_O_6_lower;
+output wire [0:0] top_width_0_height_0_subtile_0__pin_O_6_lower;
 //----- OUTPUT PORTS -----
-output [0:0] top_width_0_height_0_subtile_0__pin_O_7_upper;
+output wire [0:0] top_width_0_height_0_subtile_0__pin_O_7_upper;
 //----- OUTPUT PORTS -----
-output [0:0] top_width_0_height_0_subtile_0__pin_O_7_lower;
+output wire [0:0] top_width_0_height_0_subtile_0__pin_O_7_lower;
 //----- OUTPUT PORTS -----
-output [0:0] right_width_0_height_0_subtile_0__pin_O_8_upper;
+output wire [0:0] right_width_0_height_0_subtile_0__pin_O_8_upper;
 //----- OUTPUT PORTS -----
-output [0:0] right_width_0_height_0_subtile_0__pin_O_8_lower;
+output wire [0:0] right_width_0_height_0_subtile_0__pin_O_8_lower;
 //----- OUTPUT PORTS -----
-output [0:0] right_width_0_height_0_subtile_0__pin_O_9_upper;
+output wire [0:0] right_width_0_height_0_subtile_0__pin_O_9_upper;
 //----- OUTPUT PORTS -----
-output [0:0] right_width_0_height_0_subtile_0__pin_O_9_lower;
+output wire [0:0] right_width_0_height_0_subtile_0__pin_O_9_lower;
 //----- OUTPUT PORTS -----
-output [0:0] right_width_0_height_0_subtile_0__pin_O_10_upper;
+output wire [0:0] right_width_0_height_0_subtile_0__pin_O_10_upper;
 //----- OUTPUT PORTS -----
-output [0:0] right_width_0_height_0_subtile_0__pin_O_10_lower;
+output wire [0:0] right_width_0_height_0_subtile_0__pin_O_10_lower;
 //----- OUTPUT PORTS -----
-output [0:0] right_width_0_height_0_subtile_0__pin_O_11_upper;
+output wire [0:0] right_width_0_height_0_subtile_0__pin_O_11_upper;
 //----- OUTPUT PORTS -----
-output [0:0] right_width_0_height_0_subtile_0__pin_O_11_lower;
+output wire [0:0] right_width_0_height_0_subtile_0__pin_O_11_lower;
 //----- OUTPUT PORTS -----
-output [0:0] right_width_0_height_0_subtile_0__pin_O_12_upper;
+output wire [0:0] right_width_0_height_0_subtile_0__pin_O_12_upper;
 //----- OUTPUT PORTS -----
-output [0:0] right_width_0_height_0_subtile_0__pin_O_12_lower;
+output wire [0:0] right_width_0_height_0_subtile_0__pin_O_12_lower;
 //----- OUTPUT PORTS -----
-output [0:0] right_width_0_height_0_subtile_0__pin_O_13_upper;
+output wire [0:0] right_width_0_height_0_subtile_0__pin_O_13_upper;
 //----- OUTPUT PORTS -----
-output [0:0] right_width_0_height_0_subtile_0__pin_O_13_lower;
+output wire [0:0] right_width_0_height_0_subtile_0__pin_O_13_lower;
 //----- OUTPUT PORTS -----
-output [0:0] right_width_0_height_0_subtile_0__pin_O_14_upper;
+output wire [0:0] right_width_0_height_0_subtile_0__pin_O_14_upper;
 //----- OUTPUT PORTS -----
-output [0:0] right_width_0_height_0_subtile_0__pin_O_14_lower;
+output wire [0:0] right_width_0_height_0_subtile_0__pin_O_14_lower;
 //----- OUTPUT PORTS -----
-output [0:0] right_width_0_height_0_subtile_0__pin_O_15_upper;
+output wire [0:0] right_width_0_height_0_subtile_0__pin_O_15_upper;
 //----- OUTPUT PORTS -----
-output [0:0] right_width_0_height_0_subtile_0__pin_O_15_lower;
+output wire [0:0] right_width_0_height_0_subtile_0__pin_O_15_lower;
 //----- OUTPUT PORTS -----
-output [0:0] bottom_width_0_height_0_subtile_0__pin_reg_out_0_;
+output wire [0:0] bottom_width_0_height_0_subtile_0__pin_sc_out_0_;
 //----- OUTPUT PORTS -----
-output [0:0] bottom_width_0_height_0_subtile_0__pin_sc_out_0_;
+output wire [0:0] bottom_width_0_height_0_subtile_0__pin_cout_0_;
 //----- OUTPUT PORTS -----
-output [0:0] bottom_width_0_height_0_subtile_0__pin_cout_0_;
-//----- OUTPUT PORTS -----
-output [0:0] ccff_tail;
+output wire [0:0] ccff_tail;
 
 //----- BEGIN wire-connection ports -----
 //----- END wire-connection ports -----
@@ -274,6 +275,8 @@ output [0:0] ccff_tail;
 // ----- END Local output short connections -----
 
 	logical_tile_clb_mode_clb_ logical_tile_clb_mode_clb__0 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.Test_en(Test_en),
@@ -293,14 +296,12 @@ output [0:0] ccff_tail;
 		.clb_I6i({right_width_0_height_0_subtile_0__pin_I6i_0_, right_width_0_height_0_subtile_0__pin_I6i_1_}),
 		.clb_I7({right_width_0_height_0_subtile_0__pin_I7_0_, right_width_0_height_0_subtile_0__pin_I7_1_}),
 		.clb_I7i({right_width_0_height_0_subtile_0__pin_I7i_0_, right_width_0_height_0_subtile_0__pin_I7i_1_}),
-		.clb_reg_in(top_width_0_height_0_subtile_0__pin_reg_in_0_),
 		.clb_sc_in(top_width_0_height_0_subtile_0__pin_sc_in_0_),
 		.clb_cin(top_width_0_height_0_subtile_0__pin_cin_0_),
 		.clb_reset(left_width_0_height_0_subtile_0__pin_reset_0_),
 		.clb_clk(left_width_0_height_0_subtile_0__pin_clk_0_),
 		.ccff_head(ccff_head),
 		.clb_O({top_width_0_height_0_subtile_0__pin_O_0_upper, top_width_0_height_0_subtile_0__pin_O_1_upper, top_width_0_height_0_subtile_0__pin_O_2_upper, top_width_0_height_0_subtile_0__pin_O_3_upper, top_width_0_height_0_subtile_0__pin_O_4_upper, top_width_0_height_0_subtile_0__pin_O_5_upper, top_width_0_height_0_subtile_0__pin_O_6_upper, top_width_0_height_0_subtile_0__pin_O_7_upper, right_width_0_height_0_subtile_0__pin_O_8_upper, right_width_0_height_0_subtile_0__pin_O_9_upper, right_width_0_height_0_subtile_0__pin_O_10_upper, right_width_0_height_0_subtile_0__pin_O_11_upper, right_width_0_height_0_subtile_0__pin_O_12_upper, right_width_0_height_0_subtile_0__pin_O_13_upper, right_width_0_height_0_subtile_0__pin_O_14_upper, right_width_0_height_0_subtile_0__pin_O_15_upper}),
-		.clb_reg_out(bottom_width_0_height_0_subtile_0__pin_reg_out_0_),
 		.clb_sc_out(bottom_width_0_height_0_subtile_0__pin_sc_out_0_),
 		.clb_cout(bottom_width_0_height_0_subtile_0__pin_cout_0_),
 		.ccff_tail(ccff_tail));

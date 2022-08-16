@@ -3,11 +3,13 @@
 //	Description: Multiplexers
 //	Author: Xifan TANG
 //	Organization: University of Utah
+//	Date: Mon Aug  8 10:08:34 2022
 //-------------------------------------------
 //----- Time scale -----
 `timescale 1ns / 1ps
 
 //----- Default net type -----
+`default_nettype wire
 
 // ----- Verilog module for mux_tree_tapbuf_size12 -----
 module mux_tree_tapbuf_size12(in,
@@ -133,11 +135,13 @@ endmodule
 // ----- END Verilog module for mux_tree_tapbuf_size12 -----
 
 //----- Default net type -----
+`default_nettype wire
 
 
 
 
 //----- Default net type -----
+`default_nettype wire
 
 // ----- Verilog module for mux_tree_tapbuf_size10 -----
 module mux_tree_tapbuf_size10(in,
@@ -249,11 +253,13 @@ endmodule
 // ----- END Verilog module for mux_tree_tapbuf_size10 -----
 
 //----- Default net type -----
+`default_nettype wire
 
 
 
 
 //----- Default net type -----
+`default_nettype wire
 
 // ----- Verilog module for mux_tree_tapbuf_size4 -----
 module mux_tree_tapbuf_size4(in,
@@ -285,6 +291,7 @@ wire [0:0] sky130_fd_sc_hd__mux2_1_3_X;
 
 // ----- BEGIN Local short connections -----
 // ----- END Local short connections -----
+    //
 // ----- BEGIN Local output short connections -----
 // ----- END Local output short connections -----
 
@@ -323,11 +330,13 @@ endmodule
 // ----- END Verilog module for mux_tree_tapbuf_size4 -----
 
 //----- Default net type -----
+`default_nettype wire
 
 
 
 
 //----- Default net type -----
+`default_nettype wire
 
 // ----- Verilog module for mux_tree_tapbuf_size8 -----
 module mux_tree_tapbuf_size8(in,
@@ -425,11 +434,13 @@ endmodule
 // ----- END Verilog module for mux_tree_tapbuf_size8 -----
 
 //----- Default net type -----
+`default_nettype wire
 
 
 
 
 //----- Default net type -----
+`default_nettype wire
 
 // ----- Verilog module for mux_tree_tapbuf_size7 -----
 module mux_tree_tapbuf_size7(in,
@@ -520,11 +531,12 @@ endmodule
 // ----- END Verilog module for mux_tree_tapbuf_size7 -----
 
 //----- Default net type -----
-
+`default_nettype wire
 
 
 
 //----- Default net type -----
+`default_nettype wire
 
 // ----- Verilog module for mux_tree_tapbuf_size9 -----
 module mux_tree_tapbuf_size9(in,
@@ -629,11 +641,13 @@ endmodule
 // ----- END Verilog module for mux_tree_tapbuf_size9 -----
 
 //----- Default net type -----
+`default_nettype wire
 
 
 
 
 //----- Default net type -----
+`default_nettype wire
 
 // ----- Verilog module for mux_tree_tapbuf_size3 -----
 module mux_tree_tapbuf_size3(in,
@@ -696,11 +710,13 @@ endmodule
 // ----- END Verilog module for mux_tree_tapbuf_size3 -----
 
 //----- Default net type -----
+`default_nettype wire
 
 
 
 
 //----- Default net type -----
+`default_nettype wire
 
 // ----- Verilog module for mux_tree_tapbuf_size2 -----
 module mux_tree_tapbuf_size2(in,
@@ -756,11 +772,13 @@ endmodule
 // ----- END Verilog module for mux_tree_tapbuf_size2 -----
 
 //----- Default net type -----
+`default_nettype wire
 
 
 
 
 //----- Default net type -----
+`default_nettype wire
 
 // ----- Verilog module for mux_tree_tapbuf_size5 -----
 module mux_tree_tapbuf_size5(in,
@@ -837,11 +855,13 @@ endmodule
 // ----- END Verilog module for mux_tree_tapbuf_size5 -----
 
 //----- Default net type -----
+`default_nettype wire
 
 
 
 
 //----- Default net type -----
+`default_nettype wire
 
 // ----- Verilog module for mux_tree_tapbuf_size11 -----
 module mux_tree_tapbuf_size11(in,
@@ -960,11 +980,14 @@ endmodule
 // ----- END Verilog module for mux_tree_tapbuf_size11 -----
 
 //----- Default net type -----
+`default_nettype wire
 
 
 
 
 //----- Default net type -----
+`default_nettype wire
+
 
 // ----- Verilog module for mux_tree_tapbuf_size6 -----
 module mux_tree_tapbuf_size6(in,
@@ -1048,11 +1071,13 @@ endmodule
 // ----- END Verilog module for mux_tree_tapbuf_size6 -----
 
 //----- Default net type -----
+`default_nettype wire
 
 
 
 
 //----- Default net type -----
+`default_nettype wire
 
 // ----- Verilog module for mux_tree_size2 -----
 module mux_tree_size2(in,
@@ -1103,19 +1128,20 @@ endmodule
 // ----- END Verilog module for mux_tree_size2 -----
 
 //----- Default net type -----
+`default_nettype wire
 
 
 
 
 //----- Default net type -----
+`default_nettype wire
 
-// ----- Verilog module for frac_lut4_mux -----
-module frac_lut4_mux(in,
-                     sram,
-                     sram_inv,
-                     lut2_out,
-                     lut3_out,
-                     lut4_out);
+// ----- Verilog module for frac_lut4_arith_mux -----
+module frac_lut4_arith_mux(in,
+                           sram,
+                           sram_inv,
+                           lut3_out,
+                           lut4_out);
 //----- INPUT PORTS -----
 input [0:15] in;
 //----- INPUT PORTS -----
@@ -1123,10 +1149,9 @@ input [0:3] sram;
 //----- INPUT PORTS -----
 input [0:3] sram_inv;
 //----- OUTPUT PORTS -----
-output [0:1] lut2_out;
-//----- OUTPUT PORTS -----
 output [0:1] lut3_out;
-//----- OUTPUT PORTS -----
+//----- OUTPUT PORTS 
+    //-----
 output [0:0] lut4_out;
 
 //----- BEGIN wire-connection ports -----
@@ -1137,6 +1162,8 @@ output [0:0] lut4_out;
 //----- END Registered ports -----
 
 
+wire [0:0] sky130_fd_sc_hd__buf_2_3_X;
+wire [0:0] sky130_fd_sc_hd__buf_2_4_X;
 wire [0:0] sky130_fd_sc_hd__buf_2_5_X;
 wire [0:0] sky130_fd_sc_hd__buf_2_6_X;
 wire [0:0] sky130_fd_sc_hd__mux2_1_0_X;
@@ -1161,31 +1188,31 @@ wire [0:0] sky130_fd_sc_hd__mux2_1_9_X;
 // ----- END Local output short connections -----
 
 	sky130_fd_sc_hd__buf_2 sky130_fd_sc_hd__buf_2_0_ (
-		.A(sky130_fd_sc_hd__mux2_1_10_X),
-		.X(lut2_out[0]));
-
-	sky130_fd_sc_hd__buf_2 sky130_fd_sc_hd__buf_2_1_ (
-		.A(sky130_fd_sc_hd__mux2_1_11_X),
-		.X(lut2_out[1]));
-
-	sky130_fd_sc_hd__buf_2 sky130_fd_sc_hd__buf_2_2_ (
 		.A(sky130_fd_sc_hd__mux2_1_12_X),
 		.X(lut3_out[0]));
 
-	sky130_fd_sc_hd__buf_2 sky130_fd_sc_hd__buf_2_3_ (
+	sky130_fd_sc_hd__buf_2 sky130_fd_sc_hd__buf_2_1_ (
 		.A(sky130_fd_sc_hd__mux2_1_13_X),
 		.X(lut3_out[1]));
 
-	sky130_fd_sc_hd__buf_2 sky130_fd_sc_hd__buf_2_4_ (
+	sky130_fd_sc_hd__buf_2 sky130_fd_sc_hd__buf_2_2_ (
 		.A(sky130_fd_sc_hd__mux2_1_14_X),
 		.X(lut4_out));
 
-	sky130_fd_sc_hd__buf_2 sky130_fd_sc_hd__buf_2_5_ (
+	sky130_fd_sc_hd__buf_2 sky130_fd_sc_hd__buf_2_3_ (
 		.A(sky130_fd_sc_hd__mux2_1_8_X),
+		.X(sky130_fd_sc_hd__buf_2_3_X));
+
+	sky130_fd_sc_hd__buf_2 sky130_fd_sc_hd__buf_2_4_ (
+		.A(sky130_fd_sc_hd__mux2_1_9_X),
+		.X(sky130_fd_sc_hd__buf_2_4_X));
+
+	sky130_fd_sc_hd__buf_2 sky130_fd_sc_hd__buf_2_5_ (
+		.A(sky130_fd_sc_hd__mux2_1_10_X),
 		.X(sky130_fd_sc_hd__buf_2_5_X));
 
 	sky130_fd_sc_hd__buf_2 sky130_fd_sc_hd__buf_2_6_ (
-		.A(sky130_fd_sc_hd__mux2_1_9_X),
+		.A(sky130_fd_sc_hd__mux2_1_11_X),
 		.X(sky130_fd_sc_hd__buf_2_6_X));
 
 	sky130_fd_sc_hd__mux2_1 mux_l1_in_0_ (
@@ -1261,14 +1288,14 @@ wire [0:0] sky130_fd_sc_hd__mux2_1_9_X;
 		.X(sky130_fd_sc_hd__mux2_1_11_X));
 
 	sky130_fd_sc_hd__mux2_1 mux_l3_in_0_ (
-		.A1(sky130_fd_sc_hd__buf_2_5_X),
-		.A0(sky130_fd_sc_hd__buf_2_6_X),
+		.A1(sky130_fd_sc_hd__buf_2_3_X),
+		.A0(sky130_fd_sc_hd__buf_2_4_X),
 		.S(sram[2]),
 		.X(sky130_fd_sc_hd__mux2_1_12_X));
 
 	sky130_fd_sc_hd__mux2_1 mux_l3_in_1_ (
-		.A1(sky130_fd_sc_hd__mux2_1_10_X),
-		.A0(sky130_fd_sc_hd__mux2_1_11_X),
+		.A1(sky130_fd_sc_hd__buf_2_5_X),
+		.A0(sky130_fd_sc_hd__buf_2_6_X),
 		.S(sram[2]),
 		.X(sky130_fd_sc_hd__mux2_1_13_X));
 
@@ -1279,10 +1306,10 @@ wire [0:0] sky130_fd_sc_hd__mux2_1_9_X;
 		.X(sky130_fd_sc_hd__mux2_1_14_X));
 
 endmodule
-// ----- END Verilog module for frac_lut4_mux -----
+// ----- END Verilog module for frac_lut4_arith_mux -----
 
 //----- Default net type -----
-
+`default_nettype wire
 
 
 

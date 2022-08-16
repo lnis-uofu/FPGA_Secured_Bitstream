@@ -30,22 +30,24 @@ module functional_load_bitstream_sha_aes;
     
     reg clk = 0; 
     // FPGA Wires
+    wire config_readback;
+    wire config_enable;
     wire prog_clk;
     //wire pReset;
     //wire data_o;
     wire ccff_w;
     wire pReset;
 
-    // AES WIRES
+     // AES WIRES
     wire aes_reset_n_w;
     wire aes_reset_dec_w;
     wire aes_init_w;
     wire aes_next_w;
-    wire [127:0] aes_key_w;
-    wire [127:0] aes_block_w;
-    wire [127:0] aes_result_w;
-    wire aes_result_valid_w;
-    wire aes_ready_w;
+    wire aes_wc_w;
+    wire aes_we_w;
+    wire [1:0]  aes_address_w;
+    wire [31:0] aes_write_data_w;
+    wire [31:0] aes_read_data_w;
 
     // SHA WIRES
     wire sha_reset_n_w;
@@ -87,7 +89,7 @@ module functional_load_bitstream_sha_aes;
 	assign gfpga_pad_EMBEDDED_IO_HD_SOC_IN[0:`FPGA_IO_SIZE - 1] = {`FPGA_IO_SIZE {1'b0}};
 	assign gfpga_pad_EMBEDDED_IO_HD_SOC_OUT[0:`FPGA_IO_SIZE - 1] = {`FPGA_IO_SIZE {1'b0}};
 
-        pmu pmu_
+         pmu pmu_
         (
         .clk_i(clk),
         .tms_i(tms_i),
@@ -95,6 +97,8 @@ module functional_load_bitstream_sha_aes;
         .rst_i(rst_i),
         .tdi_i(tdi_i),
         .td_o(),
+        .config_readback(config_readback),
+        .config_enable(config_enable),
         .progclk_o(prog_clk),
         .pReset_o(pReset),
         .fpga_rst(fpga_rst),
@@ -104,14 +108,16 @@ module functional_load_bitstream_sha_aes;
         .key_ready(),
         .core_ready(),
         .locked(),
-        .aes_reset_n_w(aes_reset_n_w),
-        .aes_reset_dec_w(aes_reset_dec_w),
-        .aes_init_w(aes_init_w),
-        .aes_next_w(aes_next_w),
-        .aes_key_w(aes_key_w),
-        .aes_block_w(aes_block_w),
-        .aes_result_w(aes_result_w),
-        .aes_result_valid_w(aes_result_valid_w),
+        .aes_reset_n(aes_reset_n_w),
+        .reset_dec(aes_reset_dec_w),
+        .aes_init(aes_init_w),
+        .aes_next(aes_next_w),
+        .aes_wc(aes_wc_w),
+        .aes_we(aes_we_w),
+        .aes_address(aes_address_w),
+        .aes_write_data(aes_write_data_w),
+        .aes_read_data(aes_read_data_w),
+        .aes_result_valid(aes_result_valid_w),
         .aes_key_ready(aes_ready_w),
         .sha_reset_n_w(sha_reset_n_w),
         .sha_cs_w(sha_cs_w), 
@@ -123,16 +129,18 @@ module functional_load_bitstream_sha_aes;
    
         );
 
-        aes_core aes_core_
+        aes aes128_
         (
         .clk(clk),
         .reset_n(aes_reset_n_w),
         .reset_dec(aes_reset_dec_w),
         .init(aes_init_w),
         .next(aes_next_w),
-        .key(aes_key_w),
-        .block(aes_block_w),
-        .result(aes_result_w),
+        .wc(aes_wc_w),
+        .we(aes_we_w),
+        .address(aes_address_w),
+        .write_data(aes_write_data_w),
+        .read_data(aes_read_data_w),
         .key_ready(aes_ready_w),
         .result_valid(aes_result_valid_w)
         );
@@ -149,20 +157,22 @@ module functional_load_bitstream_sha_aes;
         .digest_valid(sha_digest_valid_w)
         );
 
-        /* fpga_top fpga_top_ */
-        /* ( */
-        /* .clk(clk & fpga_o_clk_en), */
-        /* .reset(fpga_rst), //and another wire coming from top caravel level */
-        /* .pReset(pReset), */
-        /* .prog_clk(prog_clk),  ///prog_clk */
-        /* .Test_en(test_en), */
-        /* .IO_ISOL_N(IO), */
-		/* .gfpga_pad_EMBEDDED_IO_HD_SOC_IN(gfpga_pad_EMBEDDED_IO_HD_SOC_IN[0:`FPGA_IO_SIZE - 1]), */
-		/* .gfpga_pad_EMBEDDED_IO_HD_SOC_OUT(gfpga_pad_EMBEDDED_IO_HD_SOC_OUT[0:`FPGA_IO_SIZE - 1]), */
-		/* .gfpga_pad_EMBEDDED_IO_HD_SOC_DIR(gfpga_pad_EMBEDDED_IO_HD_SOC_DIR[0:`FPGA_IO_SIZE - 1]), */        
-        /* .ccff_head(data_o), */
-        /* .ccff_tail(ccff_wire) */
-        /* ); */
+        fpga_top fpga_top_
+        (
+        .clk(clk & fpga_o_clk_en),
+        .reset(fpga_rst), 
+        .config_readback(config_readback),
+        .config_enable(config_enable),
+        .pReset(pReset),
+        .prog_clk(prog_clk),  ///prog_clk
+        .Test_en(test_en),
+        .IO_ISOL_N(IO),
+		.gfpga_pad_EMBEDDED_IO_HD_SOC_IN(gfpga_pad_EMBEDDED_IO_HD_SOC_IN[0:`FPGA_IO_SIZE - 1]),
+		.gfpga_pad_EMBEDDED_IO_HD_SOC_OUT(gfpga_pad_EMBEDDED_IO_HD_SOC_OUT[0:`FPGA_IO_SIZE - 1]),
+		.gfpga_pad_EMBEDDED_IO_HD_SOC_DIR(gfpga_pad_EMBEDDED_IO_HD_SOC_DIR[0:`FPGA_IO_SIZE - 1]),        
+        .ccff_head(data_o),
+        .ccff_tail(ccff_wire)
+        );
 
 
         

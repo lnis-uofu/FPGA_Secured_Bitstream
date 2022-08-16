@@ -3,47 +3,55 @@
 //	Description: Verilog modules for physical tile: io_left]
 //	Author: Xifan TANG
 //	Organization: University of Utah
+//	Date: Mon Aug  8 10:08:34 2022
 //-------------------------------------------
 //----- Time scale -----
 `timescale 1ns / 1ps
 
 // ----- BEGIN Grid Verilog module: grid_io_left_left -----
 //----- Default net type -----
+`default_nettype none
 
 // ----- Verilog module for grid_io_left_left -----
 module grid_io_left_left(IO_ISOL_N,
+                         config_readback,
+                         config_enable,
                          pReset,
                          prog_clk,
-                         gfpga_pad_EMBEDDED_IO_HD_SOC_IN,
-                         gfpga_pad_EMBEDDED_IO_HD_SOC_OUT,
-                         gfpga_pad_EMBEDDED_IO_HD_SOC_DIR,
+                         gfpga_pad_EMBEDDED_IO_ISOLN_SOC_IN,
+                         gfpga_pad_EMBEDDED_IO_ISOLN_SOC_OUT,
+                         gfpga_pad_EMBEDDED_IO_ISOLN_SOC_DIR,
                          right_width_0_height_0_subtile_0__pin_outpad_0_,
                          ccff_head,
                          right_width_0_height_0_subtile_0__pin_inpad_0_upper,
                          right_width_0_height_0_subtile_0__pin_inpad_0_lower,
                          ccff_tail);
 //----- GLOBAL PORTS -----
-input [0:0] IO_ISOL_N;
+input wire [0:0] IO_ISOL_N;
 //----- GLOBAL PORTS -----
-input [0:0] pReset;
+input wire [0:0] config_readback;
 //----- GLOBAL PORTS -----
-input [0:0] prog_clk;
+input wire [0:0] config_enable;
+//----- GLOBAL PORTS -----
+input wire [0:0] pReset;
+//----- GLOBAL PORTS -----
+input wire [0:0] prog_clk;
 //----- GPIN PORTS -----
-input [0:0] gfpga_pad_EMBEDDED_IO_HD_SOC_IN;
+input wire [0:0] gfpga_pad_EMBEDDED_IO_ISOLN_SOC_IN;
 //----- GPOUT PORTS -----
-output [0:0] gfpga_pad_EMBEDDED_IO_HD_SOC_OUT;
+output wire [0:0] gfpga_pad_EMBEDDED_IO_ISOLN_SOC_OUT;
 //----- GPOUT PORTS -----
-output [0:0] gfpga_pad_EMBEDDED_IO_HD_SOC_DIR;
+output wire [0:0] gfpga_pad_EMBEDDED_IO_ISOLN_SOC_DIR;
 //----- INPUT PORTS -----
-input [0:0] right_width_0_height_0_subtile_0__pin_outpad_0_;
+input wire [0:0] right_width_0_height_0_subtile_0__pin_outpad_0_;
 //----- INPUT PORTS -----
-input [0:0] ccff_head;
+input wire [0:0] ccff_head;
 //----- OUTPUT PORTS -----
-output [0:0] right_width_0_height_0_subtile_0__pin_inpad_0_upper;
+output wire [0:0] right_width_0_height_0_subtile_0__pin_inpad_0_upper;
 //----- OUTPUT PORTS -----
-output [0:0] right_width_0_height_0_subtile_0__pin_inpad_0_lower;
+output wire [0:0] right_width_0_height_0_subtile_0__pin_inpad_0_lower;
 //----- OUTPUT PORTS -----
-output [0:0] ccff_tail;
+output wire [0:0] ccff_tail;
 
 //----- BEGIN wire-connection ports -----
 //----- END wire-connection ports -----
@@ -62,11 +70,13 @@ output [0:0] ccff_tail;
 
 	logical_tile_io_mode_io_ logical_tile_io_mode_io__0 (
 		.IO_ISOL_N(IO_ISOL_N),
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
-		.gfpga_pad_EMBEDDED_IO_HD_SOC_IN(gfpga_pad_EMBEDDED_IO_HD_SOC_IN),
-		.gfpga_pad_EMBEDDED_IO_HD_SOC_OUT(gfpga_pad_EMBEDDED_IO_HD_SOC_OUT),
-		.gfpga_pad_EMBEDDED_IO_HD_SOC_DIR(gfpga_pad_EMBEDDED_IO_HD_SOC_DIR),
+		.gfpga_pad_EMBEDDED_IO_ISOLN_SOC_IN(gfpga_pad_EMBEDDED_IO_ISOLN_SOC_IN),
+		.gfpga_pad_EMBEDDED_IO_ISOLN_SOC_OUT(gfpga_pad_EMBEDDED_IO_ISOLN_SOC_OUT),
+		.gfpga_pad_EMBEDDED_IO_ISOLN_SOC_DIR(gfpga_pad_EMBEDDED_IO_ISOLN_SOC_DIR),
 		.io_outpad(right_width_0_height_0_subtile_0__pin_outpad_0_),
 		.ccff_head(ccff_head),
 		.io_inpad(right_width_0_height_0_subtile_0__pin_inpad_0_upper),
@@ -76,6 +86,7 @@ endmodule
 // ----- END Verilog module for grid_io_left_left -----
 
 //----- Default net type -----
+`default_nettype none
 
 
 

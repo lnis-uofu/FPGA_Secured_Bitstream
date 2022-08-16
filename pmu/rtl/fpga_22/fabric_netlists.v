@@ -3,6 +3,7 @@
 //	Description: Fabric Netlist Summary
 //	Author: Xifan TANG
 //	Organization: University of Utah
+//	Date: Mon Aug  8 10:08:34 2022
 //-------------------------------------------
 //----- Time scale -----
 `timescale 1ns / 1ps
@@ -11,16 +12,12 @@
 `include "./SRC/fpga_defines.v"
 
 // ------ Include user-defined netlists -----
-`include "/research/ece/lnis/Share/OpenFPGA_for_Chip/openfpga_flow/tasks/FPGA22_HIER_SKY_PNR/skywater/libraries/sky130_fd_sc_hd/latest/cells/inv/sky130_fd_sc_hd__inv_1.v"
-`include "/research/ece/lnis/Share/OpenFPGA_for_Chip/openfpga_flow/tasks/FPGA22_HIER_SKY_PNR/skywater/libraries/sky130_fd_sc_hd/latest/cells/buf/sky130_fd_sc_hd__buf_2.v"
-`include "/research/ece/lnis/Share/OpenFPGA_for_Chip/openfpga_flow/tasks/FPGA22_HIER_SKY_PNR/skywater/libraries/sky130_fd_sc_hd/latest/cells/buf/sky130_fd_sc_hd__buf_4.v"
-`include "/research/ece/lnis/Share/OpenFPGA_for_Chip/openfpga_flow/tasks/FPGA22_HIER_SKY_PNR/skywater/libraries/sky130_fd_sc_hd/latest/cells/inv/sky130_fd_sc_hd__inv_2.v"
-`include "/research/ece/lnis/Share/OpenFPGA_for_Chip/openfpga_flow/tasks/FPGA22_HIER_SKY_PNR/skywater/libraries/sky130_fd_sc_hd/latest/cells/or2/sky130_fd_sc_hd__or2_1.v"
-`include "/research/ece/lnis/Share/OpenFPGA_for_Chip/openfpga_flow/tasks/FPGA22_HIER_SKY_PNR/skywater/libraries/sky130_fd_sc_hd/latest/cells/mux2/sky130_fd_sc_hd__mux2_1.v"
-`include "/research/ece/lnis/Share/OpenFPGA_for_Chip/openfpga_flow/tasks/FPGA22_HIER_SKY_PNR/skywater/libraries/sky130_fd_sc_hd/latest/cells/sdfrtp/sky130_fd_sc_hd__sdfrtp_1.v"
-`include "/research/ece/lnis/Share/OpenFPGA_for_Chip/openfpga_flow/tasks/FPGA22_HIER_SKY_PNR/skywater/libraries/sky130_fd_sc_hd/latest/cells/dfrtp/sky130_fd_sc_hd__dfrtp_1.v"
-`include "/research/ece/lnis/Share/OpenFPGA_for_Chip/openfpga_flow/tasks/FPGA22_HIER_SKY_PNR/CustomModules/digital_io_hd.v"
-`include "/research/ece/lnis/Share/OpenFPGA_for_Chip/openfpga_flow/tasks/FPGA22_HIER_SKY_PNR/CustomModules/sky130_fd_sc_hd_wrapper.v"
+`include "./inv/sky130_fd_sc_hd__inv_1.v"
+`include "/research/ece/lnis/Share/OpenFPGA_for_Chip/openfpga_flow/openfpga_cell_library/verilog/dff.v"
+`include "frac_lut4_arith.v"
+`include "/research/ece/lnis/Share/OpenFPGA_for_Chip/openfpga_flow/openfpga_cell_library/verilog/gpio.v"
+`include "/research/ece/lnis/Share/OpenFPGA_for_Chip/openfpga_flow/openfpga_cell_library/verilog/mux2.v"
+`include "/research/ece/lnis/Share/OpenFPGA_for_Chip/openfpga_flow/openfpga_cell_library/verilog/frac_mult_18x18.v"
 // ------ Include primitive module netlists -----
 `include "./SRC/sub_module/inv_buf_passgate.v"
 `include "./SRC/sub_module/arch_encoder.v"
@@ -35,18 +32,21 @@
 // ------ Include logic block netlists -----
 `include "./SRC/lb/logical_tile_io_mode_physical__iopad.v"
 `include "./SRC/lb/logical_tile_io_mode_io_.v"
-`include "./SRC/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic_mode_default__frac_lut4.v"
-`include "./SRC/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic_mode_default__carry_follower.v"
+`include "./SRC/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic_mode_default__frac_lut4_arith.v"
 `include "./SRC/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic.v"
 `include "./SRC/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__ff.v"
 `include "./SRC/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric.v"
 `include "./SRC/lb/logical_tile_clb_mode_default__fle.v"
 `include "./SRC/lb/logical_tile_clb_mode_clb_.v"
+`include "./SRC/lb/logical_tile_mult_18_mode_mult_18x18__mult_18x18_slice_mode_default__mult_18x18.v"
+`include "./SRC/lb/logical_tile_mult_18_mode_mult_18x18__mult_18x18_slice.v"
+`include "./SRC/lb/logical_tile_mult_18_mode_mult_18_.v"
 `include "./SRC/lb/grid_io_top_top.v"
 `include "./SRC/lb/grid_io_right_right.v"
 `include "./SRC/lb/grid_io_bottom_bottom.v"
 `include "./SRC/lb/grid_io_left_left.v"
 `include "./SRC/lb/grid_clb.v"
+`include "./SRC/lb/grid_mult_18.v"
 
 // ------ Include routing module netlists -----
 `include "./SRC/routing/sb_0__0_.v"

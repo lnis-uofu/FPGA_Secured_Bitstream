@@ -17,6 +17,8 @@ module pmu
     output td_o,
 
     //2x2 FPGA Interface
+    output config_readback,
+    output config_enable,
     output progclk_o,
     output pReset_o,
     output fpga_rst,
@@ -97,6 +99,8 @@ module pmu
     .rst_i(pmu_rst_w),
     .en_i(pmu_en_w),
     .tck_i(pmu_tck_w),
+    .config_readback(),
+    .config_enable(),
     .progclk_o(progclk_o),
     .pReset(pReset_o),
     .fpga_rst(fpga_rst),

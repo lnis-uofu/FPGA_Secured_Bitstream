@@ -3,14 +3,18 @@
 //	Description: Verilog modules for Unique Connection Blocks[1][1]
 //	Author: Xifan TANG
 //	Organization: University of Utah
+//	Date: Mon Aug  8 10:08:34 2022
 //-------------------------------------------
 //----- Time scale -----
 `timescale 1ns / 1ps
 
 //----- Default net type -----
+`default_nettype wire
 
 // ----- Verilog module for cby_1__1_ -----
-module cby_1__1_(pReset,
+module cby_1__1_(config_readback,
+                 config_enable,
+                 pReset,
                  prog_clk,
                  chany_bottom_in,
                  chany_top_in,
@@ -34,6 +38,10 @@ module cby_1__1_(pReset,
                  left_grid_right_width_0_height_0_subtile_0__pin_I7i_0_,
                  left_grid_right_width_0_height_0_subtile_0__pin_I7i_1_,
                  ccff_tail);
+//----- GLOBAL PORTS -----
+input [0:0] config_readback;
+//----- GLOBAL PORTS -----
+input [0:0] config_enable;
 //----- GLOBAL PORTS -----
 input [0:0] pReset;
 //----- GLOBAL PORTS -----
@@ -433,6 +441,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.out(left_grid_right_width_0_height_0_subtile_0__pin_I7i_0_));
 
 	mux_tree_tapbuf_size12_mem mem_right_ipin_0 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(ccff_head),
@@ -440,6 +450,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size12_0_sram[0:3]));
 
 	mux_tree_tapbuf_size12_mem mem_right_ipin_2 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size10_mem_0_ccff_tail),
@@ -447,6 +459,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size12_1_sram[0:3]));
 
 	mux_tree_tapbuf_size12_mem mem_right_ipin_4 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size10_mem_1_ccff_tail),
@@ -454,6 +468,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size12_2_sram[0:3]));
 
 	mux_tree_tapbuf_size12_mem mem_right_ipin_6 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size10_mem_2_ccff_tail),
@@ -461,6 +477,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size12_3_sram[0:3]));
 
 	mux_tree_tapbuf_size12_mem mem_right_ipin_8 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size10_mem_3_ccff_tail),
@@ -468,6 +486,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size12_4_sram[0:3]));
 
 	mux_tree_tapbuf_size12_mem mem_right_ipin_10 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size10_mem_4_ccff_tail),
@@ -475,6 +495,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size12_5_sram[0:3]));
 
 	mux_tree_tapbuf_size12_mem mem_right_ipin_12 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size10_mem_5_ccff_tail),
@@ -482,6 +504,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size12_6_sram[0:3]));
 
 	mux_tree_tapbuf_size12_mem mem_right_ipin_14 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size10_mem_6_ccff_tail),
@@ -537,6 +561,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.out(left_grid_right_width_0_height_0_subtile_0__pin_I7i_1_));
 
 	mux_tree_tapbuf_size10_mem mem_right_ipin_1 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size12_mem_0_ccff_tail),
@@ -544,6 +570,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size10_0_sram[0:3]));
 
 	mux_tree_tapbuf_size10_mem mem_right_ipin_3 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size12_mem_1_ccff_tail),
@@ -551,6 +579,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size10_1_sram[0:3]));
 
 	mux_tree_tapbuf_size10_mem mem_right_ipin_5 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size12_mem_2_ccff_tail),
@@ -558,6 +588,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size10_2_sram[0:3]));
 
 	mux_tree_tapbuf_size10_mem mem_right_ipin_7 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size12_mem_3_ccff_tail),
@@ -565,6 +597,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size10_3_sram[0:3]));
 
 	mux_tree_tapbuf_size10_mem mem_right_ipin_9 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size12_mem_4_ccff_tail),
@@ -572,6 +606,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size10_4_sram[0:3]));
 
 	mux_tree_tapbuf_size10_mem mem_right_ipin_11 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size12_mem_5_ccff_tail),
@@ -579,6 +615,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size10_5_sram[0:3]));
 
 	mux_tree_tapbuf_size10_mem mem_right_ipin_13 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size12_mem_6_ccff_tail),
@@ -586,6 +624,8 @@ wire [0:0] mux_tree_tapbuf_size12_mem_7_ccff_tail;
 		.mem_out(mux_tree_tapbuf_size10_6_sram[0:3]));
 
 	mux_tree_tapbuf_size10_mem mem_right_ipin_15 (
+		.config_readback(config_readback),
+		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_tapbuf_size12_mem_7_ccff_tail),
@@ -596,6 +636,7 @@ endmodule
 // ----- END Verilog module for cby_1__1_ -----
 
 //----- Default net type -----
+`default_nettype none
 
 
 
