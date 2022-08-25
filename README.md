@@ -13,7 +13,7 @@ source setup_enc.csh
 ```
 
 ## Introduction
-The Programmign Management Unit will serve as a macro that can be placed near a FPGA to handle bitstream loading. While the primary functonalty of the PMU is to load a bitstream into an FPGA Core it will also incoroporate some hardware security and integrity features. This is in reponse to the need for OpenFPGA to be able to incoporate some hardware security IPs to FPGA designs. To accurately access the level of protetection the secuiry features provide to the FPGA/FPGA bitstream, an iterative apprach to the PMU design will be taken starting with version one. The iterative approach is currently defined by a threat model shown in Figure 1. As of today the primary objectives of the PMU is to accurately transfer bitstream data to the core and protect the IP that lies within a bitstream using AES. The final version of the PMU will resembel a RISC-V core that incorporates all the features of the previous PMU versions as well as post fabrication feature implementation and programming of multiple FPGA configuration chains. 
+The Programmign Management Unit will serve as a macro that can be placed near a FPGA to handle bitstream loading. While the primary functonalty of the PMU is to load a bitstream into an FPGA Core it will also incoroporate some hardware security and data integrity features. This is in reponse to the need for OpenFPGA to be able to incoporate some hardware security IPs to its FPGA design framework. To accurately access the level of protetection the security features provide to the FPGA/FPGA bitstream, an iterative apprach to the PMU design will be taken starting with version one. The iterative approach is currently defined by a threat model shown in Figure 1. As of today the PMU version 3 is capable of 8 instructions for loading a bistream with the options of using AES encription and/or SHA authentication. The FSM contained in this macro intreprets a serially encoded "pmu header" that is appened to a plaintext bitstream, ciphertext bitstream, or cipher key. This version of the PMU also features some testing features encure accurate loading of the correct bitsteam to the FPGA core. With that, the final version of the PMU will resembel a RISC-V core that incorporates all the features of the previous PMU versions as well as post fabrication feature implementation and programming of multiple FPGA configuration chains. 
 
 <p>
   <img src="/docs/figures/ThreatModel.png">
@@ -21,7 +21,7 @@ The Programmign Management Unit will serve as a macro that can be placed near a 
 
 ## Programming Management Unit: PMU
 ### Version 3
-  PMU V3 consists of a JTAG Tap Controller, PMU FSM, with SHA and AES cores. Version 3 incoportates AES for bitstream encryption and SHA for bitstream data integrity and user authentication. A hierarchial overview is shown in Figure 2 and mored detailed diagrams of each block are presented later in the README.
+  PMU V3 consists of a JTAG Tap Controller, PMU FSM, with SHA and AES interfaces. Version 3 incoportates AES for bitstream encryption and SHA for bitstream data integrity and user authentication. A hierarchial overview is shown in Figure 2 and mored detailed diagrams of each block are presented later in the README.
   
   
  <p align="center">
