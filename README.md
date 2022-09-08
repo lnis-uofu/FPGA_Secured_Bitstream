@@ -21,7 +21,7 @@ The Programmign Management Unit will serve as a macro that can be placed near a 
   
   
  <p align="center">
-  <img src="/docs/figures/hierarchy_overview.png">
+  <img src="/docs/figures/PMU_caravel.png">
 </p>
 
 # TO BE UPDATED
