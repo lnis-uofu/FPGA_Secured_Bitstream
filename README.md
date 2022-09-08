@@ -17,7 +17,7 @@ The Programmign Management Unit will serve as a macro that can be placed near a 
 
 ## Programming Management Unit: PMU
 ### Version 3
-  PMU V3 consists of a JTAG Tap Controller, PMU FSM, with SHA and AES interfaces. Version 3 incoportates AES for bitstream encryption and SHA for bitstream data integrity and user authentication. A hierarchial overview is shown in Figure 2 and mored detailed diagrams of each block are presented later in the README.
+  PMU V3 consists of a JTAG Tap Controller, PMU FSM, with SHA and AES interfaces. Version 3 incoportates AES for bitstream encryption and SHA for bitstream data integrity and user authentication. Since PMU version 3 was implemented as a test chip the hierarchial overview of the test chip is shown in Figure 2 and mored detailed organizatioin of the blocks within the PMU are presented later in the README.
   
   
  <p align="center">
@@ -27,20 +27,6 @@ The Programmign Management Unit will serve as a macro that can be placed near a 
 # TO BE UPDATED
 
 ### Encoding Scheme
-PMU V1 is capable of intrepreting two encoding schemes: one with CRC data integrity check and one without. To be compliant with JTAG communicaton protocol the bitstream encoding requires two signals: tdi and tms. Tdi contains the bitstream data and JTAG instructions. The tms signal controls the tap controller fsm and consists of a tms header to initialze tap controller and a footer to reset tap contoller. It is filled with zeros between the header and footer to work simutaneouly with tdi signal. The high level overview of the encoding scheme is shown in Figure 4. 
- <p align="center">
-  <img src="/docs/figures/encode.png">
-</p>
-
-The encoding scheme that contains CRC information contains a JTAG header and footer, a header that contains information about the number of 64-bit packets and the number of bits %64 (modulo remainder) depending on the size of the Bitstream. For example in the testbench provided there are 2250 bits of bitstream. Therefore there are 35 packets of data + 1 packet of header + 10 bits of %64 remainder (when CRC is enabled the 10 remaing bits are padded to make a 64-bit data packet with 8-bit CRC Key). Therefore in total there are 37 packets and %64 remainder of 10. Each "packet" contains 64 bits of bitstream data and 8-bits or CRC key. The high level overview of the encoding scheme is shown in Figure 4. A "packet" for the encodign scheme with CRC is shown below. 
- <p align="center">
-  <img src="/docs/figures/packet1.png">
-</p>
-
-The encoding scheme without CRC is similar to the scheme with CRC however the "packets" differ because they do not contain a CRC key. Additionally it does not add padding to the final packet. A "packet" for the encodign scheme without CRC is shown below. 
- <p align="center">
-  <img src="/docs/figures/packet2.png">
-</p>
 
 
 ### Blocks
@@ -52,13 +38,6 @@ The PMU contains an FSM that intpretes the the encoding scheme and control signa
 
  <p align="center">
   <img src="/docs/figures/FSM_decision_tree.png">
-</p>
-
-##### CRC8
-This is a classic implementation of cyclic redundancy check that relies on polynomial arithmetic in finite field F2 raised to the power of 8. The linear feedback shift register(LFSR) circuit shown below is contaned inside the CRC8 module. The LFSR below implemets CRC over F2 raised to 8 using the generating polynomial G(x) = X^8 + X^7 + X^6 + X^5 + X^3 + X + 1. It operates by shifting in n number of data bits + 8 bits of '0' padding through the shift register. Once the n bits of data plus 8-bits of padding the CRC key is the value in the LFSR. If this value is then appened to the data and again given to the LFSR the value in the LFSR should be zero. If the value is not zero it indicates that there was an error or bit flip in the data. Some basic reference to LFSRs and how they work can be forun [here](https://www.eng.auburn.edu/~strouce/class/elec6250/LFSRs.pdf).
-
-<p align="center">
-  <img src="/docs/figures/CRC8.png"> 
 </p>
 
 #### Scripts
@@ -74,3 +53,5 @@ Information about testing is [here](https://github.com/lnis-uofu/FPGA_Secured_Bi
 ## Acknoledgements
 - [MAC_unit_systolic](https://github.com/lnis-uofu/MAC_unit_systolic): Repository Organization
 - [JTAG](https://github.com/freecores/jtag): JTAG implementation from OpenCores
+- [AES](https://github.com/secworks/aes) AES-128b
+- [SHA](https://github.com/secworks/sha256) SHA-256b
