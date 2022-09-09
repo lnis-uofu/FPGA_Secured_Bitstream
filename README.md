@@ -26,19 +26,24 @@ The Programmign Management Unit will serve as a macro that can be placed near a 
 
 # TO BE UPDATED
 
-### PMU Instructions and Encoding Scheme
-Since the PMU is capable of using AES and SHA separately or combined, it creates the need for several encoding schemes. For example, if you want to load a bitstream without utilizing any of the PMUs security features, the instruction header can be reduced to only contain the instruction. This is to avoid any extra informationi being left in the bitstream, which could include information like public/private key combinitations for asymetric cipher blocks. Since almost all 7 instructions have a unique encoding format, each instruction will be listed here with the appropriate bitstream encoding mechanisms. 
+### PMU Instructions/Encoding Scheme
+Since the PMU is capable of using AES and SHA separately or combined, it creates the need for several encoding schemes. For example, if you want to load a bitstream without utilizing any of the PMUs security features, the instruction header can be reduced to only contain the instruction. This is to avoid any extra informationi being left in the bitstream, which could include information like public/private key combinitations for asymetric cipher blocks. Since almost all 7 instructions have a unique encoding format, each instruction will be listed here with the appropriate bitstream encoding mechanisms. Instruction binary values chosen such that the done resemble and common brute force attacks like sending a string of alternating values. ie. '10101'.
 
-#### LOAD KEY
-#### LOAD BITSTREAM
-#### PUSH BITSTREAM
+#### INSTRUCTIONS
 
-#### LOAD KEY SHA
-#### LOAD BITSTREAM SHA
+#### LOAD KEY                 '00101'
 
-#### LOAD BITSTREAM AES
+#### LOAD BITSTREAM           '00111'
 
-#### LOAD BITSTREAM +SHA +AES
+#### PUSH BITSTREAM           '10111'
+
+#### LOAD KEY SHA             '00110'
+
+#### LOAD BITSTREAM SHA       '11001'
+
+#### LOAD BITSTREAM AES       '01101'
+
+#### LOAD BITSTREAM +SHA +AES '11010'
 
 ### Blocks
 ##### JTAG TAP Controller
