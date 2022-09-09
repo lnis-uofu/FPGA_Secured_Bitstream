@@ -27,7 +27,8 @@ The Programmign Management Unit will serve as a macro that can be placed near a 
 # TO BE UPDATED
 
 ### PMU Instructions/Encoding Scheme
-Since the PMU is capable of using AES and SHA separately or combined, it creates the need for several encoding schemes. For example, if you want to load a bitstream without utilizing any of the PMUs security features, the instruction header can be reduced to only contain the instruction. This is to avoid any extra informationi being left in the bitstream, which could include information like public/private key combinitations for asymetric cipher blocks. Since almost all 7 instructions have a unique encoding format, each instruction will be listed here with the appropriate bitstream encoding mechanisms. The names of the instructions reflect their operation can be categorized as: loading a key, loading a bitstream, or pushing the bitstream from the fpga core. With that AES or SHA engines can be used to improve the security achieved in each category. For example the PMU can load a key without AES or SHA and then use both cipher cores when loading the bitstream to ensure its authenticy and protect the plain text bitstream. Instruction binary values chosen such that the done resemble and common brute force attacks like sending a string of alternating values. ie. '10101'.
+Since the PMU is capable of using AES and SHA separately or combined, it creates the need for several encoding schemes. For example, if you want to load a bitstream without utilizing any of the PMUs security features, the instruction header can be reduced to only contain the instruction. This is to avoid any extra informationi being left in the bitstream, which could include information like public/private key combinitations for asymetric cipher blocks. Since almost all 7 instructions have a unique encoding format, each instruction will be listed here with the appropriate bitstream encoding mechanisms. The names of the instructions reflect their operation can be categorized as: loading a key, loading a bitstream, or pushing the bitstream from the fpga core. With that AES or SHA engines can be used to improve the security achieved in each category. 
+For example the PMU can load a key without AES or SHA and then use both cipher cores when loading the bitstream to ensure its authenticy and protect the plain text bitstream. Then using the "push bitstream" instruction the user can read out the plaintext value loaded into the FPGA core. This instructions is solely for testing purposes and would not be implemented in anything but a testchip. Instruction binary values chosen such that the done resemble and common brute force attacks like sending a string of alternating values. ie. '10101'.
 
 #### INSTRUCTIONS
 
@@ -55,6 +56,9 @@ The PMU contains an FSM that intpretes the the encoding scheme and control signa
  <p align="center">
   <img src="/docs/figures/FSM_decision_tree.png">
 </p>
+
+##### Note on Key Storage
+Due to the limitations of the skywater130 pdk PMU v3 uses registers to store the AES key. Ideally this key would be stored in a custom 128b ePROM/FLASH write only memory or the another key manage approach would be to utilize a rolling AES key as has been done in Xillinx FPGAs. From a hardware security perspective cipher key storage is considered one of the biggest weaknesses of a system. However, the scope of the project ends at key management techniques as this aspect of the design could be left to another research project.
 
 #### Scripts
 Included there is a [python script](https://github.com/lnis-uofu/FPGA_Secured_Bitstream/blob/v1/scripts/V1_encode.py) used to generate the bitstream with the encoding scheme and without used for pmu_top functional testing. This python script can be used as a temlplate to generate similar encdoded bitstreams. Future versions of the PMU will include more user friendly versions of this bitstream encoding script. 
