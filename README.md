@@ -31,19 +31,19 @@ Since the PMU is capable of using AES and SHA separately or combined, it creates
 
 #### INSTRUCTIONS
 
-#### LOAD KEY                 '00101'
+#### '00101' LOAD KEY
 
-#### LOAD BITSTREAM           '00111'
+#### '00111' LOAD BITSTREAM
 
-#### PUSH BITSTREAM           '10111'
+#### '10111' PUSH BITSTREAM
 
-#### LOAD KEY SHA             '00110'
+#### '00110' LOAD KEY SHA
 
-#### LOAD BITSTREAM SHA       '11001'
+#### '11001' LOAD BITSTREAM SHA
 
-#### LOAD BITSTREAM AES       '01101'
+#### '01101' LOAD BITSTREAM AES
 
-#### LOAD BITSTREAM +SHA +AES '11010'
+#### '11010' LOAD BITSTREAM +SHA +AES
 
 ### Blocks
 ##### JTAG TAP Controller
