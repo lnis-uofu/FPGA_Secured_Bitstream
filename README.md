@@ -48,7 +48,7 @@ For example the PMU can load a key without AES or SHA and then use both cipher c
 
 ### Blocks
 ##### JTAG TAP Controller
-The PMU utilizes a JTAG implementation from OpenCores found [here](https://github.com/freecores/jtag) as a template. Two new instrutcions: pmu_w_cs and pmu_wo_cs are added along with some control and data singals for the PMU. These two instructions are intrepreted by the tap controller and have to purpose of loading a bitstream with and without activating a checksum (CRC8).  
+The PMU utilizes a JTAG implementation from OpenCores found [here](https://github.com/freecores/jtag) as a template. A new instruction is added to enable and route serial data to the pmu core. 
 
 ##### PMU FSM
 The PMU contains an FSM that intpretes the the encoding scheme and control signals from JTAG tap_controller. This FSM was designed based on the decision tree below. PMU version 1 has two main functions loading a bitstream with checksum and loading a bitstream without employing a checksum. In this version CRC8 is being used to calculate a checksum. These two operations are controlled with the checksum_en_i singal. If checksum is enabled and it fails due to errors in the bitstream or CRC keys it will reset both the JTAG tap controller and the FPGA core such that incorrect data is not loaded into the bitstream. The FSM uses counters to contorl the movement between states and correctly intrepret the encoded bitstream.
