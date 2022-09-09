@@ -1,4 +1,4 @@
-# PMU V3: Bitstream Loader with JTAG interface
+# PMU V3: Secure Bitstream Loader with JTAG interface
 
 ## Getting Started
 
@@ -27,7 +27,7 @@ The Programmign Management Unit will serve as a macro that can be placed near a 
 # TO BE UPDATED
 
 ### PMU Instructions/Encoding Scheme
-Since the PMU is capable of using AES and SHA separately or combined, it creates the need for several encoding schemes. For example, if you want to load a bitstream without utilizing any of the PMUs security features, the instruction header can be reduced to only contain the instruction. This is to avoid any extra informationi being left in the bitstream, which could include information like public/private key combinitations for asymetric cipher blocks. Since almost all 7 instructions have a unique encoding format, each instruction will be listed here with the appropriate bitstream encoding mechanisms. Instruction binary values chosen such that the done resemble and common brute force attacks like sending a string of alternating values. ie. '10101'.
+Since the PMU is capable of using AES and SHA separately or combined, it creates the need for several encoding schemes. For example, if you want to load a bitstream without utilizing any of the PMUs security features, the instruction header can be reduced to only contain the instruction. This is to avoid any extra informationi being left in the bitstream, which could include information like public/private key combinitations for asymetric cipher blocks. Since almost all 7 instructions have a unique encoding format, each instruction will be listed here with the appropriate bitstream encoding mechanisms. The names of the instructions reflect their operation can be categorized as: loading a key, loading a bitstream, or pushing the bitstream from the fpga core. With that AES or SHA engines can be used to improve the security achieved in each category. For example the PMU can load a key without AES or SHA and then use both cipher cores when loading the bitstream to ensure its authenticy and protect the plain text bitstream. Instruction binary values chosen such that the done resemble and common brute force attacks like sending a string of alternating values. ie. '10101'.
 
 #### INSTRUCTIONS
 
