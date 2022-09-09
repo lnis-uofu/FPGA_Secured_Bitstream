@@ -3,18 +3,17 @@
 //	Description: Verilog modules for pb_type: fabric
 //	Author: Xifan TANG
 //	Organization: University of Utah
-//	Date: Mon Aug  8 10:08:34 2022
+//	Date: Tue Aug 16 10:20:30 2022
 //-------------------------------------------
 //----- Time scale -----
 `timescale 1ns / 1ps
 
 // ----- BEGIN Physical programmable logic block Verilog module: fabric -----
 //----- Default net type -----
-`default_nettype none
+`default_nettype wire
 
 // ----- Verilog module for logical_tile_clb_mode_default__fle_mode_physical__fabric -----
-module logical_tile_clb_mode_default__fle_mode_physical__fabric(config_readback,
-                                                                config_enable,
+module logical_tile_clb_mode_default__fle_mode_physical__fabric(config_enable,
                                                                 pReset,
                                                                 prog_clk,
                                                                 Test_en,
@@ -29,46 +28,44 @@ module logical_tile_clb_mode_default__fle_mode_physical__fabric(config_readback,
                                                                 fabric_cout,
                                                                 ccff_tail);
 //----- GLOBAL PORTS -----
-input wire [0:0] config_readback;
+input [0:0] config_enable;
 //----- GLOBAL PORTS -----
-input wire [0:0] config_enable;
+input [0:0] pReset;
 //----- GLOBAL PORTS -----
-input wire [0:0] pReset;
+input [0:0] prog_clk;
 //----- GLOBAL PORTS -----
-input wire [0:0] prog_clk;
-//----- GLOBAL PORTS -----
-input wire [0:0] Test_en;
+input [0:0] Test_en;
 //----- INPUT PORTS -----
-input wire [0:3] fabric_in;
+input [0:3] fabric_in;
 //----- INPUT PORTS -----
-input wire [0:0] fabric_sc_in;
+input [0:0] fabric_sc_in;
 //----- INPUT PORTS -----
-input wire [0:0] fabric_cin;
+input [0:0] fabric_cin;
 //----- INPUT PORTS -----
-input wire [0:0] fabric_reset;
+input [0:0] fabric_reset;
 //----- INPUT PORTS -----
-input wire [0:0] fabric_clk;
+input [0:0] fabric_clk;
 //----- INPUT PORTS -----
-input wire [0:0] ccff_head;
+input [0:0] ccff_head;
 //----- OUTPUT PORTS -----
-output wire [0:1] fabric_out;
+output [0:1] fabric_out;
 //----- OUTPUT PORTS -----
-output wire [0:0] fabric_sc_out;
+output [0:0] fabric_sc_out;
 //----- OUTPUT PORTS -----
-output wire [0:0] fabric_cout;
+output [0:0] fabric_cout;
 //----- OUTPUT PORTS -----
-output wire [0:0] ccff_tail;
+output [0:0] ccff_tail;
 
-/* //----- BEGIN wire-connection ports ----- */
-/* wire [0:3] fabric_in; */
-/* wire [0:0] fabric_sc_in; */
-/* wire [0:0] fabric_cin; */
-/* wire [0:0] fabric_reset; */
-/* wire [0:0] fabric_clk; */
-/* wire [0:1] fabric_out; */
-/* wire [0:0] fabric_sc_out; */
-/* wire [0:0] fabric_cout; */
-/* //----- END wire-connection ports ----- */
+//----- BEGIN wire-connection ports -----
+wire [0:3] fabric_in;
+wire [0:0] fabric_sc_in;
+wire [0:0] fabric_cin;
+wire [0:0] fabric_reset;
+wire [0:0] fabric_clk;
+wire [0:1] fabric_out;
+wire [0:0] fabric_sc_out;
+wire [0:0] fabric_cout;
+//----- END wire-connection ports -----
 
 
 //----- BEGIN Registered ports -----
@@ -95,10 +92,10 @@ wire [0:0] logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default
 wire [0:0] logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic_0_ccff_tail;
 wire [0:0] logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic_0_frac_logic_cout;
 wire [0:1] logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic_0_frac_logic_out;
-wire [0:1] mux_fabric_out_0_undriven_sram_inv;
-wire [0:1] mux_fabric_out_1_undriven_sram_inv;
 wire [0:1] mux_tree_size2_0_sram;
+wire [0:1] mux_tree_size2_0_sram_inv;
 wire [0:1] mux_tree_size2_1_sram;
+wire [0:1] mux_tree_size2_1_sram_inv;
 wire [0:0] mux_tree_size2_mem_0_ccff_tail;
 
 // ----- BEGIN Local short connections -----
@@ -107,7 +104,6 @@ wire [0:0] mux_tree_size2_mem_0_ccff_tail;
 // ----- END Local output short connections -----
 
 	logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic_0 (
-		.config_readback(config_readback),
 		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
@@ -120,7 +116,6 @@ wire [0:0] mux_tree_size2_mem_0_ccff_tail;
 
 	logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__ff logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__ff_0 (
 		.Test_en(Test_en),
-		.config_readback(config_readback),
 		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
@@ -134,7 +129,6 @@ wire [0:0] mux_tree_size2_mem_0_ccff_tail;
 
 	logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__ff logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__ff_1 (
 		.Test_en(Test_en),
-		.config_readback(config_readback),
 		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
@@ -149,32 +143,32 @@ wire [0:0] mux_tree_size2_mem_0_ccff_tail;
 	mux_tree_size2 mux_fabric_out_0 (
 		.in({logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__ff_0_ff_Q, logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic_0_frac_logic_out[0]}),
 		.sram(mux_tree_size2_0_sram[0:1]),
-		.sram_inv(mux_fabric_out_0_undriven_sram_inv[0:1]),
+		.sram_inv(mux_tree_size2_0_sram_inv[0:1]),
 		.out(fabric_out[0]));
 
 	mux_tree_size2 mux_fabric_out_1 (
 		.in({logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__ff_1_ff_Q, logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic_0_frac_logic_out[1]}),
 		.sram(mux_tree_size2_1_sram[0:1]),
-		.sram_inv(mux_fabric_out_1_undriven_sram_inv[0:1]),
+		.sram_inv(mux_tree_size2_1_sram_inv[0:1]),
 		.out(fabric_out[1]));
 
 	mux_tree_size2_mem mem_fabric_out_0 (
-		.config_readback(config_readback),
 		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__ff_1_ccff_tail),
 		.ccff_tail(mux_tree_size2_mem_0_ccff_tail),
-		.mem_out(mux_tree_size2_0_sram[0:1]));
+		.mem_out(mux_tree_size2_0_sram[0:1]),
+		.mem_outb(mux_tree_size2_0_sram_inv[0:1]));
 
 	mux_tree_size2_mem mem_fabric_out_1 (
-		.config_readback(config_readback),
 		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(mux_tree_size2_mem_0_ccff_tail),
 		.ccff_tail(ccff_tail),
-		.mem_out(mux_tree_size2_1_sram[0:1]));
+		.mem_out(mux_tree_size2_1_sram[0:1]),
+		.mem_outb(mux_tree_size2_1_sram_inv[0:1]));
 
 	direct_interc direct_interc_0_ (
 		.in(logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__ff_1_ff_Q),
@@ -240,7 +234,7 @@ endmodule
 // ----- END Verilog module for logical_tile_clb_mode_default__fle_mode_physical__fabric -----
 
 //----- Default net type -----
-`default_nettype none
+`default_nettype wire
 
 
 

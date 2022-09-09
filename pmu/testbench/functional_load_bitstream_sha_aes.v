@@ -30,8 +30,7 @@ module functional_load_bitstream_sha_aes;
     
     reg clk = 0; 
     // FPGA Wires
-    wire config_readback;
-    wire config_enable;
+    wire config_enable_w;
     wire prog_clk;
     //wire pReset;
     //wire data_o;
@@ -97,8 +96,7 @@ module functional_load_bitstream_sha_aes;
         .rst_i(rst_i),
         .tdi_i(tdi_i),
         .td_o(),
-        .config_readback(config_readback),
-        .config_enable(config_enable),
+        .config_enable(config_enable_w),
         .progclk_o(prog_clk),
         .pReset_o(pReset),
         .fpga_rst(fpga_rst),
@@ -161,15 +159,14 @@ module functional_load_bitstream_sha_aes;
         (
         .clk(clk & fpga_o_clk_en),
         .reset(fpga_rst), 
-        .config_readback(config_readback),
-        .config_enable(config_enable),
+        .config_enable(config_enable_w),
         .pReset(pReset),
         .prog_clk(prog_clk),  ///prog_clk
         .Test_en(test_en),
         .IO_ISOL_N(IO),
-		.gfpga_pad_EMBEDDED_IO_HD_SOC_IN(gfpga_pad_EMBEDDED_IO_HD_SOC_IN[0:`FPGA_IO_SIZE - 1]),
-		.gfpga_pad_EMBEDDED_IO_HD_SOC_OUT(gfpga_pad_EMBEDDED_IO_HD_SOC_OUT[0:`FPGA_IO_SIZE - 1]),
-		.gfpga_pad_EMBEDDED_IO_HD_SOC_DIR(gfpga_pad_EMBEDDED_IO_HD_SOC_DIR[0:`FPGA_IO_SIZE - 1]),        
+		.gfpga_pad_sofa_plus_io_SOC_IN(gfpga_pad_EMBEDDED_IO_HD_SOC_IN[0:`FPGA_IO_SIZE - 1]),
+		.gfpga_pad_sofa_plus_io_SOC_OUT(gfpga_pad_EMBEDDED_IO_HD_SOC_OUT[0:`FPGA_IO_SIZE - 1]),
+		.gfpga_pad_sofa_plus_io_SOC_DIR(gfpga_pad_EMBEDDED_IO_HD_SOC_DIR[0:`FPGA_IO_SIZE - 1]),        
         .ccff_head(data_o),
         .ccff_tail(ccff_wire)
         );

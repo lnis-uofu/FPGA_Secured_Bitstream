@@ -3,7 +3,7 @@
 //	Description: Fabric Netlist Summary
 //	Author: Xifan TANG
 //	Organization: University of Utah
-//	Date: Mon Aug  8 10:08:34 2022
+//	Date: Tue Aug 16 10:20:30 2022
 //-------------------------------------------
 //----- Time scale -----
 `timescale 1ns / 1ps
@@ -12,12 +12,13 @@
 `include "./SRC/fpga_defines.v"
 
 // ------ Include user-defined netlists -----
-`include "./inv/sky130_fd_sc_hd__inv_1.v"
-`include "/research/ece/lnis/Share/OpenFPGA_for_Chip/openfpga_flow/openfpga_cell_library/verilog/dff.v"
-`include "frac_lut4_arith.v"
-`include "/research/ece/lnis/Share/OpenFPGA_for_Chip/openfpga_flow/openfpga_cell_library/verilog/gpio.v"
-`include "/research/ece/lnis/Share/OpenFPGA_for_Chip/openfpga_flow/openfpga_cell_library/verilog/mux2.v"
-`include "/research/ece/lnis/Share/OpenFPGA_for_Chip/openfpga_flow/openfpga_cell_library/verilog/frac_mult_18x18.v"
+`include "./SRC/sc_verilog/simulationCells.v"
+`include "./SRC/CustomModules/sky130_fd_sc_hd_wrapper.v"
+`include "./SRC/CustomModules/sofa_plus_dff.v"
+`include "./SRC/CustomModules/frac_lut4_arith.v"
+`include "./SRC/CustomModules/sofa_plus_ccff.v"
+`include "./SRC/CustomModules/sofa_plus_io.v"
+`include "./SRC/CustomModules/frac_mult_18_18.v"
 // ------ Include primitive module netlists -----
 `include "./SRC/sub_module/inv_buf_passgate.v"
 `include "./SRC/sub_module/arch_encoder.v"
@@ -38,8 +39,9 @@
 `include "./SRC/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric.v"
 `include "./SRC/lb/logical_tile_clb_mode_default__fle.v"
 `include "./SRC/lb/logical_tile_clb_mode_clb_.v"
-`include "./SRC/lb/logical_tile_mult_18_mode_mult_18x18__mult_18x18_slice_mode_default__mult_18x18.v"
-`include "./SRC/lb/logical_tile_mult_18_mode_mult_18x18__mult_18x18_slice.v"
+`include "./SRC/lb/logical_tile_mult_18_mode_default__mult_18_core_mode_mult_18x18__mult_18x18_slice_mode_default__mult_18x18.v"
+`include "./SRC/lb/logical_tile_mult_18_mode_default__mult_18_core_mode_mult_18x18__mult_18x18_slice.v"
+`include "./SRC/lb/logical_tile_mult_18_mode_default__mult_18_core.v"
 `include "./SRC/lb/logical_tile_mult_18_mode_mult_18_.v"
 `include "./SRC/lb/grid_io_top_top.v"
 `include "./SRC/lb/grid_io_right_right.v"
@@ -59,7 +61,6 @@
 `include "./SRC/routing/sb_2__1_.v"
 `include "./SRC/routing/sb_2__2_.v"
 `include "./SRC/routing/cbx_1__0_.v"
-`include "./SRC/routing/cbx_1__1_.v"
 `include "./SRC/routing/cbx_1__2_.v"
 `include "./SRC/routing/cby_0__1_.v"
 `include "./SRC/routing/cby_1__1_.v"

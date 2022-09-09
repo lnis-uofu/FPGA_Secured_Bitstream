@@ -3,18 +3,17 @@
 //	Description: Verilog modules for pb_type: fle
 //	Author: Xifan TANG
 //	Organization: University of Utah
-//	Date: Mon Aug  8 10:08:34 2022
+//	Date: Tue Aug 16 10:20:30 2022
 //-------------------------------------------
 //----- Time scale -----
 `timescale 1ns / 1ps
 
 // ----- BEGIN Physical programmable logic block Verilog module: fle -----
 //----- Default net type -----
-`default_nettype none
+`default_nettype wire
 
 // ----- Verilog module for logical_tile_clb_mode_default__fle -----
-module logical_tile_clb_mode_default__fle(config_readback,
-                                          config_enable,
+module logical_tile_clb_mode_default__fle(config_enable,
                                           pReset,
                                           prog_clk,
                                           Test_en,
@@ -29,46 +28,44 @@ module logical_tile_clb_mode_default__fle(config_readback,
                                           fle_cout,
                                           ccff_tail);
 //----- GLOBAL PORTS -----
-input wire [0:0] config_readback;
+input [0:0] config_enable;
 //----- GLOBAL PORTS -----
-input wire [0:0] config_enable;
+input [0:0] pReset;
 //----- GLOBAL PORTS -----
-input wire [0:0] pReset;
+input [0:0] prog_clk;
 //----- GLOBAL PORTS -----
-input wire [0:0] prog_clk;
-//----- GLOBAL PORTS -----
-input wire [0:0] Test_en;
+input [0:0] Test_en;
 //----- INPUT PORTS -----
-input wire [0:3] fle_in;
+input [0:3] fle_in;
 //----- INPUT PORTS -----
-input wire [0:0] fle_sc_in;
+input [0:0] fle_sc_in;
 //----- INPUT PORTS -----
-input wire [0:0] fle_cin;
+input [0:0] fle_cin;
 //----- INPUT PORTS -----
-input wire [0:0] fle_reset;
+input [0:0] fle_reset;
 //----- INPUT PORTS -----
-input wire [0:0] fle_clk;
+input [0:0] fle_clk;
 //----- INPUT PORTS -----
-input wire [0:0] ccff_head;
+input [0:0] ccff_head;
 //----- OUTPUT PORTS -----
-output wire [0:1] fle_out;
+output [0:1] fle_out;
 //----- OUTPUT PORTS -----
-output wire [0:0] fle_sc_out;
+output [0:0] fle_sc_out;
 //----- OUTPUT PORTS -----
-output wire [0:0] fle_cout;
+output [0:0] fle_cout;
 //----- OUTPUT PORTS -----
-output wire [0:0] ccff_tail;
+output [0:0] ccff_tail;
 
-/* //----- BEGIN wire-connection ports ----- */
-/* wire [0:3] fle_in; */
-/* wire [0:0] fle_sc_in; */
-/* wire [0:0] fle_cin; */
-/* wire [0:0] fle_reset; */
-/* wire [0:0] fle_clk; */
-/* wire [0:1] fle_out; */
-/* wire [0:0] fle_sc_out; */
-/* wire [0:0] fle_cout; */
-/* //----- END wire-connection ports ----- */
+//----- BEGIN wire-connection ports -----
+wire [0:3] fle_in;
+wire [0:0] fle_sc_in;
+wire [0:0] fle_cin;
+wire [0:0] fle_reset;
+wire [0:0] fle_clk;
+wire [0:1] fle_out;
+wire [0:0] fle_sc_out;
+wire [0:0] fle_cout;
+//----- END wire-connection ports -----
 
 
 //----- BEGIN Registered ports -----
@@ -93,7 +90,6 @@ wire [0:0] logical_tile_clb_mode_default__fle_mode_physical__fabric_0_fabric_sc_
 // ----- END Local output short connections -----
 
 	logical_tile_clb_mode_default__fle_mode_physical__fabric logical_tile_clb_mode_default__fle_mode_physical__fabric_0 (
-		.config_readback(config_readback),
 		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
@@ -161,7 +157,7 @@ endmodule
 // ----- END Verilog module for logical_tile_clb_mode_default__fle -----
 
 //----- Default net type -----
-`default_nettype none
+`default_nettype wire
 
 
 

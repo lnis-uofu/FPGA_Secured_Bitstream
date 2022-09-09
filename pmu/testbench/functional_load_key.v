@@ -36,6 +36,7 @@ module functional_load_key;
     
     
     // FPGA Wires
+    wire config_enable_w;
     wire prog_clk;
     //wire pReset;
     //wire data_o;
@@ -98,6 +99,7 @@ module functional_load_key;
         .rst_i(rst_i),
         .tdi_i(tdi_i),
         .td_o(),
+        .config_enable(config_enable_w),
         .progclk_o(prog_clk),
         .pReset_o(pReset),
         .fpga_rst(fpga_rst),
@@ -156,20 +158,22 @@ module functional_load_key;
         .digest_valid(sha_digest_valid_w)
         );
 
-        /* fpga_top fpga_top_ */
-        /* ( */
-        /* .clk(clk & fpga_o_clk_en), */
-        /* .reset(fpga_rst), //and another wire coming from top caravel level */
-        /* .pReset(pReset), */
-        /* .prog_clk(prog_clk),  ///prog_clk */
-        /* .Test_en(test_en), */
-        /* .IO_ISOL_N(IO), */
-		/* .gfpga_pad_EMBEDDED_IO_HD_SOC_IN(gfpga_pad_EMBEDDED_IO_HD_SOC_IN[0:`FPGA_IO_SIZE - 1]), */
-		/* .gfpga_pad_EMBEDDED_IO_HD_SOC_OUT(gfpga_pad_EMBEDDED_IO_HD_SOC_OUT[0:`FPGA_IO_SIZE - 1]), */
-		/* .gfpga_pad_EMBEDDED_IO_HD_SOC_DIR(gfpga_pad_EMBEDDED_IO_HD_SOC_DIR[0:`FPGA_IO_SIZE - 1]), */        
-        /* .ccff_head(data_o), */
-        /* .ccff_tail(ccff_wire) */
-        /* ); */
+        fpga_top fpga_top_
+        (
+        .clk(clk & fpga_o_clk_en),
+        .reset(fpga_rst), 
+        .config_enable(config_enable_w),
+        .pReset(pReset),
+        .prog_clk(prog_clk),  ///prog_clk
+        .Test_en(test_en),
+        .IO_ISOL_N(IO),
+		.gfpga_pad_sofa_plus_io_SOC_IN(gfpga_pad_EMBEDDED_IO_HD_SOC_IN[0:`FPGA_IO_SIZE - 1]),
+		.gfpga_pad_sofa_plus_io_SOC_OUT(gfpga_pad_EMBEDDED_IO_HD_SOC_OUT[0:`FPGA_IO_SIZE - 1]),
+		.gfpga_pad_sofa_plus_io_SOC_DIR(gfpga_pad_EMBEDDED_IO_HD_SOC_DIR[0:`FPGA_IO_SIZE - 1]),        
+        .ccff_head(data_o),
+        .ccff_tail(ccff_wire)
+        );
+
 
 
         
@@ -190,7 +194,7 @@ module functional_load_key;
     reg [4:0] tms_footer  =  5'b11111;
     // JTAG HEADER/FOOTER ==================
 
-    
+     
 
 
     // ======================================================

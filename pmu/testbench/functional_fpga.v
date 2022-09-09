@@ -13,7 +13,7 @@
 //----- Time scale -----
 `timescale 10ns / 1ps
 `define FPGA_IO_SIZE 24
-`define FPGA_BITSTREAM_SIZE 2655
+`define FPGA_BITSTREAM_SIZE 1966
 
 
 // Design parameter for FPGA I/O sizes
@@ -39,9 +39,12 @@ reg [0:0] prog_clock_reg;
 wire [0:0] op_clock;
 reg [0:0] op_clock_reg;
 reg [0:0] prog_reset;
+reg [0:0] config_en_reg;
 reg [0:0] prog_set;
 reg [0:0] greset;
 reg [0:0] gset;
+wire [0:0] config_en;
+assign config_en = config_en_reg;
 // ---- Configuration-chain head -----
 reg [0:0] ccff_head;
 // ---- Configuration-chain tail -----
@@ -123,6 +126,12 @@ initial
 		gset[0] = 1'b0;
 	end
 
+initial
+    begin 
+        config_en_reg[0] = 1'b0;
+    #10 config_en_reg[0] = 1'b1;
+    end
+
 // ----- End operating set signal generation: always disabled -----
 
 // ----- Begin connecting global ports of FPGA fabric to stimuli -----
@@ -137,13 +146,14 @@ initial
        // .reset(prog_reset[0]),
         .pReset(~prog_reset[0]),
         .reset(~prog_reset[0]),
+        .config_enable(config_en),
 		.prog_clk(prog_clk[0]),
 		.Test_en(Test_en[0]),
 		.clk(clk[0]),
         .IO_ISOL_N(IO_ISOL_N),
-		.gfpga_pad_EMBEDDED_IO_HD_SOC_IN(gfpga_pad_EMBEDDED_IO_HD_SOC_IN[0:`FPGA_IO_SIZE - 1]),
-		.gfpga_pad_EMBEDDED_IO_HD_SOC_OUT(gfpga_pad_EMBEDDED_IO_HD_SOC_OUT[0:`FPGA_IO_SIZE - 1]),
-		.gfpga_pad_EMBEDDED_IO_HD_SOC_DIR(gfpga_pad_EMBEDDED_IO_HD_SOC_DIR[0:`FPGA_IO_SIZE - 1]),
+		.gfpga_pad_sofa_plus_io_SOC_IN(gfpga_pad_EMBEDDED_IO_HD_SOC_IN[0:`FPGA_IO_SIZE - 1]),
+		.gfpga_pad_sofa_plus_io_SOC_OUT(gfpga_pad_EMBEDDED_IO_HD_SOC_OUT[0:`FPGA_IO_SIZE - 1]),
+		.gfpga_pad_sofa_plus_io_SOC_DIR(gfpga_pad_EMBEDDED_IO_HD_SOC_DIR[0:`FPGA_IO_SIZE - 1]),
 		.ccff_head(ccff_head[0]),
 		.ccff_tail(ccff_tail[0])
         );

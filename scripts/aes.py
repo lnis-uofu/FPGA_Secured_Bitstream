@@ -770,16 +770,16 @@ class AES():
             num_rounds = self.AES_256_ROUNDS
 
             # Initial round
-        print("  Initial, partial round.")
+        #print("  Initial, partial round.")
         tmp_block1 = self.addroundkey(round_keys[len(round_keys) - 1], tmp_block)
         tmp_block2 = self.inv_shiftrows(tmp_block1)
         tmp_block4 = self.inv_subbytes(tmp_block2)
 
         # Main rounds
         for i in range(1 , (num_rounds)):
-            print("")
-            print("  Round %02d" % i)
-            print("  ---------")
+            #print("")
+            #print("  Round %02d" % i)
+            #print("  ---------")
 
             tmp_block1 = self.addroundkey(round_keys[(len(round_keys) - i - 1)], tmp_block4)
             tmp_block2 = self.inv_mixcolumns(tmp_block1)
@@ -787,7 +787,7 @@ class AES():
             tmp_block4 = self.inv_subbytes(tmp_block3)
 
         # Final round
-        print("  Final AddRoundKeys round.")
+        #print("  Final AddRoundKeys round.")
         res_block = self.addroundkey(round_keys[0], tmp_block4)
 
         return res_block
@@ -865,9 +865,9 @@ class AES():
         if (self.VERBOSE):
             print("   AES Encipher tests")
             print("   ==================")
-        # tc_errors += self.single_aes_test("Test 0 for AES-128.", "encipher",
-         # nist_aes128_key, nist_plaintext0, nist_exp128_0)
-        # tc += 1
+        tc_errors += self.single_aes_test("Test 0 for AES-128.", "encipher",
+         nist_aes128_key, nist_plaintext0, nist_exp128_0)
+        tc += 1
 
         # tc_errors += self.single_aes_test("Test 1 for AES-128.", "encipher",
          # nist_aes128_key, nist_plaintext1, nist_exp128_1)

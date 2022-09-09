@@ -7,7 +7,6 @@ module pmu
     (
 
     // Clock
-    input  clk_i,
 
     //JTAG Interface   
     input  tms_i,
@@ -17,7 +16,6 @@ module pmu
     output td_o,
 
     //2x2 FPGA Interface
-    output config_readback,
     output config_enable,
     output progclk_o,
     output pReset_o,
@@ -94,13 +92,11 @@ module pmu
 
     pmu_core pmu_core_
     (
-    .clk_i(clk_i),
     .data_i(pmu_tdi_w),
     .rst_i(pmu_rst_w),
     .en_i(pmu_en_w),
-    .tck_i(pmu_tck_w),
-    .config_readback(),
-    .config_enable(),
+    .tck_i(pmu_tck_w), 
+    .config_enable(config_enable),
     .progclk_o(progclk_o),
     .pReset(pReset_o),
     .fpga_rst(fpga_rst),

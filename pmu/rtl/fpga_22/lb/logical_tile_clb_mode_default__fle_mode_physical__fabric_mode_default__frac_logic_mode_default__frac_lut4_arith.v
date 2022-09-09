@@ -3,7 +3,7 @@
 //	Description: Verilog modules for primitive pb_type: frac_lut4_arith
 //	Author: Xifan TANG
 //	Organization: University of Utah
-//	Date: Mon Aug  8 10:08:34 2022
+//	Date: Tue Aug 16 10:20:30 2022
 //-------------------------------------------
 //----- Time scale -----
 `timescale 1ns / 1ps
@@ -12,8 +12,7 @@
 `default_nettype wire
 
 // ----- Verilog module for logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic_mode_default__frac_lut4_arith -----
-module logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic_mode_default__frac_lut4_arith(config_readback,
-                                                                                                                       config_enable,
+module logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic_mode_default__frac_lut4_arith(config_enable,
                                                                                                                        pReset,
                                                                                                                        prog_clk,
                                                                                                                        frac_lut4_arith_in,
@@ -23,8 +22,6 @@ module logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__fr
                                                                                                                        frac_lut4_arith_lut4_out,
                                                                                                                        frac_lut4_arith_cout,
                                                                                                                        ccff_tail);
-//----- GLOBAL PORTS -----
-input [0:0] config_readback;
 //----- GLOBAL PORTS -----
 input [0:0] config_enable;
 //----- GLOBAL PORTS -----
@@ -61,6 +58,7 @@ wire [0:0] frac_lut4_arith_cout;
 
 wire [0:1] frac_lut4_arith_0_mode;
 wire [0:15] frac_lut4_arith_0_sram;
+wire [0:17] frac_lut4_arith_sofa_plus_ccff_mem_undriven_mem_outb;
 
 // ----- BEGIN Local short connections -----
 // ----- END Local short connections -----
@@ -76,20 +74,20 @@ wire [0:15] frac_lut4_arith_0_sram;
 		.lut4_out(frac_lut4_arith_lut4_out),
 		.cout(frac_lut4_arith_cout));
 
-	frac_lut4_arith_CUSTOM_CCFF_mem frac_lut4_arith_CUSTOM_CCFF_mem (
-		.config_readback(config_readback),
+	frac_lut4_arith_sofa_plus_ccff_mem frac_lut4_arith_sofa_plus_ccff_mem (
 		.config_enable(config_enable),
 		.pReset(pReset),
 		.prog_clk(prog_clk),
 		.ccff_head(ccff_head),
 		.ccff_tail(ccff_tail),
-		.mem_out({frac_lut4_arith_0_sram[0:15], frac_lut4_arith_0_mode[0:1]}));
+		.mem_out({frac_lut4_arith_0_sram[0:15], frac_lut4_arith_0_mode[0:1]}),
+		.mem_outb(frac_lut4_arith_sofa_plus_ccff_mem_undriven_mem_outb[0:17]));
 
 endmodule
 // ----- END Verilog module for logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic_mode_default__frac_lut4_arith -----
 
 //----- Default net type -----
-`default_nettype none
+`default_nettype wire
 
 
 

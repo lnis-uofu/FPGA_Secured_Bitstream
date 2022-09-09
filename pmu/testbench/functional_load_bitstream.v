@@ -6,9 +6,10 @@ module functional_load_bitstream;
 
     reg [547:0] bitstream0  = 548'hf123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef012345678;
     reg [935:0] bitstream1  = 936'hf123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789;
-    reg [255:0] bitstream2  = 256'hf123456789abcdef0123546789abcdef0123456789abcdef0123456789abcdef;
+    //reg [255:0] bitstream2  = 256'hf123456789abcdef0123546789abcdef0123456789abcdef0123456789abcdef;
     reg [259:0] bitstream3  = 260'hf0123456789abcdef0123546789abcdef0123456789abcdef0123456789abcdef;
     reg [259:0] bitstream4  = 260'hf0123456789abcdef0123546789abcdef0123456789abcdef0123456789abcdef;
+    reg [255:0] bitstream2  = 256'hf01;
 
     
 
@@ -26,6 +27,7 @@ module functional_load_bitstream;
     
     reg clk = 0; 
     // FPGA Wires
+    wire config_enable_w;
     wire prog_clk;
     //wire pReset;
     //wire data_o;
@@ -84,14 +86,14 @@ module functional_load_bitstream;
 	assign gfpga_pad_EMBEDDED_IO_HD_SOC_IN[0:`FPGA_IO_SIZE - 1] = {`FPGA_IO_SIZE {1'b0}};
 	assign gfpga_pad_EMBEDDED_IO_HD_SOC_OUT[0:`FPGA_IO_SIZE - 1] = {`FPGA_IO_SIZE {1'b0}};
 
-        pmu pmu_
+         pmu pmu_
         (
-        .clk_i(clk),
         .tms_i(tms_i),
         .tck_i(clk),
         .rst_i(rst_i),
         .tdi_i(tdi_i),
         .td_o(),
+        .config_enable(config_enable_w),
         .progclk_o(prog_clk),
         .pReset_o(pReset),
         .fpga_rst(fpga_rst),
@@ -101,16 +103,16 @@ module functional_load_bitstream;
         .key_ready(),
         .core_ready(),
         .locked(),
-        .aes_reset_n_w(aes_reset_n_w),
-        .aes_reset_dec_w(aes_reset_dec_w),
-        .aes_init_w(aes_init_w),
-        .aes_next_w(aes_next_w),
+        .aes_reset_n(aes_reset_n_w),
+        .reset_dec(aes_reset_dec_w),
+        .aes_init(aes_init_w),
+        .aes_next(aes_next_w),
         .aes_wc(aes_wc_w),
         .aes_we(aes_we_w),
         .aes_address(aes_address_w),
         .aes_write_data(aes_write_data_w),
         .aes_read_data(aes_read_data_w),
-        .aes_result_valid_w(aes_result_valid_w),
+        .aes_result_valid(aes_result_valid_w),
         .aes_key_ready(aes_ready_w),
         .sha_reset_n_w(sha_reset_n_w),
         .sha_cs_w(sha_cs_w), 
@@ -133,7 +135,7 @@ module functional_load_bitstream;
         .we(aes_we_w),
         .address(aes_address_w),
         .write_data(aes_write_data_w),
-        .read_data(aes_read_data_),
+        .read_data(aes_read_data_w),
         .key_ready(aes_ready_w),
         .result_valid(aes_result_valid_w)
         );
@@ -149,20 +151,22 @@ module functional_load_bitstream;
         .write_data(sha_write_data_w),
         .digest_valid(sha_digest_valid_w)
         );
-        /* fpga_top fpga_top_ */
-        /* ( */
-        /* .clk(clk & fpga_o_clk_en), */
-        /* .reset(fpga_rst), //and another wire coming from top caravel level */
-        /* .pReset(pReset), */
-        /* .prog_clk(prog_clk),  ///prog_clk */
-        /* .Test_en(test_en), */
-        /* .IO_ISOL_N(IO), */
-		/* .gfpga_pad_EMBEDDED_IO_HD_SOC_IN(gfpga_pad_EMBEDDED_IO_HD_SOC_IN[0:`FPGA_IO_SIZE - 1]), */
-		/* .gfpga_pad_EMBEDDED_IO_HD_SOC_OUT(gfpga_pad_EMBEDDED_IO_HD_SOC_OUT[0:`FPGA_IO_SIZE - 1]), */
-		/* .gfpga_pad_EMBEDDED_IO_HD_SOC_DIR(gfpga_pad_EMBEDDED_IO_HD_SOC_DIR[0:`FPGA_IO_SIZE - 1]), */        
-        /* .ccff_head(data_o), */
-        /* .ccff_tail(ccff_wire) */
-        /* ); */
+
+        fpga_top fpga_top_
+        (
+        .clk(clk & fpga_clk_en),
+        .reset(fpga_rst), 
+        .config_enable(config_enable_w),
+        .pReset(pReset),
+        .prog_clk(prog_clk),  ///prog_clk
+        .Test_en(test_en),
+        .IO_ISOL_N(IO),
+		.gfpga_pad_sofa_plus_io_SOC_IN(gfpga_pad_EMBEDDED_IO_HD_SOC_IN[0:`FPGA_IO_SIZE - 1]),
+		.gfpga_pad_sofa_plus_io_SOC_OUT(gfpga_pad_EMBEDDED_IO_HD_SOC_OUT[0:`FPGA_IO_SIZE - 1]),
+		.gfpga_pad_sofa_plus_io_SOC_DIR(gfpga_pad_EMBEDDED_IO_HD_SOC_DIR[0:`FPGA_IO_SIZE - 1]),        
+        .ccff_head(data_o),
+        .ccff_tail(ccff_wire)
+        );
 
 
         
@@ -184,6 +188,16 @@ module functional_load_bitstream;
     // JTAG HEADER/FOOTER ==================
 
 
+    task load_256 ();
+    begin 
+        for(i = 0; i < 256; i = i + 1)
+        begin
+        tms_i = 0;
+        tdi_i = bitstream2[i];
+        #period;
+        end
+    end
+    endtask
 
 
     // ==================================================
@@ -215,13 +229,22 @@ module functional_load_bitstream;
         #period;
 
     end
-    for(i = 0; i < 548; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = bitstream0[i];
-        #period;
-    end
+    
+    load_256;
+    load_256;
+    load_256;
+    load_256;
+    load_256;
+    load_256;
+    load_256;
+    load_256;
 
+    for(i = 0; i < 174; i = i + 1)
+    begin
+    tms_i = 0;
+    tdi_i = bitstream2[i];
+    #period;
+    end
 
         
     //LOAD JTAG FOOTER

@@ -7,33 +7,26 @@
 `define LOCK                    5'b00010
 `define DECODE                  5'b00011
 `define EVAL_SHA                5'b00100
-`define LOAD_KEY                5'b00101 // DONE
+`define LOAD_KEY                5'b00101 
 `define KEY_INIT                5'b00110 // This is the instruction for loading a key with SHA authentication 
-`define LOAD_BITSTREAM          5'b00111 // DONE
-`define AES_OUT                 5'b01000 // DONE
-/* 5'b01001 */
-/* 5'b01010 */
-/* 5'b01011 */
-/* 5'b01100 */
-`define LOAD_BITSTREAM_AES      5'b01101 // DONE
-/* 5'b01110 */
-/* 5'b01111 */
+`define LOAD_BITSTREAM          5'b00111 
+`define AES_OUT                 5'b01000
+`define LOAD_BITSTREAM_AES      5'b01101
 `define PUSH_BITSTREAM          5'b10111 
-                             /* 5'b11000 */
-`define LOAD_BITSTREAM_SHA      5'b11001 // DONE
+`define LOAD_BITSTREAM_SHA      5'b11001
 `define LOAD_BITSTREAM_SHA_AES  5'b11010
 
 
 
  module pmu_core (
-    input  clk_i,
+
      
     input  data_i,
     input  rst_i,
     input  en_i,
     input  tck_i,
 
-    output config_readback,
+ 
     output config_enable,
     output progclk_o,
     output pReset,
@@ -145,18 +138,17 @@
     assign sha_status_w = sha_status_r;
      
     // FPGA INTERFACE Wires/Register
-    reg config_readback_r;
+
     reg config_enable_r;
     reg progclk_o_r;
     reg pReset_r;
     reg data_o_r;
     reg ccff_en_r;
-    assign config_readback = config_readback_r;
     assign config_enable  = config_enable_r;
     assign progclk_o = progclk_o_r & tck_i;
     assign pReset = pReset_r;
     assign fpga_rst = rst_i;
-    assign fpga_clk = clk_i & core_ready_r;
+    assign fpga_clk = core_ready_r & (state == `IDLE);
     assign data_o = data_o_r;
     assign data_ccff_o = data_ccff_i & ccff_en_r;
     
@@ -1321,21 +1313,19 @@ begin
 end
 
  
-always @ (tck_i, data_i, next_state, buffer_o_r)
+always @ (tck_i, data_i, next_state, buffer_o_r, en_i)
 begin 
     case(state)
         `RESET:
             begin
                 progclk_o_r       = 0;
                 data_o_r          = 0;
-                config_readback_r = 0;
                 config_enable_r   = 0;
             end
         `IDLE:
             begin 
                 progclk_o_r       = 0;
                 data_o_r          = 0;
-                config_readback_r = 0;
                 config_enable_r   = 0;
 
             end
@@ -1343,7 +1333,6 @@ begin
             begin
                 progclk_o_r = 0;
                 data_o_r    = 0;
-                config_readback_r = 0;
                 config_enable_r   = 0;
             end
         `DECODE:
@@ -1351,12 +1340,10 @@ begin
                 if(counter1_o >= 8'h1e && (header[4:0] == `LOAD_BITSTREAM)) begin 
                     progclk_o_r = 1;
                     data_o_r    = data_i;
-                    config_readback_r = 0;
                     config_enable_r   = 1;
                 end else begin 
                     progclk_o_r = 0;
                     data_o_r    = 0;
-                    config_readback_r = 0;
                     config_enable_r   = 0;
                 end
             end
@@ -1365,24 +1352,20 @@ begin
                 if((counter1_o >= 8'hfe && (header[4:0] == `LOAD_BITSTREAM_SHA)) && header[14:5] != 10'b1111111111) begin 
                     progclk_o_r = 1;
                     data_o_r    = data_i;
-                    config_readback_r = 0;
                     config_enable_r   = 1;
                 end else if(counter1_o <= 8'hb2 && sha_status_r && header[14:5] != 10'b1111111111) begin 
                     if(stop_r) begin 
                         progclk_o_r = 0;
                         data_o_r    = 0;
-                        config_readback_r = 0;
                         config_enable_r   = 0;
                     end else begin 
                         progclk_o_r = 1;
                         data_o_r    = buffer_o_r[0];
-                        config_readback_r = 0;
                         config_enable_r   = 1;
                     end 
                  end else begin 
                     progclk_o_r = 0;
                     data_o_r    = 0;
-                    config_readback_r = 0;
                     config_enable_r   = 0;
                 end
             end
@@ -1390,14 +1373,12 @@ begin
             begin 
                 progclk_o_r = 0;
                 data_o_r    = 0;
-                config_readback_r = 0;
                 config_enable_r   = 0;
             end
         `KEY_INIT:
             begin 
                 progclk_o_r = 0;
                 data_o_r    = 0;
-                config_readback_r = 0;
                 config_enable_r   = 0;
             end
         `LOAD_BITSTREAM:
@@ -1405,12 +1386,10 @@ begin
                 if(~en_i) begin 
                     progclk_o_r = 0;
                     data_o_r    = 0;
-                    config_readback_r = 0;
                     config_enable_r   = 0;
                 end else begin
                     data_o_r    = data_i;
                     progclk_o_r = 1;
-                    config_readback_r = 0;
                     config_enable_r   = 1;
                 end
             end
@@ -1419,12 +1398,10 @@ begin
                 if(stop_r) begin 
                     progclk_o_r = 0;
                     data_o_r    = 0;
-                    config_readback_r = 0;
                     config_enable_r   = 0;
                 end else begin 
                     progclk_o_r = 1;
                     data_o_r    = data_i;
-                    config_readback_r = 0;
                     config_enable_r   = 1;
                 end
             end
@@ -1433,12 +1410,10 @@ begin
                 if(sha_status_r) begin 
                     progclk_o_r = 1;
                     data_o_r    = buffer_o_r[0];
-                    config_readback_r = 0;
                     config_enable_r   = 1;
                 end else begin 
                     progclk_o_r = 0;
                     data_o_r    = 0;
-                    config_readback_r = 0;
                     config_enable_r   = 0;
                 end
             end
@@ -1447,12 +1422,10 @@ begin
                 if(en_i) begin 
                     progclk_o_r = 1;
                     data_o_r    = buffer_o_r[0];
-                    config_readback_r = 0;
                     config_enable_r   = 1;
                 end else begin 
                     progclk_o_r = 0;
                     data_o_r = 0;
-                    config_readback_r = 0;
                     config_enable_r   = 0;
                 end
             end
@@ -1461,12 +1434,10 @@ begin
                 if(counter1_o >= 8'hb3 && ~stop_r) begin 
                     progclk_o_r = 1;
                     data_o_r    = buffer_o_r[0];
-                    config_readback_r = 0;
                     config_enable_r   = 1;
                 end else begin 
                     progclk_o_r = 0;
                     data_o_r    = 0;
-                    config_readback_r = 0;
                     config_enable_r   = 0;
                 end
             end
@@ -1474,7 +1445,6 @@ begin
             begin
                 progclk_o_r = 1;
                 data_o_r    = 0;
-                config_readback_r = 0;
                 config_enable_r   = 1;
             end
         default: begin progclk_o_r = 0; data_o_r = 0; end

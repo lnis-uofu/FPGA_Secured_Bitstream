@@ -21,7 +21,7 @@ setenv PROJECT_CONFIG_DIR   ${PROJECT_DIR}/config
 setenv PROJECT_MODULES_DIR  ${PROJECT_DIR}/modules
 setenv PROJECT_SCRIPTS_DIR  ${PROJECT_DIR}/scripts
 
-setenv DISPLAY "lnissrv5.eng.utah.edu:1002"
+setenv DISPLAY "lnissrv4.eng.utah.edu:1006"
 
 # CAD tool directories
 set cad_tools_commun = "/uusoc/facility/cad_tools"

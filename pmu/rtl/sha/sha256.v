@@ -89,7 +89,7 @@ begin
         end
 end
 
-always @ (clk, negedge reset_n)
+always @ (clk)
 begin
     if (~reset_n)
     begin 
