@@ -26,8 +26,19 @@ The Programmign Management Unit will serve as a macro that can be placed near a 
 
 # TO BE UPDATED
 
-### Encoding Scheme
+### PMU Instructions and Encoding Scheme
+Since the PMU is capable of using AES and SHA separately or combined, it creates the need for several encoding schemes. For example, if you want to load a bitstream without utilizing any of the PMUs security features, the instruction header can be reduced to only contain the instruction. This is to avoid any extra informationi being left in the bitstream, which could include information like public/private key combinitations for asymetric cipher blocks. Since almost all 7 instructions have a unique encoding format, each instruction will be listed here with the appropriate bitstream encoding mechanisms. 
 
+#### LOAD KEY
+#### LOAD BITSTREAM
+#### PUSH BITSTREAM
+
+#### LOAD KEY SHA
+#### LOAD BITSTREAM SHA
+
+#### LOAD BITSTREAM AES
+
+#### LOAD BITSTREAM +SHA +AES
 
 ### Blocks
 ##### JTAG TAP Controller
