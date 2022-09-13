@@ -73,5 +73,5 @@ Information about testing is [here](https://github.com/lnis-uofu/FPGA_Secured_Bi
 ## Acknoledgements
 - [MAC_unit_systolic](https://github.com/lnis-uofu/MAC_unit_systolic): Repository Organization
 - [JTAG](https://github.com/freecores/jtag): JTAG implementation from OpenCores
-- [AES](https://github.com/secworks/aes) AES-128b
-- [SHA](https://github.com/secworks/sha256) SHA-256b
+- [AES](https://github.com/secworks/aes): AES-128b
+- [SHA](https://github.com/secworks/sha256): SHA-256b
