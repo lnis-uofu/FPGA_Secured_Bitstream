@@ -1,4 +1,4 @@
-# PMU V3: Secure Bitstream Loader with JTAG interface
+# PMU V3: Secure Bitstream Loader
 
 ## Getting Started
 
