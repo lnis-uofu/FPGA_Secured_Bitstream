@@ -549,7 +549,7 @@ begin
                     aes_we_r = 0;
             end
         `AES_OUT:               aes_we_r = 0;
-       `LOAD_BITSTREAM_SHA_AES: 
+        `LOAD_BITSTREAM_SHA_AES: 
             begin 
                 if(header != 0) begin 
                     case(counter1_o)

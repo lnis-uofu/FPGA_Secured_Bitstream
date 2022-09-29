@@ -29,25 +29,25 @@ def bitstream_encoder():
     # ----------------------------------------------------------------
     # Take the bitstream file and make n array elemets
     # each a string size of 'packet_size'
-    count   = 0
-    packets = 0
-    data    = ''
-    for line in open('./fabric_bitstream.bit'):
-        li=line.strip()
-        if not li.startswith("//"):
-            data = line.rstrip() + data
-            count += 1
+    #count   = 0
+    #packets = 0
+    #data    = ''
+    #for line in open('./fabric_bitstream.bit'):
+    #    li=line.strip()
+    #    if not li.startswith("//"):
+    #        data = line.rstrip() + data
+    #        count += 1
 
-    data = data.zfill(16*128)
+    #data = data.zfill(16*128)
 
-    #print(data, '\n')
+    ##print(data, '\n')
 
-    data_array = [''] * 16
+    #data_array = [''] * 16
 
-    for i in range(0, 16):
-        data_array[i] = str(data[(i*128):((i*128) + 128)])
+    #for i in range(0, 16):
+    #    data_array[i] = str(data[(i*128):((i*128) + 128)])
 
-    print(data_2_aes(data_array[1]))
+    #print(data_2_aes(data_array[1]))
     # print(data_array[0])
     # print(data_array[1])
 
@@ -126,19 +126,99 @@ def bitstream_encoder():
     #    array_encoded[i] = residual
 
 
+class Bitstream(object):
+
+    def __init__(self, instruction, output_file, **kwargs):
+        #self.instruction_dictonary = {'00101': 'load_key'}
+        self.instruction = instruction
+        self.output_file = output_file
+        self.bitstream   = ''
+        self.bitstream_len = 0
+        self.key         = ''
+        self.header      = ''
+        self.tdi         = ''
+        self.tms         = ''
+        self.tdi_header  = '001101100000'
+        self.tdi_footer  = '00000'
+        self.tms_header  = '011000000110'
+        self.tms_footer  = '11111'
+
+    # IMPORT ==================================================
+    def get_bitstream(self):
+        for line in open('./fabric_bitstream.bit'):
+            li=line.strip()
+            if not li.startswith("//"):
+                self.bitstream = line.rstrip() + self.bitstream
+        self.bitstream_len = len(self.bitstream)
+
+    def get_key(self):
+        for line in open('./key.txt'):
+            li = line.strip()
+            self.key = line.rstrip()
+            self.key = f'(0x{self.key[0:8]}), (0x{self.key[9:17]}), (0x{self.key[18:26]}), (0x{self.key[27:35]})'
+
+    def parse_txt_files(self):
+        self.get_bitstream()
+        self.get_key()
+    # IMPORT ==================================================
+
+
+    # PREPARE =================================================
+    def strip_key_hex_2_bin(self):
+        self.key = self.key[3:11] + self.key[17:25] + self.key[31:39] + self.key[45:53]
+        self.key = bin(int(self.key, 16))[2:].zfill(128)
+
+    def load_key(self):
+        self.header = '00000000000000000000000000000101'
+        self.strip_key_hex_2_bin()
+        self.tdi = self.tdi_footer + self.key + self.header + self.tdi_header
+        self.tms = self.tms_footer + ''.zfill(len(self.key) + 32) + self.tms_header
+
+    def load_bitstream(self):
+        self.header = '00000000000000000000000000000111'
+        self.tdi = self.tdi_footer + self.bitstream + self.header + self.tdi_header
+        self.tms = self.tms_footer + ''.zfill(self.bitstream_len + 32) + self.tms_header
+
+    def push_bitstream(self):
+        self.header = '00000000000000000000000000010111'
+        self .tdi = self.tdi_footer + ''.zfill(self.bitstream_len) + self.tdi_header
+        self .tms = self.tms_footer + ''.zfill(self.bitstream_len) + self.tms_header
+
+    def load_key_sha(self):
+        self.header = '00000000000000000000000000000110'
+        self.strip_key_hex_2_bin()
 
 
 
+    def prepare_bitstream(self):
+        if(self.instruction == '00101'):
+            self.load_key()
+        if(self.instruction == '00111'):
+            self.load_bitstream()
+        if(self.instruction == '10111'):
+            self.push_bitstream()
+        if(self.instruction == '00110'):
+            self.load_key_sha()
+    # PREPARE =================================================
 
-    #f.close()
+    # EXPORT ==================================================
+    def export_bitstream(self):
+        f = open(self.output_file, "w")
+        f.write(self.tdi + '\n')
+        f.write(self.tms)
+        f.close()
+    # EXPORT ==================================================
 
 if __name__=="__main__":
     import argparse
 
-    # ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
-    # ap.add_argument("packet_size", type=int)
-    # ap.add_argument("file_input",  type=str)
-    # ap.add_argument("file_output", type=str)
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
+    ap.add_argument("instruction", type=str)
+    ap.add_argument("output_file", type=str)
+    args = ap.parse_args()
 
-    # args = ap.parse_args()
-    bitstream_encoder()
+    B = Bitstream(args.instruction, args.output_file)
+    B.parse_txt_files()
+    B.prepare_bitstream()
+    B.export_bitstream()
+
