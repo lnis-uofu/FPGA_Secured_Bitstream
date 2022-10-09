@@ -4,14 +4,18 @@
 WORK_LIB     = pmu_tb_lib
 WORK_DIR     = ${PROJECT_BUILD_DIR}/${WORK_LIB}
 
+ENCODE_SCRIPT = '../../scripts/V3_encode.py'
+OUTPUT_FILE   = '../../scripts/output.txt'
 
-TOP_ENTITY_NAME = functional_load_key
+
+
+TOP_ENTITY_NAME = 'functional_load_key'
 #TOP_ENTITY_NAME = functional_load_bitstream
 #TOP_ENTITY_NAME = functional_load_bitstream_sha
 #TOP_ENTITY_NAME = functional_load_bitstream_aes
 #TOP_ENTITY_NAME = functional_load_bitstream_sha_aes
 #TOP_ENTITY_NAME = functional_push_bitstream
-#TOP_ENTITY_NAME = functional_fpga
+#TOP_ENTITY_NAME = 'functional_fpga'
 #TOP_ENTITY_NAME = functional_tap_to
 
 

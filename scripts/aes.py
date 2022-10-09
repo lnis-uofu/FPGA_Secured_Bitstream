@@ -299,13 +299,13 @@ class AES():
         s3 = self.sbox[b3]
         res = self.b2w(s0, s1, s2, s3)
 
-        if (self.VERBOSE):
-            print("Inside substw:")
-            print("b0 = 0x%02x, b1 = 0x%02x, b2 = 0x%02x, b3 = 0x%02x" %
-                  (b0, b1, b2, b3))
-            print("s0 = 0x%02x, s1 = 0x%02x, s2 = 0x%02x, s3 = 0x%02x" %
-                  (s0, s1, s2, s3))
-            print("res = 0x%08x" % (res))
+        # if (self.VERBOSE):
+        #     print("Inside substw:")
+        #     print("b0 = 0x%02x, b1 = 0x%02x, b2 = 0x%02x, b3 = 0x%02x" %
+        #           (b0, b1, b2, b3))
+        #     print("s0 = 0x%02x, s1 = 0x%02x, s2 = 0x%02x, s3 = 0x%02x" %
+        #           (s0, s1, s2, s3))
+        #     print("res = 0x%08x" % (res))
         return res
 
 
@@ -324,13 +324,13 @@ class AES():
         s3 = self.inv_sbox[b3]
         res = self.b2w(s0, s1, s2, s3)
 
-        if (self.VERBOSE):
-            print("Inside inv_substw:")
-            print("b0 = 0x%02x, b1 = 0x%02x, b2 = 0x%02x, b3 = 0x%02x" %
-                (b0, b1, b2, b3))
-            print("s0 = 0x%02x, s1 = 0x%02x, s2 = 0x%02x, s3 = 0x%02x" %
-                (s0, s1, s2, s3))
-            print("res = 0x%08x" % (res))
+        # if (self.VERBOSE):
+        #     print("Inside inv_substw:")
+        #     print("b0 = 0x%02x, b1 = 0x%02x, b2 = 0x%02x, b3 = 0x%02x" %
+        #         (b0, b1, b2, b3))
+        #     print("s0 = 0x%02x, s1 = 0x%02x, s2 = 0x%02x, s3 = 0x%02x" %
+        #         (s0, s1, s2, s3))
+        #     print("res = 0x%08x" % (res))
         return res
 
 
@@ -361,14 +361,14 @@ class AES():
         k2 = w2 ^ w1 ^ w0 ^ t
         k3 = w3 ^ w2 ^ w1 ^ w0 ^ t
 
-        if (self.VERBOSE):
-            print("Inside next 128bit key:")
-            print("w0 = 0x%08x, w1 = 0x%08x, w2 = 0x%08x, w3 = 0x%08x" %
-                  (w0, w1, w2, w3))
-            print("rol = 0x%08x, subst = 0x%08x, rcon = 0x%02x, t = 0x%08x" %
-                  (rol, subst, rcon, t))
-            print("k0 = 0x%08x, k1 = 0x%08x, k2 = 0x%08x, k3 = 0x%08x" %
-                  (k0, k1, k2, k3))
+        # if (self.VERBOSE):
+        #     print("Inside next 128bit key:")
+        #     print("w0 = 0x%08x, w1 = 0x%08x, w2 = 0x%08x, w3 = 0x%08x" %
+        #           (w0, w1, w2, w3))
+        #     print("rol = 0x%08x, subst = 0x%08x, rcon = 0x%02x, t = 0x%08x" %
+        #           (rol, subst, rcon, t))
+        #     print("k0 = 0x%08x, k1 = 0x%08x, k2 = 0x%08x, k3 = 0x%08x" %
+        #           (k0, k1, k2, k3))
         return (k0, k1, k2, k3)
 
 
@@ -378,7 +378,7 @@ class AES():
     # Generating the keys for 128 bit keys.
     #-------------------------------------------------------------------
     def key_gen128(self, key):
-        print("Doing the 128 bit key expansion")
+        # print("Doing the 128 bit key expansion")
 
         round_keys = []
         round_keys.append(key)
@@ -386,15 +386,15 @@ class AES():
         for i in range(10):
             round_keys.append(self.next_128bit_key(round_keys[i], self.get_rcon(i + 1)))
 
-        if (self.VERBOSE):
-            print("Input key:")
-            self.print_block(key)
-            print("")
+        # if (self.VERBOSE):
+        #     # print("Input key:")
+        #     self.print_block(key)
+        #     # print("")
 
-            print("Generated keys:")
-            for k in round_keys:
-                self.print_block(k)
-            print("")
+        #     # print("Generated keys:")
+        #     for k in round_keys:
+        #         self.print_block(k)
+        #     # print("")
 
         return round_keys
 
@@ -418,13 +418,13 @@ class AES():
         k2 = w2 ^ w1 ^ w0 ^ t
         k3 = w3 ^ w2 ^ w1 ^ w0 ^ t
 
-        if (self.DUMP_VARS):
-            print("next_256bit_key_a:")
-            print("w0 = 0x%08x, w0 = 0x%08x, w0 = 0x%08x, w0 = 0x%08x" % (w0, w1, w2, w3))
-            print("w4 = 0x%08x, w5 = 0x%08x, w6 = 0x%08x, w7 = 0x%08x" % (w4, w5, w6, w7))
-            print("t = 0x%08x, sw = 0x%08x, rw = 0x%08x" % (t, sw, rw))
-            print("k0 = 0x%08x, k0 = 0x%08x, k0 = 0x%08x, k0 = 0x%08x" % (k0, k1, k2, k3))
-            print("")
+        # if (self.DUMP_VARS):
+        #     print("next_256bit_key_a:")
+        #     print("w0 = 0x%08x, w0 = 0x%08x, w0 = 0x%08x, w0 = 0x%08x" % (w0, w1, w2, w3))
+        #     print("w4 = 0x%08x, w5 = 0x%08x, w6 = 0x%08x, w7 = 0x%08x" % (w4, w5, w6, w7))
+        #     print("t = 0x%08x, sw = 0x%08x, rw = 0x%08x" % (t, sw, rw))
+        #     print("k0 = 0x%08x, k0 = 0x%08x, k0 = 0x%08x, k0 = 0x%08x" % (k0, k1, k2, k3))
+        #     print("")
 
         return (k0, k1, k2, k3)
 
@@ -446,13 +446,13 @@ class AES():
         k2 = w2 ^ w1 ^ w0 ^ t
         k3 = w3 ^ w2 ^ w1 ^ w0 ^ t
 
-        if (self.DUMP_VARS):
-            print("next_256bit_key_b:")
-            print("w0 = 0x%08x, w0 = 0x%08x, w0 = 0x%08x, w0 = 0x%08x" % (w0, w1, w2, w3))
-            print("w4 = 0x%08x, w5 = 0x%08x, w6 = 0x%08x, w7 = 0x%08x" % (w4, w5, w6, w7))
-            print("t = 0x%08x" % (t))
-            print("k0 = 0x%08x, k0 = 0x%08x, k0 = 0x%08x, k0 = 0x%08x" % (k0, k1, k2, k3))
-            print("")
+        # if (self.DUMP_VARS):
+        #     print("next_256bit_key_b:")
+        #     print("w0 = 0x%08x, w0 = 0x%08x, w0 = 0x%08x, w0 = 0x%08x" % (w0, w1, w2, w3))
+        #     print("w4 = 0x%08x, w5 = 0x%08x, w6 = 0x%08x, w7 = 0x%08x" % (w4, w5, w6, w7))
+        #     print("t = 0x%08x" % (t))
+        #     print("k0 = 0x%08x, k0 = 0x%08x, k0 = 0x%08x, k0 = 0x%08x" % (k0, k1, k2, k3))
+        #     print("")
 
         return (k0, k1, k2, k3)
 
@@ -481,16 +481,16 @@ class AES():
         k = self.next_256it_key_a(round_keys[12], round_keys[13], self.get_rcon(7))
         round_keys.append(k)
 
-        if (self.VERBOSE):
-            print("Input key:")
-            self.print_block((k0, k1, k2, k3))
-            self.print_block((k4, k5, k6, k7))
-            print("")
+        # if (self.VERBOSE):
+        #     print("Input key:")
+        #     self.print_block((k0, k1, k2, k3))
+        #     self.print_block((k4, k5, k6, k7))
+        #     print("")
 
-            print("Generated keys:")
-            for k in round_keys:
-                self.print_block(k)
-            print("")
+        #     print("Generated keys:")
+        #     for k in round_keys:
+        #         self.print_block(k)
+        #     print("")
 
         return round_keys
 
@@ -522,12 +522,12 @@ class AES():
 
         res_block = (w0 ^ k0, w1 ^ k1, w2 ^ k2, w3 ^ k3)
 
-        if (self.VERBOSE):
-            print("AddRoundKey key, block in and block out:")
-            self.print_block(key)
-            self.print_block(block)
-            self.print_block(res_block)
-            print("")
+        # if (self.VERBOSE):
+        #     # print("AddRoundKey key, block in and block out:")
+        #     self.print_block(key)
+        #     self.print_block(block)
+        #     self.print_block(res_block)
+        #     # print("")
 
         return res_block
 
@@ -563,11 +563,11 @@ class AES():
 
         res_block = (mc0, mc1, mc2, mc3)
 
-        if (self.VERBOSE):
-            print("MixColumns block in and block out:")
-            self.print_block(block)
-            self.print_block(res_block)
-            print("")
+        # if (self.VERBOSE):
+        #     print("MixColumns block in and block out:")
+        #     self.print_block(block)
+        #     self.print_block(res_block)
+        #     print("")
 
         return res_block
 
@@ -583,11 +583,11 @@ class AES():
         res_block = (self.substw(w0), self.substw(w1),
                     self.substw(w2), self.substw(w3))
 
-        if (self.VERBOSE):
-            print("SubBytes block in and block out:")
-            self.print_block(block)
-            self.print_block(res_block)
-            print("")
+        # if (self.VERBOSE):
+        #     print("SubBytes block in and block out:")
+        #     self.print_block(block)
+        #     self.print_block(res_block)
+        #     print("")
 
         return res_block
 
@@ -612,11 +612,11 @@ class AES():
 
         res_block = (ws0, ws1, ws2, ws3)
 
-        if (self.VERBOSE):
-            print("ShiftRows block in and block out:")
-            self.print_block(block)
-            self.print_block(res_block)
-            print("")
+        # if (self.VERBOSE):
+        #     print("ShiftRows block in and block out:")
+        #     self.print_block(block)
+        #     self.print_block(res_block)
+        #     print("")
 
         return res_block
 
@@ -639,14 +639,14 @@ class AES():
             num_rounds = self.AES_256_ROUNDS
 
         # Init round
-        print("  Initial AddRoundKeys round.")
+        # print("  Initial AddRoundKeys round.")
         tmp_block4 = self.addroundkey(round_keys[0], block)
 
         # Main rounds
         for i in range(1 , (num_rounds)):
-            print("")
-            print("  Round %02d" % i)
-            print("  ---------")
+            # print("")
+            # print("  Round %02d" % i)
+            # print("  ---------")
 
             tmp_block1 = self.subbytes(tmp_block4)
             tmp_block2 = self.shiftrows(tmp_block1)
@@ -655,7 +655,7 @@ class AES():
 
 
         # Final round
-        print("  Final round.")
+        # print("  Final round.")
         tmp_block1 = self.subbytes(tmp_block4)
         tmp_block2 = self.shiftrows(tmp_block1)
         tmp_block3 = self.addroundkey(round_keys[num_rounds], tmp_block2)
@@ -694,11 +694,11 @@ class AES():
 
         res_block = (mc0, mc1, mc2, mc3)
 
-        if (self.VERBOSE):
-            print("Inverse MixColumns block in and block out:")
-            self.print_block(block)
-            self.print_block(res_block)
-            print("")
+        # if (self.VERBOSE):
+            # print("Inverse MixColumns block in and block out:")
+            # self.print_block(block)
+            # self.print_block(res_block)
+            # print("")
 
         return res_block
 
@@ -723,11 +723,11 @@ class AES():
 
         res_block = (ws0, ws1, ws2, ws3)
 
-        if (self.VERBOSE):
-            print("Inverse ShiftRows block in and block out:")
-            self.print_block(block)
-            self.print_block(res_block)
-            print("")
+        # if (self.VERBOSE):
+            # print("Inverse ShiftRows block in and block out:")
+            # self.print_block(block)
+            # self.print_block(res_block)
+            # print("")
 
         return res_block
 
@@ -743,11 +743,11 @@ class AES():
         res_block = (self.inv_substw(w0), self.inv_substw(w1),
                      self.inv_substw(w2), self.inv_substw(w3))
 
-        if (self.VERBOSE):
-            print("Inverse SubBytes block in and block out:")
-            self.print_block(block)
-            self.print_block(res_block)
-            print("")
+        # if (self.VERBOSE):
+            # print("Inverse SubBytes block in and block out:")
+            # self.print_block(block)
+            # self.print_block(res_block)
+            # print("")
 
         return res_block
 
@@ -802,19 +802,19 @@ class AES():
     def test_mixcolumns(self):
         nist_aes128_key = (0x2b7e1516, 0x28aed2a6, 0xabf71588, 0x09cf4f3c)
 
-        print("Test of mixcolumns and inverse mixcolumns:")
+        # print("Test of mixcolumns and inverse mixcolumns:")
         mixresult = self.mixcolumns(nist_aes128_key)
         inv_mixresult = self.inv_mixcolumns(mixresult)
 
-        print("Test of mixw ochi inv_mixw:")
+        # print("Test of mixw ochi inv_mixw:")
         testw = 0xdb135345
         expw  = 0x8e4da1bc
         mixresult = self.mixw(testw)
         inv_mixresult = self.inv_mixw(mixresult)
-        print("Testword:   0x%08x" % testw)
-        print("expexted:   0x%08x" % expw)
-        print("mixword:    0x%08x" % mixresult)
-        print("invmixword: 0x%08x" % inv_mixresult)
+        # print("Testword:   0x%08x" % testw)
+        # print("expexted:   0x%08x" % expw)
+        # print("mixword:    0x%08x" % mixresult)
+        # print("invmixword: 0x%08x" % inv_mixresult)
 
 
     #-------------------------------------------------------------------

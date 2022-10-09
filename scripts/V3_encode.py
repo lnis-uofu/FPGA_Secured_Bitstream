@@ -1,129 +1,12 @@
 
 from aes import *
-
+import random
+from sha256 import *
 #AES instructions
 # 4:0   instruction
 # 14:5  packets
 # 22:15 overflow
 # 31:23 empty
-
-def data_2_aes(data):
-    return f'(0x{hex(int(data[0:32], 2))[2:].zfill(8)}, 0x{hex(int(data[33:64]))[2:].zfill(8)}, 0x{hex(int(data[65:96]))[2:].zfill(8)}, 0x{hex(int(data[97:128]))[2:].zfill(8)})'
-
-def aes_2_data(data):
-    return f'{bin(data[0])[2:].zfill(32)}{bin(data[0])[2:].zfill(32)}{bin(data[0])[2:].zfill(32)}{bin(data[0])[2:].zfill(32)}'
-
-
-def bitstream_encoder():
-
-    nist_aes128_key = (0x2b7e1516, 0x28aed2a6, 0xabf71588, 0x09cf4f3c)
-    nist_plaintext0 = (0x6bc1bee2, 0x2e409f96, 0xe93d7e11, 0x7393172a)
-    nist_exp128_0   = (0x3ad77bb4, 0x0d7a3660, 0xa89ecaf3, 0x2466ef97)
-
-    my_aes = AES()
-    #result = my_aes.aes_encipher_block(nist_aes128_key, nist_plaintext0)
-    #block = aes_decipher_block(nist_aes128_key, nist_plaintext0)
-
-    #print(hex(result[0]))
-
-    # ----------------------------------------------------------------
-    # Take the bitstream file and make n array elemets
-    # each a string size of 'packet_size'
-    #count   = 0
-    #packets = 0
-    #data    = ''
-    #for line in open('./fabric_bitstream.bit'):
-    #    li=line.strip()
-    #    if not li.startswith("//"):
-    #        data = line.rstrip() + data
-    #        count += 1
-
-    #data = data.zfill(16*128)
-
-    ##print(data, '\n')
-
-    #data_array = [''] * 16
-
-    #for i in range(0, 16):
-    #    data_array[i] = str(data[(i*128):((i*128) + 128)])
-
-    #print(data_2_aes(data_array[1]))
-    # print(data_array[0])
-    # print(data_array[1])
-
-
-
-    #tdi_header = '001101100000'
-    #tms_header = '011000000110'
-    #tdi_footer = '00000'
-    #tms_footer = '11111'
-
-    # header = 0x001701ed
-
-    # header_bin = bin(header)[2:].zfill(32)
-
-    # print(header_bin)
-
-
-
-    #bitstream = data + header_bin
-    #tms_fill  = str(''.zfill(len(bitstream))
-    ##print(bitstream)
-
-    #tdi = tdi_footer + bitstream + tdi_header
-    #tms = tms_footer + tms_fill  + tms_header
-
-    ## print(tdi
-    ## print(tms)
-
-
-    #f = open('./bitstream/load_bitstream.txt', "w")
-
-
-    #f.write(tdi + '\n')
-    #f.write(tms)
-
-    #f.close()
-
-
-
-    ## # Write Goldenspec to output file
-    ## f.write(data + '\n')
-
-    #data_copy = data
-    #packets = (count // packet_size) + 1
-    #fill_amt = (packets * packet_size) - count
-    #print("fill_amt ", fill_amt)
-    #for i in range(fill_amt):
-    #    data = '0' + data
-    #array = [0] * packets
-    #for i in range(packets):
-    #    array[i] = data[i*packet_size:(i*packet_size) + packet_size]
-
-    #for i in range(len(array)):
-    #    print(i, ' ', array[i], ' ', len(array[i]))
-
-    ## -----------------------------------------------------------------
-    ##
-    ##
-    ## -----------------------------------------------------------------
-    ## Form header and append it to array
-    #print(packets)
-    #print(fill_amt)
-    #header = str(bin(packet_size - (fill_amt))[2:].zfill(32)) + str(bin(packets + 2)[2:].zfill(32))
-
-    #array.append(header)
-
-    ## -----------------------------------------------------------------
-    ##
-    ##
-    ## -----------------------------------------------------------------
-    ## Evaluate CRC key and append to end of each packet
-
-    #array_encoded = [0] * len(array)
-    #for i in range(len(array)):
-    #    residual = crc_8_encoder(array[i], minpoly) + array[i]
-    #    array_encoded[i] = residual
 
 
 class Bitstream(object):
@@ -134,7 +17,10 @@ class Bitstream(object):
         self.output_file = output_file
         self.bitstream   = ''
         self.bitstream_len = 0
-        self.key         = ''
+        self.aes_key     = []
+        self.sha_public_key = ''
+        self.sha_digest  = ''
+        self.sha_private_key = []
         self.header      = ''
         self.tdi         = ''
         self.tms         = ''
@@ -151,28 +37,44 @@ class Bitstream(object):
                 self.bitstream = line.rstrip() + self.bitstream
         self.bitstream_len = len(self.bitstream)
 
-    def get_key(self):
-        for line in open('./key.txt'):
-            li = line.strip()
-            self.key = line.rstrip()
-            self.key = f'(0x{self.key[0:8]}), (0x{self.key[9:17]}), (0x{self.key[18:26]}), (0x{self.key[27:35]})'
+    def get_aes_key(self):
+        for line in open('../../scripts/aes_key.txt'):
+            temp = ''
+            temp = line.rstrip()
+        for i in range(4):
+            self.aes_key.append(int(temp[(i*8):(i*8)+8], 16))
+
+    def get_sha_private_key(self):
+        for line in open('../../scripts/sha_key.txt'):
+            temp = ''
+            temp = line.rstrip()
+        for i in range(8):
+            self.sha_private_key.append(int(temp[(i*8):(i*8)+8], 16))
+
 
     def parse_txt_files(self):
         self.get_bitstream()
-        self.get_key()
+        self.get_aes_key()
+        self.get_sha_private_key()
     # IMPORT ==================================================
 
 
     # PREPARE =================================================
     def strip_key_hex_2_bin(self):
-        self.key = self.key[3:11] + self.key[17:25] + self.key[31:39] + self.key[45:53]
-        self.key = bin(int(self.key, 16))[2:].zfill(128)
+        self.aes_key = bin(self.aes_key[0])[2:].zfill(32) + bin(self.aes_key[1])[2:].zfill(32) + bin(self.aes_key[2])[2:].zfill(32) + bin(self.aes_key[3])[2:].zfill(32)
+
+    def strip_digest(self, digest):
+        strip_digest = ''
+        for i in range(8):
+            strip_digest += bin(digest[i])[2:].zfill(32)
+        return strip_digest
+
 
     def load_key(self):
         self.header = '00000000000000000000000000000101'
         self.strip_key_hex_2_bin()
-        self.tdi = self.tdi_footer + self.key + self.header + self.tdi_header
-        self.tms = self.tms_footer + ''.zfill(len(self.key) + 32) + self.tms_header
+        self.tdi = self.tdi_footer + self.aes_key + self.header + self.tdi_header
+        self.tms = self.tms_footer + ''.zfill(len(self.aes_key) + 32) + self.tms_header
 
     def load_bitstream(self):
         self.header = '00000000000000000000000000000111'
@@ -187,23 +89,123 @@ class Bitstream(object):
     def load_key_sha(self):
         self.header = '00000000000000000000000000000110'
         self.strip_key_hex_2_bin()
+        for i in range(96):
+            self.sha_public_key += str(random.randint(0, 1))
+        self.sha_public_key = self.sha_public_key + self.aes_key + self.header
+        # Calculate digest
+        for i in range(8):
+            self.sha_private_key.append(int(self.sha_public_key[(i*8):(i*8)+8], 16))
+        my_sha = SHA256(verbose=0)
+        my_sha.init()
+        my_sha.next(self.sha_private_key)
+        my_digest = my_sha.get_digest()
+        self.sha_digest = self.strip_digest(my_digest)
+        self.tdi = self.tdi_footer + self.sha_digest + self.sha_public_key + self.tdi_header
+        self.tms = self.tms_footer + ''.zfill(len(self.sha_digest + self.sha_public_key)) + self.tms_header
 
+    def load_bitstream_sha(self):
+        self.header = '0000000000' + bin(self.bitstream_len%128)[2:].zfill(7) + bin(self.bitstream_len//128)[2:].zfill(10) + self.instruction
+        for i in range(224):
+            self.sha_public_key += str(random.randint(0, 1))
+        self.sha_public_key = self.sha_public_key + self.header
+        bitstream = [0] * ((self.bitstream_len//256) + 1)
+        digest    = [0] * ((self.bitstream_len//256) + 2)
+        self.bitstream = self.bitstream.zfill(256*((self.bitstream_len//256)+1))
+        for i in range((self.bitstream_len//256) + 1):
+            bitstream[i] = self.bitstream[(i*256):(i*256)+256]
+        bitstream.append(self.sha_public_key)
+        my_sha = SHA256(verbose=0)
+        for i in range(len(bitstream)):
+            my_sha.init()
+            temp = []
+            for j in range(8):
+                temp.append(int(bitstream[i][(j*8):(j*8)+8], 2))
+            my_sha.next(self.sha_private_key + temp)
+            digest[i] = self.strip_digest(my_sha.get_digest())
+        for i in range(len(bitstream)):
+            self.tdi += digest[i] + bitstream[i]
+        self.tms = ''.zfill(512*((self.bitstream_len//256)+2))
+        self.tdi = self.tdi_footer + self.tdi + self.tdi_header
+        self.tms = self.tms_footer + self.tms + self.tms_header
 
+    def load_bitstream_aes(self):
+        self.header = '0000000000' + bin(self.bitstream_len%128)[2:].zfill(7) + bin(self.bitstream_len//128)[2:].zfill(10) + self.instruction
+        bitstream = [0] * ((self.bitstream_len//128) + 1)
+        result    = [0] * ((self.bitstream_len//128) + 1)
+        self.bitstream = self.bitstream.zfill(128*((self.bitstream_len//128+1)))
+        for i in range((self.bitstream_len//128)+1):
+            bitstream[i] = self.bitstream[(i*128):((i*128)+128)]
+        my_aes = AES()
+        for i in range((self.bitstream_len//128)+1):
+            bitstream[i] = (int(bitstream[i][0:32], 2), int(bitstream[i][32:64], 2), int(bitstream[i][64:96], 2), int(bitstream[i][96:128], 2))
+            result[i] = my_aes.aes_encipher_block(self.aes_key, bitstream[i])
+            result[i] = bin((result[i][0]))[2:].zfill(32) + bin((result[i][1]))[2:].zfill(32) + bin((result[i][2]))[2:].zfill(32) + bin((result[i][3]))[2:].zfill(32)
+        for i in range((self.bitstream_len//128)+1):
+            self.tdi += result[i]
+        self.tdi += self.header
+        self.tms = ''.zfill((128*((self.bitstream_len//128)+1)) + 32)
+        self.tdi = self.tdi_footer + self.tdi + self.tdi_header
+        self.tms = self.tms_footer + self.tms + self.tms_header
+
+    def load_bitstream_sha_aes(self):
+        self.header = '0000000000' + bin(self.bitstream_len%128)[2:].zfill(7) + bin(self.bitstream_len//128)[2:].zfill(10) + self.instruction
+        for i in range(224):
+            self.sha_public_key += str(random.randint(0, 1))
+        self.sha_public_key = self.sha_public_key + self.header
+        sha_len = (self.bitstream_len//256) + 1
+        self.bitstream = self.bitstream.zfill(sha_len*256)
+        bitstream = [0] * (sha_len * 2)
+        aes_result    = [0] * (sha_len * 2)
+        my_aes = AES()
+        for i in range(sha_len*2):
+            bitstream[i] = self.bitstream[(i*128):((i*128)+128)]
+        for i in range(sha_len*2):
+            bitstream[i] = (int(bitstream[i][0:32], 2), int(bitstream[i][32:64], 2), int(bitstream[i][64:96], 2), int(bitstream[i][96:128], 2))
+            aes_result[i] = my_aes.aes_encipher_block(self.aes_key, bitstream[i])
+            aes_result[i] = bin((aes_result[i][0]))[2:].zfill(32) + bin((aes_result[i][1]))[2:].zfill(32) + bin((aes_result[i][2]))[2:].zfill(32) + bin((aes_result[i][3]))[2:].zfill(32)
+        bitstream = [0] * sha_len
+        for i in range(0, sha_len):
+            bitstream[i] = aes_result[i*2] + aes_result[(i*2)+1]
+        bitstream.append(self.sha_public_key)
+        digest = [0] * len(bitstream)
+        my_sha = SHA256()
+        for i in range(len(bitstream)):
+            my_sha.init()
+            temp =[]
+            for j in range(8):
+                temp.append(int(bitstream[i][(j*32):(j*32)+32], 2))
+            my_sha.next(self.sha_private_key + temp)
+            digest[i] = self.strip_digest(my_sha.get_digest())
+        for i in range(len(bitstream)):
+            self.tdi += digest[i] + bitstream[i]
+        self.tms = ''.zfill(512*len(bitstream))
+        self.tdi = self.tdi_footer + self.tdi + self.tdi_header
+        self.tms = self.tms_footer + self.tms + self.tms_header
+
+        print(len(self.tdi))
+        print(len(self.tms))
 
     def prepare_bitstream(self):
-        if(self.instruction == '00101'):
+        if(self.instruction == 'functional_load_key'):
             self.load_key()
-        if(self.instruction == '00111'):
+        if(self.instruction == 'functional_load_bitstream'):
             self.load_bitstream()
-        if(self.instruction == '10111'):
+        if(self.instruction == 'functional_push_bitstream'):
             self.push_bitstream()
-        if(self.instruction == '00110'):
+        if(self.instruction == 'functional_load_key_sha'):
             self.load_key_sha()
+        if(self.instruction == 'functional_load_bitstream_sha'):
+            self.load_bitstream_sha()
+        if(self.instruction == 'functional_load_bitstream_aes'):
+            self.load_bitstream_aes()
+        if(self.instruction == 'functional_load_bitstream_sha_aes'):
+            self.load_bitstream_sha_aes()
     # PREPARE =================================================
 
     # EXPORT ==================================================
     def export_bitstream(self):
         f = open(self.output_file, "w")
+        f.write(f'{len(self.tdi)}' + '\n')
         f.write(self.tdi + '\n')
         f.write(self.tms)
         f.close()

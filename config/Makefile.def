@@ -20,7 +20,7 @@ VLOG  = vlog
 VCOM  = vcom
 VSIM  = vsim
 VDIR  = vdir
-
+PYTHON_EXEC  = python3.9
 DATE  = $(shell date +%Y-%m-%d)
 QUIET = &>/dev/null
 
@@ -81,6 +81,7 @@ sim:: build
 		$(call echo-error,"Error: Please run this command in the simu/ directory!"); \
 		exit 1; \
 	fi
+	${PYTHON_EXEC} ${ENCODE_SCRIPT} ${TOP_ENTITY_NAME} ${OUTPUT_FILE}
 	$(VSIM) -gui -lib $(LIB_DIR) $(TOP_ENTITY_NAME) $(VSIM_OPTIONS) $(VSIM_GUI_OPTIONS) &
 
 ## Start simulation of the top entity without GUI
@@ -91,6 +92,7 @@ sim-nogui:: build
 		$(call echo-error,"Error: Please run this command in the simu/ directory!"); \
 		exit 1; \
 	fi
+	${PYTHON_EXEC} ${ENCODE_SCRIPT} ${TOP_ENTITY_NAME} ${OUTPUT_FILE}
 	$(VSIM) -c -lib $(LIB_DIR) $(TOP_ENTITY_NAME) $(VSIM_OPTIONS) $(VSIM_CMD_OPTIONS)
 
 ## Clean module library and simulation outputs
