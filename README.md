@@ -55,7 +55,6 @@ Testing feature to move the contents of the FPGA core to and output of the PMU s
 The PMU utilizes a JTAG implementation from OpenCores found [here](https://github.com/freecores/jtag) as a template. A new instruction is added to enable and route serial data to the pmu core. 
 
 ##### PMU FSM
-The PMU contains an FSM that intpretes the the encoding scheme and control signals from JTAG tap_controller. This FSM was designed based on the decision tree below. PMU version 1 has two main functions loading a bitstream with checksum and loading a bitstream without employing a checksum. In this version CRC8 is being used to calculate a checksum. These two operations are controlled with the checksum_en_i singal. If checksum is enabled and it fails due to errors in the bitstream or CRC keys it will reset both the JTAG tap controller and the FPGA core such that incorrect data is not loaded into the bitstream. The FSM uses counters to contorl the movement between states and correctly intrepret the encoded bitstream.
 
 ##### SHA 256b
 
