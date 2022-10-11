@@ -33,7 +33,7 @@ For example the PMU can load a key without AES or SHA and then use both cipher c
 #### INSTRUCTIONS
 
  <p align="center">
-  <img src="/docs/figures/encode.pdf">
+  <img src="/docs/figures/encode.png">
 </p>
 
 ### Blocks
