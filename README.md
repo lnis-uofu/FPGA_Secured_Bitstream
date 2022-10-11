@@ -32,19 +32,9 @@ For example the PMU can load a key without AES or SHA and then use both cipher c
 
 #### INSTRUCTIONS
 
-#### '00101' LOAD KEY
-
-#### '00111' LOAD BITSTREAM
-
-#### '10111' PUSH BITSTREAM
-
-#### '00110' LOAD KEY SHA
-
-#### '11001' LOAD BITSTREAM SHA
-
-#### '01101' LOAD BITSTREAM AES
-
-#### '11010' LOAD BITSTREAM +SHA +AES
+ <p align="center">
+  <img src="/docs/figures/encoding_.scheme.pdf">
+</p>
 
 ### Blocks
 ##### JTAG TAP Controller
