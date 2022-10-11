@@ -3,10 +3,11 @@
 ifeq (,${WORK_LIB})
 $(error "Variable WORK_LIB is mandatory")
 endif
-
 ifeq (,${PROJECT_DIR})
 $(error "Variable PROJECT_DIR is mandatory")
 endif
+
+
 
 # Set target library's name and directory
 LIB_NAME=${WORK_LIB}
@@ -67,6 +68,7 @@ build: lib
 	@if [ ! -z "${VERILOG_SOURCES}" ]; then \
 		$(call echo-info,"-- Compiling Verilog RTL sources"); \
 		$(VLOG) -work $(LIB_DIR) $(VLOG_OPTIONS) $(VERILOG_SOURCES); \
+		${PYTHON_EXEC} ${ENCODE_SCRIPT} ${TOP_ENTITY_NAME}; \
 	fi
 	@if [ ! -z "${VHDL_SOURCES}" ]; then \
 		$(call echo-info,"-- Compiling Verilog RTL sources"); \
@@ -81,8 +83,8 @@ sim:: build
 		$(call echo-error,"Error: Please run this command in the simu/ directory!"); \
 		exit 1; \
 	fi
-	${PYTHON_EXEC} ${ENCODE_SCRIPT} ${TOP_ENTITY_NAME} ${OUTPUT_FILE}
 	$(VSIM) -gui -lib $(LIB_DIR) $(TOP_ENTITY_NAME) $(VSIM_OPTIONS) $(VSIM_GUI_OPTIONS) &
+
 
 ## Start simulation of the top entity without GUI
 sim-nogui:: build
@@ -92,7 +94,6 @@ sim-nogui:: build
 		$(call echo-error,"Error: Please run this command in the simu/ directory!"); \
 		exit 1; \
 	fi
-	${PYTHON_EXEC} ${ENCODE_SCRIPT} ${TOP_ENTITY_NAME} ${OUTPUT_FILE}
 	$(VSIM) -c -lib $(LIB_DIR) $(TOP_ENTITY_NAME) $(VSIM_OPTIONS) $(VSIM_CMD_OPTIONS)
 
 ## Clean module library and simulation outputs

@@ -1,14 +1,14 @@
 `timescale 1 ns / 1 ps
 `define UNIT_DELAY #10
 `define FPGA_IO_SIZE 24
+`define BITSTREAM_LEN 177
 
 
 module functional_load_key;
 
-    
-
+    reg [177-1:0] temp_tdi;
+    reg [177-1:0] temp_tms;
  
-  
     localparam period     = 100;
     localparam halfperiod = 50;
     reg clk = 1'b0;
@@ -160,14 +160,12 @@ module functional_load_key;
 
 
         
-    integer i, file, count, length, tdi, tms;
+    integer i, file, count, tdi, tms;
     
-    /* initial begin */ 
-    /*     file = $fopen("../../scripts/output.txt", "rb"); */
-    /*     count = $fscanf(file, "%b", length); */
-    /*     /1* count = $fscanf(file, "%b", tdi) *1/ */
-    /*     /1* count = $fscanf(file, "%b", tms) *1/ */
-    /* end */
+    initial begin 
+        file  = $fopen("../../scripts/outputs/output.txt", "rb");
+        count = $fscanf(file, "%b %b", temp_tdi, temp_tms);
+    end
 
     initial begin
         clk = 0;
@@ -176,23 +174,23 @@ module functional_load_key;
     end
 
 
-    // JTAG HEADER/FOOTER ==================
-    reg [11:0] tdi_header = 12'b001101100000;
-    reg [4:0] tdi_footer  =  5'b00000;
-    reg [11:0] tms_header = 12'b011000000110;
-    reg [4:0] tms_footer  =  5'b11111;
-    // JTAG HEADER/FOOTER ==================
-
-     
 
 
-    // ======================================================
-    // LOAD KEY =============================================
-
-    // RESET 
     initial begin
-        #10;
-        $display("hello");
+    // RESET 
+        #period;
+        rst_i = 0;
+        #period;
+        rst_i = 1;
+        #period;
+    // INSTRUCTION
+        for(i = 0; i < 177; i = i + 1)
+        begin 
+            tdi_i = temp_tdi[i];
+            tms_i = temp_tms[i];
+            #period;
+        end
+        #(period * 10);
     $stop;
     end
 

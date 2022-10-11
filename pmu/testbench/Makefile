@@ -1,28 +1,26 @@
 # -*- Makefile -*-
 
 
-WORK_LIB     = pmu_tb_lib
-WORK_DIR     = ${PROJECT_BUILD_DIR}/${WORK_LIB}
-
-ENCODE_SCRIPT = '../../scripts/V3_encode.py'
-OUTPUT_FILE   = '../../scripts/output.txt'
+WORK_LIB = pmu_tb_lib
+WORK_DIR = ${PROJECT_BUILD_DIR}/${WORK_LIB}
 
 
-
-TOP_ENTITY_NAME = 'functional_load_key'
+#TOP_ENTITY_NAME = functional_load_key
+#TOP_ENTITY_NAME = functional_load_key_sha
 #TOP_ENTITY_NAME = functional_load_bitstream
 #TOP_ENTITY_NAME = functional_load_bitstream_sha
 #TOP_ENTITY_NAME = functional_load_bitstream_aes
-#TOP_ENTITY_NAME = functional_load_bitstream_sha_aes
+TOP_ENTITY_NAME = functional_load_bitstream_sha_aes
 #TOP_ENTITY_NAME = functional_push_bitstream
-#TOP_ENTITY_NAME = 'functional_fpga'
-#TOP_ENTITY_NAME = functional_tap_to
+#TOP_ENTITY_NAME = functional_fpga
+#TOP_ENTITY_NAME = functional_tap_top
 
 
 
 VERILOG_SOURCES += \
 		${PMU_TB_DIR}/functional_fpga.v \
 		${PMU_TB_DIR}/functional_load_key.v \
+		${PMU_TB_DIR}/functional_load_key_sha.v \
 		${PMU_TB_DIR}/functional_load_bitstream.v \
 		${PMU_TB_DIR}/functional_load_bitstream_sha.v \
 		${PMU_TB_DIR}/functional_load_bitstream_aes.v \
@@ -51,7 +49,7 @@ VERILOG_SOURCES += \
 		${PMU_RTL_DIR}/fpga_22/lb/grid_io_right_right.v \
 		${PMU_RTL_DIR}/fpga_22/lb/logical_tile_clb_mode_clb_.v \
 		${PMU_RTL_DIR}/fpga_22/lb/logical_tile_clb_mode_default__fle.v \
-		${PMU_RTL_DIR}/fpga_22/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric.v\
+		${PMU_RTL_DIR}/fpga_22/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric.v \
 		${PMU_RTL_DIR}/fpga_22/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__ff.v \
 		${PMU_RTL_DIR}/fpga_22/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic.v \
 		${PMU_RTL_DIR}/fpga_22/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic_mode_default__frac_lut4_arith.v \
@@ -124,7 +122,7 @@ VERILOG_SOURCES += \
 		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/xnor2/sky130_fd_sc_hd__xnor2.functional.v \
 		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/sdfbbp/sky130_fd_sc_hd__sdfbbp.v \
 		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/sdfbbp/sky130_fd_sc_hd__sdfbbp_1.v \
-		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/sdfbbp/sky130_fd_sc_hd__sdfbbp.functional.v 
+		${PMU_TB_DIR}/skywater-pdk-libs-sky130_fd_sc_hd/cells/sdfbbp/sky130_fd_sc_hd__sdfbbp.functional.v
 
 
 

@@ -11,10 +11,10 @@ VERILOG_SOURCES += \
 	aes/aes_sbox.v \
 	aes/round_key.v \
 	fpga_22/fpga_top.v \
-	fpga_22/CustomModules/digital_io_hd.v \
 	fpga_22/CustomModules/sky130_fd_sc_hd_wrapper.v \
-	fpga_22/CustomModules/ql_ccff.v \
-	fpga_22/CustomModules/ql_iso_io_logic.v \
+	fpga_22/CustomModules/sofa_plus_ccff.v \
+	fpga_22/CustomModules/sofa_plus_dff.v \
+	fpga_22/CustomModules/sofa_plus_io.v \
 	fpga_22/lb/grid_clb.v \
 	fpga_22/lb/grid_io_bottom_bottom.v \
 	fpga_22/lb/grid_io_left_left.v \
@@ -25,8 +25,7 @@ VERILOG_SOURCES += \
 	fpga_22/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric.v \
 	fpga_22/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__ff.v \
 	fpga_22/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic.v \
-	fpga_22/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic_mode_default__carry_follower.v \
-	fpga_22/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic_mode_default__frac_lut4.v \
+	fpga_22/lb/logical_tile_clb_mode_default__fle_mode_physical__fabric_mode_default__frac_logic_mode_default__frac_lut4_arith.v\
 	fpga_22/lb/logical_tile_io_mode_io_.v \
 	fpga_22/lb/logical_tile_io_mode_physical__iopad.v \
 	fpga_22/sub_module/arch_encoder.v \
@@ -39,7 +38,6 @@ VERILOG_SOURCES += \
 	fpga_22/sub_module/shift_register_banks.v \
 	fpga_22/sub_module/wires.v \
 	fpga_22/routing/cbx_1__0_.v \
-	fpga_22/routing/cbx_1__1_.v \
 	fpga_22/routing/cbx_1__2_.v \
 	fpga_22/routing/cby_0__1_.v \
 	fpga_22/routing/cby_1__1_.v \
@@ -53,12 +51,9 @@ VERILOG_SOURCES += \
 	fpga_22/routing/sb_2__0_.v \
 	fpga_22/routing/sb_2__1_.v \
 	fpga_22/routing/sb_2__2_.v \
-	pmu/crc8.v \
 	pmu/key_storage.v \
-	pmu/mem.v \
 	pmu/pmu.v \
 	pmu/pmu_core.v \
-	pmu/pmu_fpga_top.v \
 	pmu/tap_top.v \
 	sha/sha256.v \
 	sha/sha256_core.v \

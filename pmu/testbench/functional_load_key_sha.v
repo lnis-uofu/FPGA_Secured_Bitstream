@@ -3,27 +3,10 @@
 `define FPGA_IO_SIZE 24
 
 
-module functional_load_key;
+module functional_load_key_sha;
 
-    // PMU HEADER
-    reg [31:0] load_key_pmu_header = 32'h00000005;
-
-    // AES KEY
-    reg [127:0]  key0         = 128'h0123456789abcdef0123456789abcdef;
-
-
-
-
-
-
-
-    
-    // LOAD KEY: AUTHENTICATION PASSING =================
-    reg [255:0] sha_load_key0_passing      = 256'hff484953ff484953495354480123456789abcdef0123456789abcdef00000006;
-    reg [255:0] sha_digest                 = 256'heb788faedebab8b1f59bfcb007bfed7b809c98a73acab61becccfb3d0435ca46;
-
-
- 
+    reg [529-1:0] temp_tdi;
+    reg [529-1:0] temp_tms;
   
     localparam period     = 100;
     localparam halfperiod = 50;
@@ -93,7 +76,6 @@ module functional_load_key;
     
          pmu pmu_
         (
-        .clk_i(clk),
         .tms_i(tms_i),
         .tck_i(clk),
         .rst_i(rst_i),
@@ -127,7 +109,6 @@ module functional_load_key;
         .sha_address_w(sha_address_w),
         .sha_write_data_w(sha_write_data_w),
         .sha_digest_valid_w(sha_digest_valid_w)
-   
         );
 
         aes aes128_
@@ -175,10 +156,12 @@ module functional_load_key;
         );
 
 
-
-        
-    integer i;
-
+    integer i, file, count, tdi, tms;
+    
+    initial begin 
+        file  = $fopen("../../scripts/outputs/output.txt", "rb");
+        count = $fscanf(file, "%b %b", temp_tdi, temp_tms);
+    end
 
     initial begin
         clk = 0;
@@ -187,134 +170,25 @@ module functional_load_key;
     end
 
 
-    // JTAG HEADER/FOOTER ==================
-    reg [11:0] tdi_header = 12'b001101100000;
-    reg [4:0] tdi_footer  =  5'b00000;
-    reg [11:0] tms_header = 12'b011000000110;
-    reg [4:0] tms_footer  =  5'b11111;
-    // JTAG HEADER/FOOTER ==================
-
-     
 
 
-    // ======================================================
-    // LOAD KEY =============================================
-
+    initial begin
     // RESET 
-    task load_key ();
-    begin
-   #period;
-    rst_i = 0;
-    #period;
-    rst_i = 1;
-
-    //LOAD JTAG HEADER
-    #period;
-
-    for(i = 0; i < 12; i = i + 1)
-    begin
-        tms_i = tms_header[i];
-        tdi_i = tdi_header[i];
         #period;
-    end
-     // =================
-    for(i = 0; i < 32; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = load_key_pmu_header[i];
+        rst_i = 0;
         #period;
-
-    end
-     // =================
-    for(i = 0; i < 128; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = key0[i];
+        rst_i = 1;
         #period;
-    end
-    // NOP
-    for(i = 0; i < 18; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = 0;
-        #period;
-    end
-    //LOAD JTAG FOOTER
-    for(i = 0; i < 5; i = i + 1)
-    begin
-        tms_i = tms_footer[i];
-        tdi_i = tdi_footer[i];
-        #period;
-    end
-    #(period * 10);
-    // =================
-    end 
-    endtask
-    // LOAD KEY =============================================
-    // ======================================================
-
-
-
-
-
-    // ======================================================
-    // LOAD KEY SHA: SHA AUTHENTICATION PASSING =============
-
-    // RESET 
-    task load_key_sha (); 
-    begin
-    #period;
-    rst_i = 0;
-    #period;
-    rst_i = 1;
-
-    //LOAD JTAG HEADER
-    #period;
-
-    for(i = 0; i < 12; i = i + 1)
-    begin
-        tms_i = tms_header[i];
-        tdi_i = tdi_header[i];
-        #period;
-    end
-     // =================
-    for(i = 0; i < 256; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = sha_load_key0_passing[i];
-        #period;
-
-    end
-     // =================
-    for(i = 0; i < 256; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = sha_digest[i];
-        #period;
-    end
-    #(period * 18);
-    //LOAD JTAG FOOTER
-    for(i = 0; i < 5; i = i + 1)
-    begin
-        tms_i = tms_footer[i];
-        tdi_i = tdi_footer[i];
-        #period;
-    end
-    #period;
-    // =================
-    end
-    endtask
-    // LOAD KEY SHA: SHA AUTHENTICATION PASSING =============
-    // ======================================================
-    
-    initial begin 
-    
-    load_key;
-
-    load_key_sha;
-
-    
+    // INSTRUCTION
+        for(i = 0; i < 529; i = i + 1)
+        begin 
+            tdi_i = temp_tdi[i];
+            tms_i = temp_tms[i];
+            #period;
+        end
+        #(period * 10);
     $stop;
     end
 
+  
 endmodule 

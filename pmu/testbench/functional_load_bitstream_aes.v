@@ -1,19 +1,8 @@
 
 module functional_load_bitstream_aes;
 
-
-    reg [127:0] bitstream0     = 128'h3ad77bb40d7a3660a89ecaf32466ef97;
-    reg [127:0] bitstream1     = 128'h11111111111111111111111111111111;
-    
-    reg [31:0] pmu_header0    = 32'h0012008d; // 548  bits *
-    reg [31:0] pmu_header1    = 32'h001400ed; // 936  bits *
-    reg [31:0] pmu_header2    = 32'h0025022d; // 2250 bits *
-
-    // PMU HEADER
-    reg [31:0] load_key_pmu_header = 32'h00000005;
-
-    // AES KEY
-    reg [127:0]  key0         = 128'h2b7e151628aed2a6abf7158809cf4f3c;
+    reg [2121-1:0] temp_tdi;
+    reg [2121-1:0] temp_tms;
 
     localparam period     = 10;
     localparam halfperiod = 5;
@@ -86,7 +75,6 @@ module functional_load_bitstream_aes;
     
          pmu pmu_
         (
-        .clk_i(clk),
         .tms_i(tms_i),
         .tck_i(clk),
         .rst_i(rst_i),
@@ -150,25 +138,28 @@ module functional_load_bitstream_aes;
         .digest_valid(sha_digest_valid_w)
         );
 
-        /* fpga_top fpga_top_ */
-        /* ( */
-        /* .clk(clk & fpga_o_clk_en), */
-        /* .reset(fpga_rst), //and another wire coming from top caravel level */
-        /* .pReset(pReset), */
-        /* .prog_clk(prog_clk),  ///prog_clk */
-        /* .Test_en(test_en), */
-        /* .IO_ISOL_N(IO), */
-		/* .gfpga_pad_EMBEDDED_IO_HD_SOC_IN(gfpga_pad_EMBEDDED_IO_HD_SOC_IN[0:`FPGA_IO_SIZE - 1]), */
-		/* .gfpga_pad_EMBEDDED_IO_HD_SOC_OUT(gfpga_pad_EMBEDDED_IO_HD_SOC_OUT[0:`FPGA_IO_SIZE - 1]), */
-		/* .gfpga_pad_EMBEDDED_IO_HD_SOC_DIR(gfpga_pad_EMBEDDED_IO_HD_SOC_DIR[0:`FPGA_IO_SIZE - 1]), */        
-        /* .ccff_head(data_o), */
-        /* .ccff_tail(ccff_wire) */
-        /* ); */
-
+        fpga_top fpga_top_
+        (
+        .clk(clk & fpga_o_clk_en),
+        .reset(fpga_rst), //and another wire coming from top caravel level
+        .pReset(pReset),
+        .prog_clk(prog_clk),  ///prog_clk
+        .Test_en(test_en),
+        .IO_ISOL_N(IO),
+		.gfpga_pad_EMBEDDED_IO_HD_SOC_IN(gfpga_pad_EMBEDDED_IO_HD_SOC_IN[0:`FPGA_IO_SIZE - 1]),
+		.gfpga_pad_EMBEDDED_IO_HD_SOC_OUT(gfpga_pad_EMBEDDED_IO_HD_SOC_OUT[0:`FPGA_IO_SIZE - 1]),
+		.gfpga_pad_EMBEDDED_IO_HD_SOC_DIR(gfpga_pad_EMBEDDED_IO_HD_SOC_DIR[0:`FPGA_IO_SIZE - 1]),        
+        .ccff_head(data_o),
+        .ccff_tail(ccff_wire)
+        );
 
         
-    integer i, j;
-
+    integer i, file, count, tdi, tms;
+    
+    initial begin 
+        file  = $fopen("../../scripts/outputs/output.txt", "rb");
+        count = $fscanf(file, "%b %b", temp_tdi, temp_tms);
+    end
 
     initial begin
         clk = 0;
@@ -176,210 +167,26 @@ module functional_load_bitstream_aes;
         #halfperiod clk = ~clk;
     end
 
-    // JTAG HEADER/FOOTER ==================
-    reg [11:0] tdi_header = 12'b001101100000;
-    reg [4:0] tdi_footer  =  5'b00000;
-    reg [11:0] tms_header = 12'b011000000110;
-    reg [4:0] tms_footer  =  5'b11111;
-    // JTAG HEADER/FOOTER ==================
 
-    task load_key ();
-    begin 
-    #period;
-    rst_i = 0;
-    #period;
-    rst_i = 1;
 
-    //LOAD JTAG HEADER
-    #period;
 
-    for(i = 0; i < 12; i = i + 1)
-    begin
-        tms_i = tms_header[i];
-        tdi_i = tdi_header[i];
-        #period;
-    end
-     // =================
-    for(i = 0; i < 32; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = load_key_pmu_header[i];
-        #period;
-
-    end
-     // =================
-    for(i = 0; i < 128; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = key0[i];
-        #period;
-    end
-    // NOP
-    for(i = 0; i < 18; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = 0;
-        #period;
-    end
-    //LOAD JTAG FOOTER
-    for(i = 0; i < 5; i = i + 1)
-    begin
-        tms_i = tms_footer[i];
-        tdi_i = tdi_footer[i];
-        #period;
-    end
-    #(period * 10);
-    // =================
-
-    end
-    endtask
-        
-
-    task load_128_bits ();
-        begin 
-            for(i = 0; i < 128; i = i + 1)
-            begin
-                tms_i = 0;
-                tdi_i = bitstream0[i];
-                #period;
-            end
-        end
-    endtask
-    task load_128_ones ();
-        begin 
-            for(i = 0; i < 128; i = i + 1)
-            begin
-                tms_i = 0;
-                tdi_i = bitstream1[i];
-                #period;
-            end
-        end
-    endtask
-
-    // ==================================================
-    // LOAD BITSTREAM: 0 ================================
-
+    initial begin
     // RESET 
-    task load_bitstream0 ();
-    begin
-
-    //LOAD JTAG HEADER
-    #period;
-
-    for(i = 0; i < 12; i = i + 1)
-    begin
-        tms_i = tms_header[i];
-        tdi_i = tdi_header[i];
         #period;
-    end
-     // =================
-    for(i = 0; i < 32; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = pmu_header0[i];
+        rst_i = 0;
         #period;
-
-    end
-
-    load_128_bits;
-    load_128_bits;
-    load_128_bits;
-    load_128_bits;
-    load_128_bits;
-
-
-     #(period * (53 + 36)); // AES compute time + # of excess bits not in 128 bit packet
-       
-    //LOAD JTAG FOOTER
-    for(i = 0; i < 5; i = i + 1)
-    begin
-        tms_i = tms_footer[i];
-        tdi_i = tdi_footer[i];
+        rst_i = 1;
         #period;
-    end
-    #(period * 20);
-    // =================
-
-    // LOAD BITSTREAM 0: ================================
-    // ==================================================
-    end
-    endtask
-    // ==================================================
-    // LOAD BITSTREAM: 0 ================================
-
-    // RESET 
-    task load_bitstream2 ();
-    begin
-
-    //LOAD JTAG HEADER
-    #period;
-
-    for(i = 0; i < 12; i = i + 1)
-    begin
-        tms_i = tms_header[i];
-        tdi_i = tdi_header[i];
-        #period;
-    end
-     // =================
-    for(i = 0; i < 32; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = pmu_header2[i];
-        #period;
-
-    end
-
-    load_128_bits;
-    load_128_bits;
-    load_128_bits;
-    load_128_bits;
-    load_128_bits;
-    load_128_bits;
-    load_128_bits;
-    load_128_bits;
-    load_128_bits;
-    load_128_bits;
-    load_128_bits;
-    load_128_bits;
-    load_128_bits;
-    load_128_bits;
-    load_128_bits;
-    load_128_bits;
-    load_128_bits;
-    load_128_bits;
-
-
-     #(period * (52 + 74)); // AES compute time + # of excess bits not in 128 bit packet
-       
-    //LOAD JTAG FOOTER
-    for(i = 0; i < 5; i = i + 1)
-    begin
-        tms_i = tms_footer[i];
-        tdi_i = tdi_footer[i];
-        #period;
-    end
-    #(period * 20);
-    // =================
-
-    // LOAD BITSTREAM 0: ================================
-    // ==================================================
-    end
-    endtask
-
-    initial begin 
-
-    load_key;
-    load_bitstream0;
-    //load_bitstream1;
-    //load_bitstream2;
-
-
-
-        
+    // INSTRUCTION
+        for(i = 0; i < 2121; i = i + 1)
+        begin 
+            tdi_i = temp_tdi[i];
+            tms_i = temp_tms[i];
+            #period;
+        end
+        #(period * 10);
     $stop;
     end
-
-
 
 
 

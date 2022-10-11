@@ -21,6 +21,11 @@ setenv PROJECT_CONFIG_DIR   ${PROJECT_DIR}/config
 setenv PROJECT_MODULES_DIR  ${PROJECT_DIR}/modules
 setenv PROJECT_SCRIPTS_DIR  ${PROJECT_DIR}/scripts
 
+# Set some variables for encoding scripts
+setenv ENCODE_INPUTS        ${PROJECT_SCRIPTS_DIR}/inputs
+setenv ENCODE_OUTPUT        ${PROJECT_SCRIPTS_DIR}/outputs/output.txt
+setenv ENCODE_SCRIPT        ${PROJECT_SCRIPTS_DIR}/V3_encode.py
+
 setenv DISPLAY "lnissrv4.eng.utah.edu:1012"
 
 # CAD tool directories

@@ -2,19 +2,16 @@
 from aes import *
 import random
 from sha256 import *
-#AES instructions
-# 4:0   instruction
-# 14:5  packets
-# 22:15 overflow
-# 31:23 empty
+import os
+
+INPUT_DIR  = os.environ.get("ENCODE_INPUTS")
 
 
 class Bitstream(object):
 
-    def __init__(self, instruction, output_file, **kwargs):
-        #self.instruction_dictonary = {'00101': 'load_key'}
+    def __init__(self, instruction, **kwargs):
         self.instruction = instruction
-        self.output_file = output_file
+        self.output_file = os.environ.get("ENCODE_OUTPUT")
         self.bitstream   = ''
         self.bitstream_len = 0
         self.aes_key     = []
@@ -31,21 +28,21 @@ class Bitstream(object):
 
     # IMPORT ==================================================
     def get_bitstream(self):
-        for line in open('./fabric_bitstream.bit'):
+        for line in open(f'{INPUT_DIR}/fabric_bitstream.bit'):
             li=line.strip()
             if not li.startswith("//"):
                 self.bitstream = line.rstrip() + self.bitstream
         self.bitstream_len = len(self.bitstream)
 
     def get_aes_key(self):
-        for line in open('../../scripts/aes_key.txt'):
+        for line in open(f'{INPUT_DIR}/aes_key.txt'):
             temp = ''
             temp = line.rstrip()
         for i in range(4):
             self.aes_key.append(int(temp[(i*8):(i*8)+8], 16))
 
     def get_sha_private_key(self):
-        for line in open('../../scripts/sha_key.txt'):
+        for line in open(f'{INPUT_DIR}/sha_key.txt'):
             temp = ''
             temp = line.rstrip()
         for i in range(8):
@@ -104,7 +101,7 @@ class Bitstream(object):
         self.tms = self.tms_footer + ''.zfill(len(self.sha_digest + self.sha_public_key)) + self.tms_header
 
     def load_bitstream_sha(self):
-        self.header = '0000000000' + bin(self.bitstream_len%128)[2:].zfill(7) + bin(self.bitstream_len//128)[2:].zfill(10) + self.instruction
+        self.header = '0000000000' + bin(self.bitstream_len%128)[2:].zfill(7) + bin(self.bitstream_len//128)[2:].zfill(10) + '11001'
         for i in range(224):
             self.sha_public_key += str(random.randint(0, 1))
         self.sha_public_key = self.sha_public_key + self.header
@@ -129,7 +126,7 @@ class Bitstream(object):
         self.tms = self.tms_footer + self.tms + self.tms_header
 
     def load_bitstream_aes(self):
-        self.header = '0000000000' + bin(self.bitstream_len%128)[2:].zfill(7) + bin(self.bitstream_len//128)[2:].zfill(10) + self.instruction
+        self.header = '0000000000' + bin(self.bitstream_len%128)[2:].zfill(7) + bin(self.bitstream_len//128)[2:].zfill(10) + '01101'
         bitstream = [0] * ((self.bitstream_len//128) + 1)
         result    = [0] * ((self.bitstream_len//128) + 1)
         self.bitstream = self.bitstream.zfill(128*((self.bitstream_len//128+1)))
@@ -148,7 +145,7 @@ class Bitstream(object):
         self.tms = self.tms_footer + self.tms + self.tms_header
 
     def load_bitstream_sha_aes(self):
-        self.header = '0000000000' + bin(self.bitstream_len%128)[2:].zfill(7) + bin(self.bitstream_len//128)[2:].zfill(10) + self.instruction
+        self.header = '0000000000' + bin(self.bitstream_len%128)[2:].zfill(7) + bin(self.bitstream_len//128)[2:].zfill(10) + '11010'
         for i in range(224):
             self.sha_public_key += str(random.randint(0, 1))
         self.sha_public_key = self.sha_public_key + self.header
@@ -182,8 +179,6 @@ class Bitstream(object):
         self.tdi = self.tdi_footer + self.tdi + self.tdi_header
         self.tms = self.tms_footer + self.tms + self.tms_header
 
-        print(len(self.tdi))
-        print(len(self.tms))
 
     def prepare_bitstream(self):
         if(self.instruction == 'functional_load_key'):
@@ -205,7 +200,6 @@ class Bitstream(object):
     # EXPORT ==================================================
     def export_bitstream(self):
         f = open(self.output_file, "w")
-        f.write(f'{len(self.tdi)}' + '\n')
         f.write(self.tdi + '\n')
         f.write(self.tms)
         f.close()
@@ -216,11 +210,11 @@ if __name__=="__main__":
 
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
     ap.add_argument("instruction", type=str)
-    ap.add_argument("output_file", type=str)
     args = ap.parse_args()
 
-    B = Bitstream(args.instruction, args.output_file)
+    B = Bitstream(args.instruction)
     B.parse_txt_files()
     B.prepare_bitstream()
     B.export_bitstream()
+    print("Bitstream JTAG encoded")
 

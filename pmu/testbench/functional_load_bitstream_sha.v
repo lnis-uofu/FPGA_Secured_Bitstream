@@ -4,25 +4,8 @@
 module functional_load_bitstream_sha;
 
 
-    reg [255:0] bitstream0     = 256'h0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef;
-    reg [255:0] digest0        = 256'h45dfe6e66598cc97357865bd21a9c224f0b3e544b2663ee26683e82158dc0753;
-    
-    reg [255:0] pmu_header0    = 256'hff484953495354480123456789abcdef0123456789abcdefff48495300120099; // 548 bits *
-    reg [255:0] header_digest0 = 256'h5215c97f254c5a00e92e67ce44eccb0c0429b2d30422f0f48ae3a6eb759fade7;
-
-    reg [255:0] fail_digest    = 256'h45dfe6e66598cc97357865bd21a9c224f1b3e544b2663ee26683e82158dc0753;
-
-
-    reg [255:0] pmu_header1    = 256'hff484953495354480123456789abcdef0123456789abcdefff484953001400f9; // 936 bits *
-    reg [255:0] header_digest1 = 256'h30f0d6d5db3ffef61b84b6d515cd38e26546cdb4be2f96ddeb32aa9c4e6f618d;
-
-
-    reg [255:0] pmu_header2    = 256'hff484953495354480123456789abcdef0123456789abcdefff48495300250239; // 2250 bits * 
-    reg [255:0] header_digest2 = 256'h71699e4ed40d5f6df1436a7894a942a03d5507b0118be3f66bd1a7d1e180e961;
-
-
-
-
+    reg [4649-1:0] temp_tdi;
+    reg [4649-1:0] temp_tms;
 
     localparam period     = 100;
     localparam halfperiod = 50;
@@ -93,7 +76,6 @@ module functional_load_bitstream_sha;
 
         pmu pmu_
         (
-        .clk_i(clk),
         .tms_i(tms_i),
         .tck_i(clk),
         .rst_i(rst_i),
@@ -153,25 +135,29 @@ module functional_load_bitstream_sha;
         .digest_valid(sha_digest_valid_w)
         );
 
-        /* fpga_top fpga_top_ */
-        /* ( */
-        /* .clk(clk & fpga_o_clk_en), */
-        /* .reset(fpga_rst), //and another wire coming from top caravel level */
-        /* .pReset(pReset), */
-        /* .prog_clk(prog_clk),  ///prog_clk */
-        /* .Test_en(test_en), */
-        /* .IO_ISOL_N(IO), */
-		/* .gfpga_pad_EMBEDDED_IO_HD_SOC_IN(gfpga_pad_EMBEDDED_IO_HD_SOC_IN[0:`FPGA_IO_SIZE - 1]), */
-		/* .gfpga_pad_EMBEDDED_IO_HD_SOC_OUT(gfpga_pad_EMBEDDED_IO_HD_SOC_OUT[0:`FPGA_IO_SIZE - 1]), */
-		/* .gfpga_pad_EMBEDDED_IO_HD_SOC_DIR(gfpga_pad_EMBEDDED_IO_HD_SOC_DIR[0:`FPGA_IO_SIZE - 1]), */        
-        /* .ccff_head(data_o), */
-        /* .ccff_tail(ccff_wire) */
-        /* ); */
+        fpga_top fpga_top_
+        (
+        .clk(clk & fpga_o_clk_en),
+        .reset(fpga_rst), //and another wire coming from top caravel level
+        .pReset(pReset),
+        .prog_clk(prog_clk),  ///prog_clk
+        .Test_en(test_en),
+        .IO_ISOL_N(IO),
+		.gfpga_pad_EMBEDDED_IO_HD_SOC_IN(gfpga_pad_EMBEDDED_IO_HD_SOC_IN[0:`FPGA_IO_SIZE - 1]),
+		.gfpga_pad_EMBEDDED_IO_HD_SOC_OUT(gfpga_pad_EMBEDDED_IO_HD_SOC_OUT[0:`FPGA_IO_SIZE - 1]),
+		.gfpga_pad_EMBEDDED_IO_HD_SOC_DIR(gfpga_pad_EMBEDDED_IO_HD_SOC_DIR[0:`FPGA_IO_SIZE - 1]),        
+        .ccff_head(data_o),
+        .ccff_tail(ccff_wire)
+        );
 
 
         
-    integer i, j;
-
+    integer i, file, count, tdi, tms;
+    
+    initial begin 
+        file  = $fopen("../../scripts/outputs/output.txt", "rb");
+        count = $fscanf(file, "%b %b", temp_tdi, temp_tms);
+    end
 
     initial begin
         clk = 0;
@@ -181,314 +167,24 @@ module functional_load_bitstream_sha;
 
 
 
-    // JTAG HEADER/FOOTER ==================
-    reg [11:0] tdi_header = 12'b001101100000;
-    reg [4:0] tdi_footer  =  5'b00000;
-    reg [11:0] tms_header = 12'b011000000110;
-    reg [4:0] tms_footer  =  5'b11111;
-    // JTAG HEADER/FOOTER ==================
 
-
-
-    // ==================================================
-    // LOAD BITSTREAM: 0 ================================
-
+    initial begin
     // RESET 
-    task load_bitstream0 ();
-    begin
-    #period;
-    rst_i = 0;
-    #period;
-    #period;
-    rst_i = 1;
-
-    //LOAD JTAG HEADER
-    #period;
-
-    for(i = 0; i < 12; i = i + 1)
-    begin
-        tms_i = tms_header[i];
-        tdi_i = tdi_header[i];
         #period;
-    end
-     // =================
-    for(i = 0; i < 256; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = pmu_header0[i];
+        rst_i = 0;
         #period;
-
-    end
-    for(i = 0; i < 256; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = header_digest0[i];
+        rst_i = 1;
         #period;
-    end
-
-    load_256_bits;
-    load_256_bits;
-    load_256_bits;
-        
-    //LOAD JTAG FOOTER
-    for(i = 0; i < 5; i = i + 1)
-    begin
-        tms_i = tms_footer[i];
-        tdi_i = tdi_footer[i];
-        #period;
-    end
-    #period;
-    // =================
-
-    // LOAD BITSTREAM 0: ================================
-    // ==================================================
-    end
-    endtask
-
-    // LOAD BITSTREAM: 1 ================================
-    // SHA FAILING
-    // RESET 
-    task load_bitstream1 ();
-    begin
-    #period;
-    rst_i = 0;
-    #period;
-    #period;
-    rst_i = 1;
-
-    //LOAD JTAG HEADER
-    #period;
-
-    for(i = 0; i < 12; i = i + 1)
-    begin
-        tms_i = tms_header[i];
-        tdi_i = tdi_header[i];
-        #period;
-    end
-     // =================
-    for(i = 0; i < 256; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = pmu_header0[i];
-        #period;
-
-    end
-    for(i = 0; i < 256; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = header_digest0[i];
-        #period;
-    end
-
-    for(i = 0; i < 256; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = bitstream0[i];
-        #period;
-    end
-        for(i = 0; i < 256; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = digest0[i];
-        #period;
-    end
-    for(i = 0; i < 256; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = bitstream0[i];
-        #period;
-    end
-        for(i = 0; i < 256; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = fail_digest[i];
-        #period;
-    end
-    for(i = 0; i < 256; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = bitstream0[i];
-        #period;
-    end
-        for(i = 0; i < 256; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = digest0[i];
-        #period;
-    end
-
-
-        
-    //LOAD JTAG FOOTER
-    for(i = 0; i < 5; i = i + 1)
-    begin
-        tms_i = tms_footer[i];
-        tdi_i = tdi_footer[i];
-        #period;
-    end
-    #period;
-    // =================
-
-    // LOAD BITSTREAM 1: ================================
-    // ==================================================
-    end
-    endtask
-
-      
-
-    // ==================================================
-    // LOAD BITSTREAM: 2 ================================
-
-    // RESET 
-    task load_bitstream2 ();
-    begin
-    #period;
-    rst_i = 0;
-    #period;
-    #period;
-    rst_i = 1;
-
-    //LOAD JTAG HEADER
-    #period;
-
-    for(i = 0; i < 12; i = i + 1)
-    begin
-        tms_i = tms_header[i];
-        tdi_i = tdi_header[i];
-        #period;
-    end
-     // =================
-    for(i = 0; i < 256; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = pmu_header1[i];
-        #period;
-
-    end
-    for(i = 0; i < 256; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = header_digest1[i];
-        #period;
-    end
-
-    load_256_bits;
-    load_256_bits;
-    load_256_bits;
-    load_256_bits;
-        
-    //LOAD JTAG FOOTER
-    for(i = 0; i < 5; i = i + 1)
-    begin
-        tms_i = tms_footer[i];
-        tdi_i = tdi_footer[i];
-        #period;
-    end
-    #period;
-    // =================
-
-    // LOAD BITSTREAM 2: ================================
-    // ==================================================
-    end
-    endtask
-
-    // ==================================================
-    // LOAD BITSTREAM: 3 ================================
-
-    // RESET 
-    task load_bitstream3 ();
-    begin
-    #period;
-    rst_i = 0;
-    #period;
-    #period;
-    rst_i = 1;
-
-    //LOAD JTAG HEADER
-    #period;
-
-    for(i = 0; i < 12; i = i + 1)
-    begin
-        tms_i = tms_header[i];
-        tdi_i = tdi_header[i];
-        #period;
-    end
-     // =================
-    for(i = 0; i < 256; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = pmu_header2[i];
-        #period;
-
-    end
-    for(i = 0; i < 256; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = header_digest2[i];
-        #period;
-    end
-
-
-    load_256_bits;
-    load_256_bits;
-    load_256_bits;
-    load_256_bits;
-    load_256_bits;
-    load_256_bits;
-    load_256_bits;
-    load_256_bits;
-    load_256_bits;
-
-    //LOAD JTAG FOOTER
-    for(i = 0; i < 5; i = i + 1)
-    begin
-        tms_i = tms_footer[i];
-        tdi_i = tdi_footer[i];
-        #period;
-    end
-    #period;
-    // =================
-
-    // LOAD BITSTREAM 3: ================================
-    // ==================================================
-    end
-    endtask
-
-    task load_256_bits ();
+    // INSTRUCTION
+        for(i = 0; i < 4649; i = i + 1)
         begin 
-
-
-        for(i = 0; i < 256; i = i + 1)
-        begin
-            tms_i = 0;
-            tdi_i = bitstream0[i];
+            tdi_i = temp_tdi[i];
+            tms_i = temp_tms[i];
             #period;
         end
-        for(i = 0; i < 256; i = i + 1)
-        begin
-            tms_i = 0;
-            tdi_i = digest0[i];
-            #period;
-        end
-
-        end
-    endtask
-
-
-    
-    initial begin 
-
-    load_bitstream0;
-    //load_bitstream1;
-    //load_bitstream2;
-    //load_bitstream3;
-
-
-        
+        #(period * 10);
     $stop;
     end
-
-
 
 
 

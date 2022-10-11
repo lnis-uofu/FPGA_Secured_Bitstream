@@ -4,12 +4,8 @@
 
 module functional_push_bitstream;
 
-
-
-    reg [31:0] pmu_header = 32'h00000017;
-
-
-
+    reg [1983-1:0] temp_tdi;
+    reg [1983-1:0] temp_tms;
     
     localparam period     = 10;
     localparam halfperiod = 5;
@@ -81,7 +77,6 @@ module functional_push_bitstream;
 
         pmu pmu_
         (
-        .clk_i(clk),
         .tms_i(tms_i),
         .tck_i(clk),
         .rst_i(rst_i),
@@ -141,9 +136,12 @@ module functional_push_bitstream;
         .digest_valid(sha_digest_valid_w)
         );
 
-
-            integer i, j;
-
+    integer i, file, count, tdi, tms;
+    
+    initial begin 
+        file  = $fopen("../../scripts/outputs/output.txt", "rb");
+        count = $fscanf(file, "%b %b", temp_tdi, temp_tms);
+    end
 
     initial begin
         clk = 0;
@@ -151,70 +149,24 @@ module functional_push_bitstream;
         #halfperiod clk = ~clk;
     end
 
-
-    // JTAG HEADER/FOOTER ==================
-    reg [11:0] tdi_header = 12'b001101100000;
-    reg [4:0] tdi_footer  =  5'b00000;
-    reg [11:0] tms_header = 12'b011000000110;
-    reg [4:0] tms_footer  =  5'b11111;
-    // JTAG HEADER/FOOTER ==================
-
-
-    task push_bitstream ();
-    begin 
-    
-    #period;
-    rst_i = 0;
-    #period;
-    rst_i = 1;
-
-    //LOAD JTAG HEADER
-    #period;
-
-    for(i = 0; i < 12; i = i + 1)
-    begin
-        tms_i = tms_header[i];
-        tdi_i = tdi_header[i];
+    initial begin
+    // RESET 
         #period;
-    end
-     // =================
-    for(i = 0; i < 32; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = pmu_header[i];
+        rst_i = 0;
         #period;
-
-    end
-
-        for(i = 0; i < 2250; i = i + 1)
-    begin
-
+        rst_i = 1;
         #period;
-
-    end
-
-    for(i = 0; i < 5; i = i + 1)
-    begin
-        tms_i = tms_footer[i];
-        tdi_i = tdi_footer[i];
-        #period;
-    end
-    #(period * 10);
-
-
-    end
-    endtask
-
-
-    initial begin 
-
-    push_bitstream;
-
-
-
-        
+    // INSTRUCTION
+        for(i = 0; i < 1983; i = i + 1)
+        begin 
+            tdi_i = temp_tdi[i];
+            tms_i = temp_tms[i];
+            #period;
+        end
+        #(period * 10);
     $stop;
     end
+
 
 
 endmodule

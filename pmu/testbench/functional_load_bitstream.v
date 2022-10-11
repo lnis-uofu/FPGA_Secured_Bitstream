@@ -4,25 +4,11 @@
 module functional_load_bitstream;
 
 
-    reg [547:0] bitstream0  = 548'hf123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef012345678;
-    reg [935:0] bitstream1  = 936'hf123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789;
-    //reg [255:0] bitstream2  = 256'hf123456789abcdef0123546789abcdef0123456789abcdef0123456789abcdef;
-    reg [259:0] bitstream3  = 260'hf0123456789abcdef0123546789abcdef0123456789abcdef0123456789abcdef;
-    reg [259:0] bitstream4  = 260'hf0123456789abcdef0123546789abcdef0123456789abcdef0123456789abcdef;
-    reg [255:0] bitstream2  = 256'hf01;
-
-    
-
-
-    reg [31:0] pmu_header0  = 32'h00000007; // 548 bits *
-    reg [31:0] pmu_header1  = 32'h00000007; // 936 bits *
-    reg [31:0] pmu_header2  = 32'h00000007; // 256 bits - 0 remainder *
-    reg [31:0] pmu_header3  = 32'h00000007; // 256 bits - 1 remainder
-    reg [31:0] pmu_header4  = 32'h00000007; // 128 bits - 124 remainder
+    reg [2015-1:0] temp_tdi;
+    reg [2015-1:0] temp_tms;
 
     localparam period     = 100;
     localparam halfperiod = 50;
-
 
     
     reg clk = 0; 
@@ -121,7 +107,6 @@ module functional_load_bitstream;
         .sha_address_w(sha_address_w),
         .sha_write_data_w(sha_write_data_w),
         .sha_digest_valid_w(sha_digest_valid_w)
-   
         );
 
         aes aes128_
@@ -170,8 +155,12 @@ module functional_load_bitstream;
 
 
         
-    integer i;
-
+    integer i, file, count, tdi, tms;
+    
+    initial begin 
+        file  = $fopen("../../scripts/outputs/output.txt", "rb");
+        count = $fscanf(file, "%b %b", temp_tdi, temp_tms);
+    end
 
     initial begin
         clk = 0;
@@ -180,312 +169,23 @@ module functional_load_bitstream;
     end
 
 
-    // JTAG HEADER/FOOTER ==================
-    reg [11:0] tdi_header = 12'b001101100000;
-    reg [4:0] tdi_footer  =  5'b00000;
-    reg [11:0] tms_header = 12'b011000000110;
-    reg [4:0] tms_footer  =  5'b11111;
-    // JTAG HEADER/FOOTER ==================
 
 
-    task load_256 ();
-    begin 
-        for(i = 0; i < 256; i = i + 1)
-        begin
-        tms_i = 0;
-        tdi_i = bitstream2[i];
+    initial begin
+    // RESET 
         #period;
+        rst_i = 0;
+        #period;
+        rst_i = 1;
+        #period;
+    // INSTRUCTION
+        for(i = 0; i < 2015; i = i + 1)
+        begin 
+            tdi_i = temp_tdi[i];
+            tms_i = temp_tms[i];
+            #period;
         end
-    end
-    endtask
-
-
-    // ==================================================
-    // LOAD BITSTREAM: 0 ================================
-
-    // RESET 
-    task load_bitstream0 ();
-    begin
-    #period;
-    rst_i = 0;
-    #period;
-    #period;
-    rst_i = 1;
-
-    //LOAD JTAG HEADER
-    #period;
-
-    for(i = 0; i < 12; i = i + 1)
-    begin
-        tms_i = tms_header[i];
-        tdi_i = tdi_header[i];
-        #period;
-    end
-     // =================
-    for(i = 0; i < 32; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = pmu_header0[i];
-        #period;
-
-    end
-    
-    load_256;
-    load_256;
-    load_256;
-    load_256;
-    load_256;
-    load_256;
-    load_256;
-    load_256;
-
-    for(i = 0; i < 174; i = i + 1)
-    begin
-    tms_i = 0;
-    tdi_i = bitstream2[i];
-    #period;
-    end
-
-        
-    //LOAD JTAG FOOTER
-    for(i = 0; i < 5; i = i + 1)
-    begin
-        tms_i = tms_footer[i];
-        tdi_i = tdi_footer[i];
-        #period;
-    end
-    #period;
-    // =================
-
-    // LOAD BITSTREAM 0: ================================
-    // ==================================================
-    end
-    endtask
-
-        
-    // ==================================================
-    // LOAD BITSTREAM: 1 ================================
-
-    // RESET 
-    task load_bitstream1 ();
-    begin
-    #period;
-    rst_i = 0;
-    #period;
-    #period;
-    rst_i = 1;
-
-    //LOAD JTAG HEADER
-    #period;
-
-    for(i = 0; i < 12; i = i + 1)
-    begin
-        tms_i = tms_header[i];
-        tdi_i = tdi_header[i];
-        #period;
-    end
-     // =================
-    for(i = 0; i < 32; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = pmu_header1[i];
-        #period;
-
-    end
-    for(i = 0; i < 936; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = bitstream1[i];
-        #period;
-    end
-
-
-        
-    //LOAD JTAG FOOTER
-    for(i = 0; i < 5; i = i + 1)
-    begin
-        tms_i = tms_footer[i];
-        tdi_i = tdi_footer[i];
-        #period;
-    end
-    #period;
-    // =================
-
-    // LOAD BITSTREAM 1: ================================
-    // ==================================================
-    end
-    endtask
-
-    // ==================================================
-    // LOAD BITSTREAM: 2 ================================
-
-    // RESET 
-    task load_bitstream2 ();
-    begin
-    #period;
-    rst_i = 0;
-    #period;
-    #period;
-    rst_i = 1;
-
-    //LOAD JTAG HEADER
-    #period;
-
-    for(i = 0; i < 12; i = i + 1)
-    begin
-        tms_i = tms_header[i];
-        tdi_i = tdi_header[i];
-        #period;
-    end
-     // =================
-    for(i = 0; i < 32; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = pmu_header2[i];
-        #period;
-
-    end
-    for(i = 0; i < 256; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = bitstream2[i];
-        #period;
-    end
-
-
-        
-    //LOAD JTAG FOOTER
-    for(i = 0; i < 5; i = i + 1)
-    begin
-        tms_i = tms_footer[i];
-        tdi_i = tdi_footer[i];
-        #period;
-    end
-    #period;
-    // =================
-
-    // LOAD BITSTREAM 2: ================================
-    // ==================================================
-    end
-    endtask
-
-    // ==================================================
-    // LOAD BITSTREAM: 3 ================================
-
-    // RESET 
-    task load_bitstream3 ();
-    begin
-    #period;
-    rst_i = 0;
-    #period;
-    #period;
-    rst_i = 1;
-
-    //LOAD JTAG HEADER
-    #period;
-
-    for(i = 0; i < 12; i = i + 1)
-    begin
-        tms_i = tms_header[i];
-        tdi_i = tdi_header[i];
-        #period;
-    end
-     // =================
-    for(i = 0; i < 32; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = pmu_header3[i];
-        #period;
-
-    end
-    for(i = 0; i < 257; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = bitstream3[i];
-        #period;
-    end
-
-
-        
-    //LOAD JTAG FOOTER
-    for(i = 0; i < 5; i = i + 1)
-    begin
-        tms_i = tms_footer[i];
-        tdi_i = tdi_footer[i];
-        #period;
-    end
-    #period;
-    // =================
-
-    // LOAD BITSTREAM 3: ================================
-    // ==================================================
-    end
-    endtask
-
-    // ==================================================
-    // LOAD BITSTREAM: 4 ================================
-
-    // RESET 
-    task load_bitstream4 ();
-    begin
-    #period;
-    rst_i = 0;
-    #period;
-    #period;
-    rst_i = 1;
-
-    //LOAD JTAG HEADER
-    #period;
-
-    for(i = 0; i < 12; i = i + 1)
-    begin
-        tms_i = tms_header[i];
-        tdi_i = tdi_header[i];
-        #period;
-    end
-     // =================
-    for(i = 0; i < 32; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = pmu_header4[i];
-        #period;
-
-    end
-    for(i = 0; i < 255; i = i + 1)
-    begin
-        tms_i = 0;
-        tdi_i = bitstream4[i];
-        #period;
-    end
-
-
-        
-    //LOAD JTAG FOOTER
-    for(i = 0; i < 5; i = i + 1)
-    begin
-        tms_i = tms_footer[i];
-        tdi_i = tdi_footer[i];
-        #period;
-    end
-    #period;
-    // =================
-
-    // LOAD BITSTREAM 4: ================================
-    // ==================================================
-    end
-    endtask
-
-    
-    initial begin 
-
-    load_bitstream0;
-    //load_bitstream1;
-    /* load_bitstream2; */
-    /* load_bitstream3; */
-    /* load_bitstream4; */
-
-
-        
+        #(period * 10);
     $stop;
     end
 
