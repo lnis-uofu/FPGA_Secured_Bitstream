@@ -6,8 +6,8 @@
 
 module functional_load_key;
 
-    reg [177-1:0] temp_tdi;
-    reg [177-1:0] temp_tms;
+    reg [195-1:0] temp_tdi;
+    reg [195-1:0] temp_tms;
  
     localparam period     = 100;
     localparam halfperiod = 50;
@@ -184,7 +184,7 @@ module functional_load_key;
         rst_i = 1;
         #period;
     // INSTRUCTION
-        for(i = 0; i < 177; i = i + 1)
+        for(i = 0; i < 195; i = i + 1)
         begin 
             tdi_i = temp_tdi[i];
             tms_i = temp_tms[i];

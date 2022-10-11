@@ -96,41 +96,41 @@ module functional_tap_top;
     end
 
 
-    /* initial begin */
+    initial begin
         
-    /*     #halfperiod */
-    /*     //reset to initiate tap logic */
-    /*     trst <= 1'b0; */
-    /*     #period */
-    /*     trst <= 1'b1; */
-    /*     #period; */
+        #halfperiod
+        //reset to initiate tap logic
+        trst <= 1'b0;
+        #period
+        trst <= 1'b1;
+        #period;
        
-    /*     for(i = 0; i < 11; i = i + 1) */
-    /*     begin */
-    /*         tms = tms_header[i]; */
-    /*         tdi = tdi_header[i]; */
-    /*         #period; */
+        for(i = 0; i < 11; i = i + 1)
+        begin
+            tms = tms_header[i];
+            tdi = tdi_header[i];
+            #period;
 
-    /*     end */
-    /*     for(i = 0; i < 64; i = i + 1) */
-    /*     begin */
-    /*         tms = 0; */
-    /*         tdi = 1; */
-    /*         #period; */
+        end
+        for(i = 0; i < 64; i = i + 1)
+        begin
+            tms = 0;
+            tdi = 1;
+            #period;
 
-    /*     end */
-    /*     for(i = 0; i < 5; i = i + 1) */
-    /*     begin */
-    /*         tms = tms_footer[i]; */
-    /*         tdi = tdi_footer[i]; */
-    /*         #period; */
-    /*     end */
+        end
+        for(i = 0; i < 5; i = i + 1)
+        begin
+            tms = tms_footer[i];
+            tdi = tdi_footer[i];
+            #period;
+        end
 
-    /*     #period; */
-    /*     #period; */
+        #period;
+        #period;
 
         
-    /*     $stop; */ 
-    /* end */
+        $stop; 
+    end
 
 endmodule

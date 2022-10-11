@@ -1,8 +1,6 @@
 
 `default_nettype none
 
-`define SHA_KEY            256'h4c4e49536c6e69734c4e49536c6e69734c4e49536c6e69734c4e49536c6e6973 //3 //LNISlnis x4
-`define DIGEST             256'he42c30a65a37f031fe920210a999325f84dc75c7ee90d4d2543cef1936d3fb36
 
 // Custom memory interface for a light weight SHA user authentication for PMU
 

@@ -365,7 +365,14 @@ begin
                 /* else */
                 /*     counter0_en_r = 1; */
             end
-        `EVAL_SHA:             counter0_en_r = 0;
+        `EVAL_SHA:
+            begin
+                /* if(header[14:5] == 0 && counter1_o >= 8'hb2 && header[4:0] ==`LOAD_BITSTREAM_SHA_AES) */
+                    counter0_en_r = 1;
+                /* else */
+                /*     counter0_en_r = 0; */
+            end
+
         `LOAD_KEY:             counter0_en_r = 1;
         `KEY_INIT:             counter0_en_r = 1;
         `LOAD_BITSTREAM:       counter0_en_r = 0;
@@ -431,7 +438,13 @@ begin
         `IDLE:            stop_r = 0;
         `LOCK:            stop_r = 0;
         `DECODE:          stop_r = 0;
-        `EVAL_SHA:        stop_r = stop_r;
+        `EVAL_SHA:
+            begin
+                if(header[4:0] == `LOAD_BITSTREAM_SHA_AES && counter0_o == (header[21:15]) && header[14:5] == 0)
+                    stop_r = 1;
+                else
+                    stop_r = stop_r;
+            end
         `LOAD_KEY:        stop_r = 0;
         `KEY_INIT:        stop_r = 0;
         `LOAD_BITSTREAM:  stop_r = 0;
@@ -1208,8 +1221,8 @@ begin
                     header = header;
             end
         `AES_OUT: header = header; 
-       `LOAD_BITSTREAM_SHA_AES: header = header;
-         `PUSH_BITSTREAM: header = header;
+        `LOAD_BITSTREAM_SHA_AES: header = header;
+        `PUSH_BITSTREAM: header = header;
         default: header = 0;
     endcase 
 end
@@ -1447,7 +1460,7 @@ begin
                 data_o_r    = 0;
                 config_enable_r   = 1;
             end
-        default: begin progclk_o_r = 0; data_o_r = 0; end
+        default: begin progclk_o_r = 0; data_o_r = 0; config_enable_r = 0; end
     endcase
 
 end

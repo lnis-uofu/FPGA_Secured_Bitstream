@@ -1,8 +1,11 @@
 
 module functional_load_bitstream_sha_aes;
 
-    reg [177-1:0] temp_tdi;
-    reg [177-1:0] temp_tms;
+    reg [195-1:0] temp_tdi1;
+    reg [195-1:0] temp_tms1;
+
+    reg [4625-1:0] temp_tdi2;
+    reg [4625-1:0] temp_tms2;
 
     localparam period     = 10;
     localparam halfperiod = 5;
@@ -154,11 +157,14 @@ module functional_load_bitstream_sha_aes;
         .ccff_tail(ccff_wire)
         );
 
-    integer i, file, count, tdi, tms;
+    integer i, file1, count1, tdi1, tms1;
+    integer    file2, count2, tdi2, tms2;
     
     initial begin 
-        file  = $fopen("../../scripts/outputs/output.txt", "rb");
-        count = $fscanf(file, "%b %b", temp_tdi, temp_tms);
+        file1  = $fopen("../../scripts/outputs/load_key.txt", "rb");
+        count1 = $fscanf(file1, "%b %b", temp_tdi1, temp_tms1);
+        file2  = $fopen("../../scripts/outputs/output.txt", "rb");
+        count2 = $fscanf(file2, "%b %b", temp_tdi2, temp_tms2);
     end
 
     initial begin
@@ -177,11 +183,19 @@ module functional_load_bitstream_sha_aes;
         #period;
         rst_i = 1;
         #period;
-    // INSTRUCTION
-        for(i = 0; i < 177; i = i + 1)
+    // LOAD KEY
+        for(i = 0; i < 195; i = i + 1)
         begin 
-            tdi_i = temp_tdi[i];
-            tms_i = temp_tms[i];
+            tdi_i = temp_tdi1[i];
+            tms_i = temp_tms1[i];
+            #period;
+        end
+        #(period * 10);
+    // INSTRUCTION
+        for(i = 0; i < 4625; i = i + 1)
+        begin 
+            tdi_i = temp_tdi2[i];
+            tms_i = temp_tms2[i];
             #period;
         end
         #(period * 10);

@@ -9,8 +9,8 @@ WORK_DIR = ${PROJECT_BUILD_DIR}/${WORK_LIB}
 #TOP_ENTITY_NAME = functional_load_key_sha
 #TOP_ENTITY_NAME = functional_load_bitstream
 #TOP_ENTITY_NAME = functional_load_bitstream_sha
-#TOP_ENTITY_NAME = functional_load_bitstream_aes
-TOP_ENTITY_NAME = functional_load_bitstream_sha_aes
+TOP_ENTITY_NAME = functional_load_bitstream_aes
+#TOP_ENTITY_NAME = functional_load_bitstream_sha_aes
 #TOP_ENTITY_NAME = functional_push_bitstream
 #TOP_ENTITY_NAME = functional_fpga
 #TOP_ENTITY_NAME = functional_tap_top
@@ -26,6 +26,7 @@ VERILOG_SOURCES += \
 		${PMU_TB_DIR}/functional_load_bitstream_aes.v \
 		${PMU_TB_DIR}/functional_load_bitstream_sha_aes.v \
 		${PMU_TB_DIR}/functional_push_bitstream.v \
+		${PMU_TB_DIR}/functional_tap_top.v \
 		${PMU_RTL_DIR}/pmu/pmu.v \
 		${PMU_RTL_DIR}/pmu/pmu_core.v \
 		${PMU_RTL_DIR}/pmu/tap_top.v \

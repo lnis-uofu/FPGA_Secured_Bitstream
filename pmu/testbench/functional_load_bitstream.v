@@ -10,6 +10,7 @@ module functional_load_bitstream;
     localparam period     = 100;
     localparam halfperiod = 50;
 
+
     
     reg clk = 0; 
     // FPGA Wires

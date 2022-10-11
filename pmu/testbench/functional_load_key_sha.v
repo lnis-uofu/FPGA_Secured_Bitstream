@@ -5,8 +5,8 @@
 
 module functional_load_key_sha;
 
-    reg [529-1:0] temp_tdi;
-    reg [529-1:0] temp_tms;
+    reg [547-1:0] temp_tdi;
+    reg [547-1:0] temp_tms;
   
     localparam period     = 100;
     localparam halfperiod = 50;
@@ -180,7 +180,7 @@ module functional_load_key_sha;
         rst_i = 1;
         #period;
     // INSTRUCTION
-        for(i = 0; i < 529; i = i + 1)
+        for(i = 0; i < 547; i = i + 1)
         begin 
             tdi_i = temp_tdi[i];
             tms_i = temp_tms[i];

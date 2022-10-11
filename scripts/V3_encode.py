@@ -70,8 +70,8 @@ class Bitstream(object):
     def load_key(self):
         self.header = '00000000000000000000000000000101'
         self.strip_key_hex_2_bin()
-        self.tdi = self.tdi_footer + self.aes_key + self.header + self.tdi_header
-        self.tms = self.tms_footer + ''.zfill(len(self.aes_key) + 32) + self.tms_header
+        self.tdi = self.tdi_footer + ''.zfill(18) + self.aes_key + self.header + self.tdi_header
+        self.tms = self.tms_footer + ''.zfill(len(self.aes_key) + 18 + 32) + self.tms_header
 
     def load_bitstream(self):
         self.header = '00000000000000000000000000000111'
@@ -80,8 +80,8 @@ class Bitstream(object):
 
     def push_bitstream(self):
         self.header = '00000000000000000000000000010111'
-        self .tdi = self.tdi_footer + ''.zfill(self.bitstream_len) + self.tdi_header
-        self .tms = self.tms_footer + ''.zfill(self.bitstream_len) + self.tms_header
+        self .tdi = self.tdi_footer + ''.zfill(self.bitstream_len) + self.header + self.tdi_header
+        self .tms = self.tms_footer + ''.zfill(self.bitstream_len + len(self.header)) + self.tms_header
 
     def load_key_sha(self):
         self.header = '00000000000000000000000000000110'
@@ -90,15 +90,16 @@ class Bitstream(object):
             self.sha_public_key += str(random.randint(0, 1))
         self.sha_public_key = self.sha_public_key + self.aes_key + self.header
         # Calculate digest
+        temp_pri = []
         for i in range(8):
-            self.sha_private_key.append(int(self.sha_public_key[(i*8):(i*8)+8], 16))
-        my_sha = SHA256(verbose=0)
+            temp_pri.append(int(self.sha_public_key[(i*32):(i*32)+32], 2))
+        my_sha = SHA256(mode="sha256", verbose=0)
         my_sha.init()
-        my_sha.next(self.sha_private_key)
+        my_sha.next(temp_pri + self.sha_private_key)
         my_digest = my_sha.get_digest()
         self.sha_digest = self.strip_digest(my_digest)
-        self.tdi = self.tdi_footer + self.sha_digest + self.sha_public_key + self.tdi_header
-        self.tms = self.tms_footer + ''.zfill(len(self.sha_digest + self.sha_public_key)) + self.tms_header
+        self.tdi = self.tdi_footer + ''.zfill(18) + self.sha_digest + self.sha_public_key + self.tdi_header
+        self.tms = self.tms_footer + ''.zfill(len(self.sha_digest + self.sha_public_key) + 18) + self.tms_header
 
     def load_bitstream_sha(self):
         self.header = '0000000000' + bin(self.bitstream_len%128)[2:].zfill(7) + bin(self.bitstream_len//128)[2:].zfill(10) + '11001'
@@ -116,8 +117,8 @@ class Bitstream(object):
             my_sha.init()
             temp = []
             for j in range(8):
-                temp.append(int(bitstream[i][(j*8):(j*8)+8], 2))
-            my_sha.next(self.sha_private_key + temp)
+                temp.append(int(bitstream[i][(j*32):(j*32)+32], 2))
+            my_sha.next(temp + self.sha_private_key)
             digest[i] = self.strip_digest(my_sha.get_digest())
         for i in range(len(bitstream)):
             self.tdi += digest[i] + bitstream[i]
@@ -141,8 +142,8 @@ class Bitstream(object):
             self.tdi += result[i]
         self.tdi += self.header
         self.tms = ''.zfill((128*((self.bitstream_len//128)+1)) + 32)
-        self.tdi = self.tdi_footer + self.tdi + self.tdi_header
-        self.tms = self.tms_footer + self.tms + self.tms_header
+        self.tdi = self.tdi_footer + ''.zfill(53 + (self.bitstream_len%128)) + self.tdi + self.tdi_header
+        self.tms = self.tms_footer + ''.zfill(53 + (self.bitstream_len%128)) + self.tms + self.tms_header
 
     def load_bitstream_sha_aes(self):
         self.header = '0000000000' + bin(self.bitstream_len%128)[2:].zfill(7) + bin(self.bitstream_len//128)[2:].zfill(10) + '11010'
@@ -171,7 +172,7 @@ class Bitstream(object):
             temp =[]
             for j in range(8):
                 temp.append(int(bitstream[i][(j*32):(j*32)+32], 2))
-            my_sha.next(self.sha_private_key + temp)
+            my_sha.next(temp + self.sha_private_key)
             digest[i] = self.strip_digest(my_sha.get_digest())
         for i in range(len(bitstream)):
             self.tdi += digest[i] + bitstream[i]
@@ -217,4 +218,4 @@ if __name__=="__main__":
     B.prepare_bitstream()
     B.export_bitstream()
     print("Bitstream JTAG encoded")
-
+    print(len(B.tdi))

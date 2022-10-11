@@ -1,8 +1,12 @@
 
 module functional_load_bitstream_aes;
 
-    reg [2121-1:0] temp_tdi;
-    reg [2121-1:0] temp_tms;
+    reg [195-1:0] temp_tdi1;
+    reg [195-1:0] temp_tms1;
+
+    reg [2196-1:0] temp_tdi2;
+    reg [2196-1:0] temp_tms2;
+
 
     localparam period     = 10;
     localparam halfperiod = 5;
@@ -138,27 +142,34 @@ module functional_load_bitstream_aes;
         .digest_valid(sha_digest_valid_w)
         );
 
+
         fpga_top fpga_top_
         (
-        .clk(clk & fpga_o_clk_en),
-        .reset(fpga_rst), //and another wire coming from top caravel level
+        .clk(clk & fpga_clk_en),
+        .reset(fpga_rst), 
+        .config_enable(config_enable_w),
         .pReset(pReset),
         .prog_clk(prog_clk),  ///prog_clk
         .Test_en(test_en),
         .IO_ISOL_N(IO),
-		.gfpga_pad_EMBEDDED_IO_HD_SOC_IN(gfpga_pad_EMBEDDED_IO_HD_SOC_IN[0:`FPGA_IO_SIZE - 1]),
-		.gfpga_pad_EMBEDDED_IO_HD_SOC_OUT(gfpga_pad_EMBEDDED_IO_HD_SOC_OUT[0:`FPGA_IO_SIZE - 1]),
-		.gfpga_pad_EMBEDDED_IO_HD_SOC_DIR(gfpga_pad_EMBEDDED_IO_HD_SOC_DIR[0:`FPGA_IO_SIZE - 1]),        
+		.gfpga_pad_sofa_plus_io_SOC_IN(gfpga_pad_EMBEDDED_IO_HD_SOC_IN[0:`FPGA_IO_SIZE - 1]),
+		.gfpga_pad_sofa_plus_io_SOC_OUT(gfpga_pad_EMBEDDED_IO_HD_SOC_OUT[0:`FPGA_IO_SIZE - 1]),
+		.gfpga_pad_sofa_plus_io_SOC_DIR(gfpga_pad_EMBEDDED_IO_HD_SOC_DIR[0:`FPGA_IO_SIZE - 1]),        
         .ccff_head(data_o),
         .ccff_tail(ccff_wire)
         );
 
+
+
         
-    integer i, file, count, tdi, tms;
-    
+    integer i, file1, count1, tdi1, tms1;
+    integer    file2, count2, tdi2, tms2;
+
     initial begin 
-        file  = $fopen("../../scripts/outputs/output.txt", "rb");
-        count = $fscanf(file, "%b %b", temp_tdi, temp_tms);
+        file1  = $fopen("../../scripts/outputs/load_key.txt", "rb");
+        count1 = $fscanf(file1, "%b %b", temp_tdi1, temp_tms1);
+        file2  = $fopen("../../scripts/outputs/output.txt", "rb");
+        count2 = $fscanf(file2, "%b %b", temp_tdi2, temp_tms2);
     end
 
     initial begin
@@ -177,11 +188,20 @@ module functional_load_bitstream_aes;
         #period;
         rst_i = 1;
         #period;
-    // INSTRUCTION
-        for(i = 0; i < 2121; i = i + 1)
+    // LOAD KEY
+        for(i = 0; i < 195; i = i + 1)
         begin 
-            tdi_i = temp_tdi[i];
-            tms_i = temp_tms[i];
+            tdi_i = temp_tdi1[i];
+            tms_i = temp_tms1[i];
+            #period;
+        end
+        #(period * 10);
+
+    // INSTRUCTION
+        for(i = 0; i < 2196; i = i + 1)
+        begin 
+            tdi_i = temp_tdi2[i];
+            tms_i = temp_tms2[i];
             #period;
         end
         #(period * 10);
