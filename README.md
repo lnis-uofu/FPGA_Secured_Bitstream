@@ -54,13 +54,13 @@ Testing feature to move the contents of the FPGA core to and output of the PMU s
 ##### JTAG TAP Controller
 The PMU utilizes a JTAG implementation from OpenCores found [here](https://github.com/freecores/jtag) as a template. A new instruction is added to enable and route serial data to the pmu core. 
 
-##### PMU FSM
-
 ##### SHA 256b
-
+[SHA Implementation](https://github.com/secworks/sha256)
 ##### AES 128b
+[AES Implementation](https://github.com/secworks/aes)
 
 ##### 2x2 FPGA (SOFA)
+Generated with [OpenFPGA](https://github.com/lnis-uofu/OpenFPGA)
 
 ###### Note on Key Storage
 Due to the limitations of the skywater130 pdk PMU v3 uses registers to store the AES key. Ideally this key would be stored in a custom 128b ePROM/FLASH write only memory or the another key manage approach would be to utilize a rolling AES key as has been done in Xillinx FPGAs. From a hardware security perspective cipher key storage is considered one of the biggest weaknesses of a system. However, the scope of the project ends at key management techniques as this aspect of the design could be left to another research project.
