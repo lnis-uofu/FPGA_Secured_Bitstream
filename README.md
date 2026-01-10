@@ -13,7 +13,7 @@ source setup_enc.csh
 ```
 
 ## Introduction
-The Programmign Management Unit will serve as a macro that can be placed near a FPGA to handle bitstream loading. While the primary functonalty of the PMU is to load a bitstream into an FPGA Core it will also incoroporate some hardware security and data integrity features. This is in reponse to the need for OpenFPGA to be able to incoporate some hardware security IPs to its FPGA design framework. As of today the PMU version 3 is capable of 8 instructions for loading a bistream with the options of using AES encription and/or SHA authentication. The FSM contained in this macro intreprets a serially encoded "pmu header" that is appened to a plaintext bitstream, ciphertext bitstream, or cipher key. This version of the PMU also features some testing features encure accurate loading of the correct bitsteam to the FPGA core. With that, the final version of the PMU will resembel a RISC-V core that incorporates all the features of the previous PMU versions as well as other features such as programming multiple FPGA configuration chains and post fabrication updates. 
+The Programming Management Unit will serve as a macro that can be placed near a FPGA to handle bitstream loading. While the primary functonalty of the PMU is to load a bitstream into an FPGA Core it will also incoroporate some hardware security and data integrity features. This is in reponse to the need for OpenFPGA to be able to incoporate some hardware security IPs to its FPGA design framework. As of today the PMU version 3 is capable of 8 instructions for loading a bistream with the options of using AES encription and/or SHA authentication. The FSM contained in this macro intreprets a serially encoded "pmu header" that is appened to a plaintext bitstream, ciphertext bitstream, or cipher key. This version of the PMU also features some testing features encure accurate loading of the correct bitsteam to the FPGA core. With that, the final version of the PMU will resembel a RISC-V core that incorporates all the features of the previous PMU versions as well as other features such as programming multiple FPGA configuration chains and post fabrication updates. 
 
 ## Programming Management Unit: PMU
 ### Version 3
@@ -68,3 +68,4 @@ Information about testing is [here](https://github.com/lnis-uofu/FPGA_Secured_Bi
 - [JTAG](https://github.com/freecores/jtag): JTAG implementation from OpenCores
 - [AES](https://github.com/secworks/aes): AES-128b
 - [SHA](https://github.com/secworks/sha256): SHA-256b
+
