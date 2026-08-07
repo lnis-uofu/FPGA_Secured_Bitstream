@@ -35,7 +35,7 @@
 //
 //======================================================================
 
-`default_nettype wire
+`default_nettype none
 
 module aes_inv_sbox(
                     input wire  [31 : 0] sboxw,

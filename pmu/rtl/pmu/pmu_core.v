@@ -47,7 +47,7 @@
     output aes_next,
     output aes_wc,
     output aes_we,
-    output [1:0]  aes_address,
+    output [2:0]  aes_address,
     output [31:0] aes_write_data,
     
     input  [31:0] aes_read_data,
@@ -75,8 +75,8 @@
     reg  [31:0] header;
 
     //Temporary Data register (buffers)
-    reg  [127:0] temp_data_r; 
-    reg  [127:0] temp_key_r;
+    reg  [127:0] temp_data_r;
+    reg  [255:0] temp_key_r;
     reg  [127:0] buffer_o_r;
     wire [31:0] temp_data_w;
     assign temp_data_w = temp_data_r; 
@@ -111,7 +111,7 @@
     assign aes_wc = aes_wc_r;
     assign aes_we = aes_we_r;
 
-    reg [1:0] aes_address_r;
+    reg [2:0] aes_address_r;
     reg [31:0] aes_mux_r;
     assign aes_address = aes_address_r;
     assign aes_write_data = aes_mux_r;
@@ -119,11 +119,11 @@
     // Key Memory Wires/Register
     reg  key_rst_r, key_we_r;
     wire key_rst_w, key_we_w;
-    wire [127:0] key_write_data;
+    wire [255:0] key_write_data;
     assign key_rst_w = key_rst_r;
     assign key_we_w  = key_we_r;
     assign key_write_data = temp_key_r;
-    wire [127:0] aes_key;
+    wire [255:0] aes_key;
 
     // Status Wires/Register
     assign key_ready_o = aes_key_ready;
@@ -537,12 +537,16 @@ begin
         `EVAL_SHA:              aes_we_r = 0;
         `LOAD_KEY:              aes_we_r = 0;
         `KEY_INIT:
-            begin 
+            begin
                 case(counter0_o)
                      0: aes_we_r = 1;
                      1: aes_we_r = 1;
                      2: aes_we_r = 1;
                      3: aes_we_r = 1;
+                     4: aes_we_r = 1;
+                     5: aes_we_r = 1;
+                     6: aes_we_r = 1;
+                     7: aes_we_r = 1;
                     default:aes_we_r = 0;
                 endcase
             end
@@ -608,10 +612,14 @@ begin
         `KEY_INIT:
             begin
                 case(counter0_o)
-                    0: aes_address_r = 0; 
+                    0: aes_address_r = 0;
                     1: aes_address_r = 1;
                     2: aes_address_r = 2;
                     3: aes_address_r = 3;
+                    4: aes_address_r = 4;
+                    5: aes_address_r = 5;
+                    6: aes_address_r = 6;
+                    7: aes_address_r = 7;
                     default: aes_address_r = aes_address_r;
                 endcase
             end
@@ -677,20 +685,24 @@ begin
         `IDLE:                   aes_mux_r = 0;
         `LOCK:                   aes_mux_r = 1;
         `DECODE:                 aes_mux_r = 0;
-        `EVAL_SHA: 
+        `EVAL_SHA:
             if(header[4:0] == `KEY_INIT)
-                aes_mux_r = temp_key_r[127:96];
+                aes_mux_r = temp_key_r[255:224];
             else
                 aes_mux_r = temp_data_r;
-        `LOAD_KEY:               aes_mux_r = temp_key_r[127:96];
+        `LOAD_KEY:               aes_mux_r = temp_key_r[255:224];
         `KEY_INIT:
-            begin 
+            begin
                 case(counter0_o)
-                    0: aes_mux_r = temp_key_r[31:0]; 
-                    1: aes_mux_r = temp_key_r[63:32]; 
-                    2: aes_mux_r = temp_key_r[95:64]; 
-                    3: aes_mux_r = temp_key_r[127:96]; 
-                    default: aes_address_r = aes_address_r;
+                    0: aes_mux_r = temp_key_r[31:0];
+                    1: aes_mux_r = temp_key_r[63:32];
+                    2: aes_mux_r = temp_key_r[95:64];
+                    3: aes_mux_r = temp_key_r[127:96];
+                    4: aes_mux_r = temp_key_r[159:128];
+                    5: aes_mux_r = temp_key_r[191:160];
+                    6: aes_mux_r = temp_key_r[223:192];
+                    7: aes_mux_r = temp_key_r[255:224];
+                    default: aes_mux_r = aes_mux_r;
                 endcase
             end
         `LOAD_BITSTREAM:         aes_mux_r = 0;
@@ -1236,14 +1248,14 @@ begin
         `DECODE:   
             begin
                 if(counter1_o > 8'b00011100 && counter1_o < 8'b10011110 && header[4:0] == `KEY_INIT)
-                    temp_key_r = {data_i, temp_key_r[127:1]};
+                    temp_key_r = {data_i, temp_key_r[255:1]};
                 else
                     temp_key_r = temp_key_r;
             end
         `EVAL_SHA: temp_key_r = temp_key_r;
         `LOAD_KEY:
-            begin 
-                temp_key_r = {data_i, temp_key_r[127:1]};
+            begin
+                temp_key_r = {data_i, temp_key_r[255:1]};
             end
         `KEY_INIT: temp_key_r  = temp_key_r;
         `LOAD_BITSTREAM: temp_key_r  = 0;

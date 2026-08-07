@@ -37,23 +37,22 @@
 //
 //======================================================================
 
-`default_nettype wire
+`default_nettype none
 
 module aes_core(
                 input wire            clk,
                 input wire            reset_n,
-                input wire            reset_dec,
 
+                input wire            encdec,
                 input wire            init,
                 input wire            next,
-                //output wire           ready,
+                output wire           ready,
 
-                input wire [127 : 0]  key,
+                input wire [255 : 0]  key,
+                input wire            keylen,
 
-
-                input wire  [127 : 0] block,
+                input wire [127 : 0]  block,
                 output wire [127 : 0] result,
-                output wire           key_ready,
                 output wire           result_valid
                );
 
@@ -66,7 +65,6 @@ module aes_core(
   localparam CTRL_IDLE  = 2'h0;
   localparam CTRL_INIT  = 2'h1;
   localparam CTRL_NEXT  = 2'h2;
-  localparam KEYLEN     = 1'b0;
 
 
   //----------------------------------------------------------------
@@ -91,30 +89,60 @@ module aes_core(
   reg            init_state;
 
   wire [127 : 0] round_key;
+  wire           key_ready;
 
+  reg            enc_next;
+  wire [3 : 0]   enc_round_nr;
+  wire [127 : 0] enc_new_block;
+  wire           enc_ready;
+  wire [31 : 0]  enc_sboxw;
 
+  reg            dec_next;
   wire [3 : 0]   dec_round_nr;
   wire [127 : 0] dec_new_block;
   wire           dec_ready;
 
+  reg [127 : 0]  muxed_new_block;
+  reg [3 : 0]    muxed_round_nr;
+  reg            muxed_ready;
 
   wire [31 : 0]  keymem_sboxw;
 
+/* verilator lint_off UNOPTFLAT */
+  reg [31 : 0]   muxed_sboxw;
   wire [31 : 0]  new_sboxw;
+/* verilator lint_on UNOPTFLAT */
 
 
   //----------------------------------------------------------------
   // Instantiations.
   //----------------------------------------------------------------
+  aes_encipher_block enc_block(
+                               .clk(clk),
+                               .reset_n(reset_n),
+
+                               .next(enc_next),
+
+                               .keylen(keylen),
+                               .round(enc_round_nr),
+                               .round_key(round_key),
+
+                               .sboxw(enc_sboxw),
+                               .new_sboxw(new_sboxw),
+
+                               .block(block),
+                               .new_block(enc_new_block),
+                               .ready(enc_ready)
+                              );
 
 
   aes_decipher_block dec_block(
                                .clk(clk),
-                               .reset_n(reset_dec),
+                               .reset_n(reset_n),
 
-                               .next(next),
+                               .next(dec_next),
 
-                               .keylen(KEYLEN),
+                               .keylen(keylen),
                                .round(dec_round_nr),
                                .round_key(round_key),
 
@@ -129,10 +157,10 @@ module aes_core(
                      .reset_n(reset_n),
 
                      .key(key),
-                     .keylen(KEYLEN),
+                     .keylen(keylen),
                      .init(init),
 
-                     .round(dec_round_nr),
+                     .round(muxed_round_nr),
                      .round_key(round_key),
                      .ready(key_ready),
 
@@ -141,14 +169,14 @@ module aes_core(
                     );
 
 
-  aes_sbox sbox_inst(.sboxw(keymem_sboxw), .new_sboxw(new_sboxw));
+  aes_sbox sbox_inst(.sboxw(muxed_sboxw), .new_sboxw(new_sboxw));
 
 
   //----------------------------------------------------------------
   // Concurrent connectivity for ports etc.
   //----------------------------------------------------------------
-  //assign ready        = ready_reg;
-  assign result       = dec_new_block;
+  assign ready        = ready_reg;
+  assign result       = muxed_new_block;
   assign result_valid = result_valid_reg;
 
 
@@ -159,7 +187,7 @@ module aes_core(
   // All registers are positive edge triggered with asynchronous
   // active low reset. All registers have write enable.
   //----------------------------------------------------------------
-  always @ (posedge clk, negedge reset_n)
+  always @ (posedge clk or negedge reset_n)
     begin: reg_update
       if (!reset_n)
         begin
@@ -181,8 +209,53 @@ module aes_core(
     end // reg_update
 
 
+  //----------------------------------------------------------------
+  // sbox_mux
+  //
+  // Controls which of the encipher datapath or the key memory
+  // that gets access to the sbox.
+  //----------------------------------------------------------------
+  always @*
+    begin : sbox_mux
+      if (init_state)
+        begin
+          muxed_sboxw = keymem_sboxw;
+        end
+      else
+        begin
+          muxed_sboxw = enc_sboxw;
+        end
+    end // sbox_mux
 
 
+  //----------------------------------------------------------------
+  // encdex_mux
+  //
+  // Controls which of the datapaths that get the next signal, have
+  // access to the memory as well as the block processing result.
+  //----------------------------------------------------------------
+  always @*
+    begin : encdec_mux
+      enc_next = 1'b0;
+      dec_next = 1'b0;
+
+      if (encdec)
+        begin
+          // Encipher operations
+          enc_next        = next;
+          muxed_round_nr  = enc_round_nr;
+          muxed_new_block = enc_new_block;
+          muxed_ready     = enc_ready;
+        end
+      else
+        begin
+          // Decipher operations
+          dec_next        = next;
+          muxed_round_nr  = dec_round_nr;
+          muxed_new_block = dec_new_block;
+          muxed_ready     = dec_ready;
+        end
+    end // encdec_mux
 
 
   //----------------------------------------------------------------
@@ -244,7 +317,7 @@ module aes_core(
           begin
             init_state = 1'b0;
 
-            if (dec_ready)
+            if (muxed_ready)
               begin
                 ready_new         = 1'b1;
                 ready_we          = 1'b1;

@@ -6,11 +6,11 @@ module key_storage (
     input  clk,
     input  rst,
     input  we,
-    input  [127:0] write_data,
-    output [127:0] read_data
+    input  [255:0] write_data,
+    output [255:0] read_data
     );
 
-    reg [127:0] key;
+    reg [255:0] key;
 
 //always @*
 always @ (posedge clk)

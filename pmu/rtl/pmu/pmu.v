@@ -35,7 +35,7 @@ module pmu
     output aes_next,
     output aes_wc,
     output aes_we,
-    output [1:0]  aes_address,
+    output [2:0]  aes_address,
     output [31:0] aes_write_data,
     
     input  [31:0] aes_read_data,

@@ -36,13 +36,13 @@
 //
 //======================================================================
 
-`default_nettype wire
+`default_nettype none
 
 module aes_key_mem(
                    input wire            clk,
                    input wire            reset_n,
 
-                   input wire [127 : 0]  key,
+                   input wire [255 : 0]  key,
                    input wire            keylen,
                    input wire            init,
 
@@ -130,7 +130,7 @@ module aes_key_mem(
   // All registers are positive edge triggered with asynchronous
   // active low reset. All registers have write enable.
   //----------------------------------------------------------------
-  always @ (posedge clk, negedge reset_n)
+  always @ (posedge clk or negedge reset_n)
     begin: reg_update
       integer i;
 
@@ -139,7 +139,7 @@ module aes_key_mem(
           for (i = 0 ; i <= AES_256_NUM_ROUNDS ; i = i + 1)
             key_mem [i] <= 128'h0;
 
-          ready_reg        <= 1'b0;
+          ready_reg        <= 1'b1;
           rcon_reg         <= 8'h0;
           round_ctr_reg    <= 4'h0;
           prev_key0_reg    <= 128'h0;
@@ -229,26 +229,81 @@ module aes_key_mem(
       tw = new_sboxw;
 
       // Generate the specific round keys.
-      if (round_key_update)begin
-        rcon_set   = 1'b0;
-        key_mem_we = 1'b1;
-        if (round_ctr_reg == 0)begin
-            key_mem_new   = key[127:0];
-            prev_key1_new = key[127:0];
-            prev_key1_we  = 1'b1;
-            rcon_next     = 1'b1;
-         end else begin
-            k0 = w4 ^ trw;
-            k1 = w5 ^ w4 ^ trw;
-            k2 = w6 ^ w5 ^ w4 ^ trw;
-            k3 = w7 ^ w6 ^ w5 ^ w4 ^ trw;
+      if (round_key_update)
+        begin
+          rcon_set   = 1'b0;
+          key_mem_we = 1'b1;
+          case (keylen)
+            AES_128_BIT_KEY:
+              begin
+                if (round_ctr_reg == 0)
+                  begin
+                    key_mem_new   = key[255 : 128];
+                    prev_key1_new = key[255 : 128];
+                    prev_key1_we  = 1'b1;
+                    rcon_next     = 1'b1;
+                  end
+                else
+                  begin
+                    k0 = w4 ^ trw;
+                    k1 = w5 ^ w4 ^ trw;
+                    k2 = w6 ^ w5 ^ w4 ^ trw;
+                    k3 = w7 ^ w6 ^ w5 ^ w4 ^ trw;
 
-            key_mem_new   = {k0, k1, k2, k3};
-            prev_key1_new = {k0, k1, k2, k3};
-            prev_key1_we  = 1'b1;
-            rcon_next     = 1'b1;
+                    key_mem_new   = {k0, k1, k2, k3};
+                    prev_key1_new = {k0, k1, k2, k3};
+                    prev_key1_we  = 1'b1;
+                    rcon_next     = 1'b1;
+                  end
+              end
+
+            AES_256_BIT_KEY:
+              begin
+                if (round_ctr_reg == 0)
+                  begin
+                    key_mem_new   = key[255 : 128];
+                    prev_key0_new = key[255 : 128];
+                    prev_key0_we  = 1'b1;
+                  end
+                else if (round_ctr_reg == 1)
+                  begin
+                    key_mem_new   = key[127 : 0];
+                    prev_key1_new = key[127 : 0];
+                    prev_key1_we  = 1'b1;
+                    rcon_next     = 1'b1;
+                  end
+                else
+                  begin
+                    if (round_ctr_reg[0] == 0)
+                      begin
+                        k0 = w0 ^ trw;
+                        k1 = w1 ^ w0 ^ trw;
+                        k2 = w2 ^ w1 ^ w0 ^ trw;
+                        k3 = w3 ^ w2 ^ w1 ^ w0 ^ trw;
+                      end
+                    else
+                      begin
+                        k0 = w0 ^ tw;
+                        k1 = w1 ^ w0 ^ tw;
+                        k2 = w2 ^ w1 ^ w0 ^ tw;
+                        k3 = w3 ^ w2 ^ w1 ^ w0 ^ tw;
+                        rcon_next = 1'b1;
+                      end
+
+                    // Store the generated round keys.
+                    key_mem_new   = {k0, k1, k2, k3};
+                    prev_key1_new = {k0, k1, k2, k3};
+                    prev_key1_we  = 1'b1;
+                    prev_key0_new = prev_key1_reg;
+                    prev_key0_we  = 1'b1;
+                  end
+              end
+
+            default:
+              begin
+              end
+          endcase // case (keylen)
         end
-      end
     end // round_key_gen
 
 
