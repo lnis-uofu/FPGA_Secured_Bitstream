@@ -5,6 +5,10 @@
 `define DIGEST             256'he42c30a65a37f031fe920210a999325f84dc75c7ee90d4d2543cef1936d3fb36
 
 // Custom memory interface for a light weight SHA user authentication for PMU
+//
+// The 256-bit device private key (`SHA_KEY) is concatenated in this wrapper
+// with the 256-bit public block, forming the single 512-bit message block
+// hashed by the unmodified upstream Secworks sha256_core.
 
 module sha256(
 
@@ -47,7 +51,7 @@ module sha256(
        .next(next_w),
        .mode(mode_w),
 
-       .block({block_reg[7], block_reg[6], block_reg[5], block_reg[4], block_reg[3], block_reg[2], block_reg[1], block_reg[0]}),
+       .block({block_reg[7], block_reg[6], block_reg[5], block_reg[4], block_reg[3], block_reg[2], block_reg[1], block_reg[0], `SHA_KEY}),
 
        .ready(ready),
        .digest(digest),

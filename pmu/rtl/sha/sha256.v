@@ -3,6 +3,12 @@
 
 
 // Custom memory interface for a light weight SHA user authentication for PMU
+//
+// The 256-bit device private key is concatenated (in this wrapper) with the
+// 256-bit public block loaded over the memory interface, forming the single
+// 512-bit message block hashed by the unmodified upstream Secworks
+// sha256_core. The private key never leaves the chip.
+`define SHA_KEY 256'h4c4e49536c6e69734c4e49536c6e69734c4e49536c6e69734c4e49536c6e6973 // "LNISlnis" x4
 
 module sha256(
               // Clock and reset.
@@ -42,7 +48,7 @@ module sha256(
        .next(next_w),
        .mode(mode_w),
 
-       .block({block_reg[7], block_reg[6], block_reg[5], block_reg[4], block_reg[3], block_reg[2], block_reg[1], block_reg[0]}),
+       .block({block_reg[7], block_reg[6], block_reg[5], block_reg[4], block_reg[3], block_reg[2], block_reg[1], block_reg[0], `SHA_KEY}),
 
        .ready(ready),
        .digest(digest),

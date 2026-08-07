@@ -38,7 +38,7 @@
 //======================================================================
 
 `default_nettype none
-`define SHA_KEY            256'h4c4e49536c6e69734c4e49536c6e69734c4e49536c6e69734c4e49536c6e6973 //3 //LNISlnis x4
+
 module sha256_core(
                    input wire            clk,
                    input wire            reset_n,
@@ -47,7 +47,7 @@ module sha256_core(
                    input wire            next,
                    input wire            mode,
 
-                   input wire [255 : 0]  block,
+                   input wire [511 : 0]  block,
 
                    output wire           ready,
                    output wire [255 : 0] digest,
@@ -157,6 +157,7 @@ module sha256_core(
 
   reg           w_init;
   reg           w_next;
+  reg [5 : 0]   w_round;
   wire [31 : 0] w_data;
 
 
@@ -173,7 +174,8 @@ module sha256_core(
                           .clk(clk),
                           .reset_n(reset_n),
 
-                          .block({block, `SHA_KEY}),
+                          .block(block),
+                          .round(t_ctr_reg),
 
                           .init(w_init),
                           .next(w_next),
@@ -198,7 +200,7 @@ module sha256_core(
   // All registers are positive edge triggered with asynchronous
   // active low reset. All registers have write enable.
   //----------------------------------------------------------------
-  always @ (posedge clk, negedge reset_n)
+  always @ (posedge clk or negedge reset_n)
     begin : reg_update
       if (!reset_n)
         begin
